@@ -6,6 +6,8 @@
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
 
+#include <AvailabilityMacros.h>
+
 #import <algorithm>
 #import <set>
 
@@ -102,10 +104,17 @@ OPENWL_API wlWindow CDECL wlWindowCreate(int width, int height, const char *titl
 {
     NSRect frame = NSMakeRect(300, 300, width, height);
     
+#if defined(MAC_OS_X_VERSION_10_12) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_12
     NSWindowStyleMask styleMask = NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask|NSResizableWindowMask;
     if (props && (props->usedFields & WLWindowProp_Style) && (props->style == WLWindowStyle_Frameless)) {
         styleMask = NSWindowStyleMaskBorderless;
     }
+#else
+    NSUInteger styleMask = NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask|NSResizableWindowMask;
+    if (props && (props->usedFields & WLWindowProp_Style) && (props->style == WLWindowStyle_Frameless)) {
+        styleMask = NSBorderlessWindowMask;
+    }
+#endif
     auto nsWindow = [[NSWindow alloc] initWithContentRect:frame
                                                      styleMask:styleMask
                                                        backing:NSBackingStoreBuffered
