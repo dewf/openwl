@@ -1,0 +1,4 @@
+http://osr507doc.sco.com/en/tools/ccs_linkedit_dynamic_dirsearch.html
+https://en.wikipedia.org/wiki/Rpath
+https://unix.stackexchange.com/questions/22926/where-do-executables-look-for-shared-objects-at-runtime
+https://stackoverflow.com/questions/7164658/relative-paths-for-shared-libraries

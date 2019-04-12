@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\dragdrop">
+      <UniqueIdentifier>{334e2359-9572-4d63-9340-eb214491100c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\source\win32\globals.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\win32\keystuff.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\win32\MyDataObject.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\win32\MyDropTarget.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\win32\pngloader.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\win32\private_defs.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\win32\resource.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\win32\targetver.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\win32\unicodestuff.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\win32\wndproc.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\win32\dragdrop\dataobject.h">
+      <Filter>Source Files\dragdrop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\win32\dragdrop\dropsource.h">
+      <Filter>Source Files\dragdrop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\win32\dragdrop\droptarget.h">
+      <Filter>Source Files\dragdrop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\win32\dragdrop\enumformat.h">
+      <Filter>Source Files\dragdrop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\win32\dragdrop\oledragdrop.h">
+      <Filter>Source Files\dragdrop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\openwl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\source\win32\dllmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\source\win32\globals.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\source\win32\keystuff.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\source\win32\MyDataObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\source\win32\MyDropTarget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\source\win32\OpenWL.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\source\win32\pngloader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\source\win32\private_defs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\source\win32\unicodestuff.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\source\win32\wndproc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\source\win32\dragdrop\dataobject.cpp">
+      <Filter>Source Files\dragdrop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\source\win32\dragdrop\dropsource.cpp">
+      <Filter>Source Files\dragdrop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\source\win32\dragdrop\droptarget.cpp">
+      <Filter>Source Files\dragdrop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\source\win32\dragdrop\enumformat.cpp">
+      <Filter>Source Files\dragdrop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\source\win32\dragdrop\oledragdrop.cpp">
+      <Filter>Source Files\dragdrop</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\..\source\win32\OpenWL.rc">
+      <Filter>Source Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

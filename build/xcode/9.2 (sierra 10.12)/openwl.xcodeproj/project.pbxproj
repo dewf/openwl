@@ -1,0 +1,485 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		659DCE3A2197E15F00FB3D1D /* libopenwl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 659DCE2E2197E15F00FB3D1D /* libopenwl.dylib */; };
+		65CA16C72197E22A0080E434 /* openwl.h in Headers */ = {isa = PBXBuildFile; fileRef = 65CA16C62197E22A0080E434 /* openwl.h */; };
+		65CA16DA2197E2430080E434 /* globals.mm in Sources */ = {isa = PBXBuildFile; fileRef = 65CA16C92197E2430080E434 /* globals.mm */; };
+		65CA16DB2197E2430080E434 /* globals.h in Headers */ = {isa = PBXBuildFile; fileRef = 65CA16CA2197E2430080E434 /* globals.h */; };
+		65CA16DC2197E2430080E434 /* keystuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 65CA16CB2197E2430080E434 /* keystuff.mm */; };
+		65CA16DD2197E2430080E434 /* keystuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 65CA16CC2197E2430080E434 /* keystuff.h */; };
+		65CA16DE2197E2430080E434 /* MainThreadExecutor.h in Headers */ = {isa = PBXBuildFile; fileRef = 65CA16CD2197E2430080E434 /* MainThreadExecutor.h */; };
+		65CA16DF2197E2430080E434 /* MainThreadExecutor.mm in Sources */ = {isa = PBXBuildFile; fileRef = 65CA16CE2197E2430080E434 /* MainThreadExecutor.mm */; };
+		65CA16E02197E2430080E434 /* miscutil.h in Headers */ = {isa = PBXBuildFile; fileRef = 65CA16CF2197E2430080E434 /* miscutil.h */; };
+		65CA16E12197E2430080E434 /* miscutil.mm in Sources */ = {isa = PBXBuildFile; fileRef = 65CA16D02197E2430080E434 /* miscutil.mm */; };
+		65CA16E22197E2430080E434 /* openwl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 65CA16D12197E2430080E434 /* openwl.mm */; };
+		65CA16E32197E2430080E434 /* private_defs.h in Headers */ = {isa = PBXBuildFile; fileRef = 65CA16D22197E2430080E434 /* private_defs.h */; };
+		65CA16E42197E2430080E434 /* private_defs.mm in Sources */ = {isa = PBXBuildFile; fileRef = 65CA16D32197E2430080E434 /* private_defs.mm */; };
+		65CA16E52197E2430080E434 /* WLAppDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 65CA16D42197E2430080E434 /* WLAppDelegate.h */; };
+		65CA16E62197E2430080E434 /* WLAppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 65CA16D52197E2430080E434 /* WLAppDelegate.mm */; };
+		65CA16E72197E2430080E434 /* WLContentView.h in Headers */ = {isa = PBXBuildFile; fileRef = 65CA16D62197E2430080E434 /* WLContentView.h */; };
+		65CA16E82197E2430080E434 /* WLContentView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 65CA16D72197E2430080E434 /* WLContentView.mm */; };
+		65CA16E92197E2430080E434 /* WLWindowObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 65CA16D82197E2430080E434 /* WLWindowObject.h */; };
+		65CA16EA2197E2430080E434 /* WLWindowObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 65CA16D92197E2430080E434 /* WLWindowObject.mm */; };
+		65CA16EC2197E2720080E434 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65CA16EB2197E2720080E434 /* AppKit.framework */; };
+		65CA16EE2197E29A0080E434 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65CA16ED2197E2990080E434 /* Foundation.framework */; };
+		65CA16F02197E33C0080E434 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65CA16EF2197E33C0080E434 /* CoreFoundation.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		659DCE3B2197E15F00FB3D1D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 659DCE262197E15F00FB3D1D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 659DCE2D2197E15F00FB3D1D;
+			remoteInfo = openwl;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		659DCE2E2197E15F00FB3D1D /* libopenwl.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libopenwl.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		659DCE392197E15F00FB3D1D /* openwlTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = openwlTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		659DCE3F2197E15F00FB3D1D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		65CA16C62197E22A0080E434 /* openwl.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; fileEncoding = 4; path = openwl.h; sourceTree = "<group>"; };
+		65CA16C92197E2430080E434 /* globals.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = globals.mm; sourceTree = "<group>"; };
+		65CA16CA2197E2430080E434 /* globals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = globals.h; sourceTree = "<group>"; };
+		65CA16CB2197E2430080E434 /* keystuff.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = keystuff.mm; sourceTree = "<group>"; };
+		65CA16CC2197E2430080E434 /* keystuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = keystuff.h; sourceTree = "<group>"; };
+		65CA16CD2197E2430080E434 /* MainThreadExecutor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainThreadExecutor.h; sourceTree = "<group>"; };
+		65CA16CE2197E2430080E434 /* MainThreadExecutor.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MainThreadExecutor.mm; sourceTree = "<group>"; };
+		65CA16CF2197E2430080E434 /* miscutil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = miscutil.h; sourceTree = "<group>"; };
+		65CA16D02197E2430080E434 /* miscutil.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = miscutil.mm; sourceTree = "<group>"; };
+		65CA16D12197E2430080E434 /* openwl.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = openwl.mm; sourceTree = "<group>"; };
+		65CA16D22197E2430080E434 /* private_defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = private_defs.h; sourceTree = "<group>"; };
+		65CA16D32197E2430080E434 /* private_defs.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = private_defs.mm; sourceTree = "<group>"; };
+		65CA16D42197E2430080E434 /* WLAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WLAppDelegate.h; sourceTree = "<group>"; };
+		65CA16D52197E2430080E434 /* WLAppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WLAppDelegate.mm; sourceTree = "<group>"; };
+		65CA16D62197E2430080E434 /* WLContentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WLContentView.h; sourceTree = "<group>"; };
+		65CA16D72197E2430080E434 /* WLContentView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WLContentView.mm; sourceTree = "<group>"; };
+		65CA16D82197E2430080E434 /* WLWindowObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WLWindowObject.h; sourceTree = "<group>"; };
+		65CA16D92197E2430080E434 /* WLWindowObject.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WLWindowObject.mm; sourceTree = "<group>"; };
+		65CA16EB2197E2720080E434 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		65CA16ED2197E2990080E434 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		65CA16EF2197E33C0080E434 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		659DCE2B2197E15F00FB3D1D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65CA16F02197E33C0080E434 /* CoreFoundation.framework in Frameworks */,
+				65CA16EE2197E29A0080E434 /* Foundation.framework in Frameworks */,
+				65CA16EC2197E2720080E434 /* AppKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		659DCE362197E15F00FB3D1D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				659DCE3A2197E15F00FB3D1D /* libopenwl.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		659DCE252197E15F00FB3D1D = {
+			isa = PBXGroup;
+			children = (
+				65CA16EF2197E33C0080E434 /* CoreFoundation.framework */,
+				65CA16ED2197E2990080E434 /* Foundation.framework */,
+				65CA16EB2197E2720080E434 /* AppKit.framework */,
+				65CA16C52197E2110080E434 /* source */,
+				659DCE3D2197E15F00FB3D1D /* openwlTests */,
+				659DCE2F2197E15F00FB3D1D /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		659DCE2F2197E15F00FB3D1D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				659DCE2E2197E15F00FB3D1D /* libopenwl.dylib */,
+				659DCE392197E15F00FB3D1D /* openwlTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		659DCE3D2197E15F00FB3D1D /* openwlTests */ = {
+			isa = PBXGroup;
+			children = (
+				659DCE3E2197E15F00FB3D1D /* Supporting Files */,
+			);
+			path = openwlTests;
+			sourceTree = "<group>";
+		};
+		659DCE3E2197E15F00FB3D1D /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				659DCE3F2197E15F00FB3D1D /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		65CA16C52197E2110080E434 /* source */ = {
+			isa = PBXGroup;
+			children = (
+				65CA16C62197E22A0080E434 /* openwl.h */,
+				65CA16C82197E2430080E434 /* osx-cocoa */,
+			);
+			name = source;
+			path = ../../../source;
+			sourceTree = "<group>";
+		};
+		65CA16C82197E2430080E434 /* osx-cocoa */ = {
+			isa = PBXGroup;
+			children = (
+				65CA16C92197E2430080E434 /* globals.mm */,
+				65CA16CA2197E2430080E434 /* globals.h */,
+				65CA16CB2197E2430080E434 /* keystuff.mm */,
+				65CA16CC2197E2430080E434 /* keystuff.h */,
+				65CA16CD2197E2430080E434 /* MainThreadExecutor.h */,
+				65CA16CE2197E2430080E434 /* MainThreadExecutor.mm */,
+				65CA16CF2197E2430080E434 /* miscutil.h */,
+				65CA16D02197E2430080E434 /* miscutil.mm */,
+				65CA16D12197E2430080E434 /* openwl.mm */,
+				65CA16D22197E2430080E434 /* private_defs.h */,
+				65CA16D32197E2430080E434 /* private_defs.mm */,
+				65CA16D42197E2430080E434 /* WLAppDelegate.h */,
+				65CA16D52197E2430080E434 /* WLAppDelegate.mm */,
+				65CA16D62197E2430080E434 /* WLContentView.h */,
+				65CA16D72197E2430080E434 /* WLContentView.mm */,
+				65CA16D82197E2430080E434 /* WLWindowObject.h */,
+				65CA16D92197E2430080E434 /* WLWindowObject.mm */,
+			);
+			path = "osx-cocoa";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		659DCE2C2197E15F00FB3D1D /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65CA16E02197E2430080E434 /* miscutil.h in Headers */,
+				65CA16E52197E2430080E434 /* WLAppDelegate.h in Headers */,
+				65CA16C72197E22A0080E434 /* openwl.h in Headers */,
+				65CA16DD2197E2430080E434 /* keystuff.h in Headers */,
+				65CA16E92197E2430080E434 /* WLWindowObject.h in Headers */,
+				65CA16DE2197E2430080E434 /* MainThreadExecutor.h in Headers */,
+				65CA16E32197E2430080E434 /* private_defs.h in Headers */,
+				65CA16E72197E2430080E434 /* WLContentView.h in Headers */,
+				65CA16DB2197E2430080E434 /* globals.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		659DCE2D2197E15F00FB3D1D /* openwl */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 659DCE422197E15F00FB3D1D /* Build configuration list for PBXNativeTarget "openwl" */;
+			buildPhases = (
+				659DCE2A2197E15F00FB3D1D /* Sources */,
+				659DCE2B2197E15F00FB3D1D /* Frameworks */,
+				659DCE2C2197E15F00FB3D1D /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = openwl;
+			productName = openwl;
+			productReference = 659DCE2E2197E15F00FB3D1D /* libopenwl.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		659DCE382197E15F00FB3D1D /* openwlTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 659DCE452197E15F00FB3D1D /* Build configuration list for PBXNativeTarget "openwlTests" */;
+			buildPhases = (
+				659DCE352197E15F00FB3D1D /* Sources */,
+				659DCE362197E15F00FB3D1D /* Frameworks */,
+				659DCE372197E15F00FB3D1D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				659DCE3C2197E15F00FB3D1D /* PBXTargetDependency */,
+			);
+			name = openwlTests;
+			productName = openwlTests;
+			productReference = 659DCE392197E15F00FB3D1D /* openwlTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		659DCE262197E15F00FB3D1D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0920;
+				ORGANIZATIONNAME = "OpenWL Developers";
+				TargetAttributes = {
+					659DCE2D2197E15F00FB3D1D = {
+						CreatedOnToolsVersion = 6.2;
+					};
+					659DCE382197E15F00FB3D1D = {
+						CreatedOnToolsVersion = 6.2;
+					};
+				};
+			};
+			buildConfigurationList = 659DCE292197E15F00FB3D1D /* Build configuration list for PBXProject "openwl" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 659DCE252197E15F00FB3D1D;
+			productRefGroup = 659DCE2F2197E15F00FB3D1D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				659DCE2D2197E15F00FB3D1D /* openwl */,
+				659DCE382197E15F00FB3D1D /* openwlTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		659DCE372197E15F00FB3D1D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		659DCE2A2197E15F00FB3D1D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65CA16DF2197E2430080E434 /* MainThreadExecutor.mm in Sources */,
+				65CA16E82197E2430080E434 /* WLContentView.mm in Sources */,
+				65CA16E12197E2430080E434 /* miscutil.mm in Sources */,
+				65CA16E22197E2430080E434 /* openwl.mm in Sources */,
+				65CA16E62197E2430080E434 /* WLAppDelegate.mm in Sources */,
+				65CA16EA2197E2430080E434 /* WLWindowObject.mm in Sources */,
+				65CA16DC2197E2430080E434 /* keystuff.mm in Sources */,
+				65CA16DA2197E2430080E434 /* globals.mm in Sources */,
+				65CA16E42197E2430080E434 /* private_defs.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		659DCE352197E15F00FB3D1D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		659DCE3C2197E15F00FB3D1D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 659DCE2D2197E15F00FB3D1D /* openwl */;
+			targetProxy = 659DCE3B2197E15F00FB3D1D /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		659DCE402197E15F00FB3D1D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		659DCE412197E15F00FB3D1D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		659DCE432197E15F00FB3D1D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = lib;
+				OTHER_CFLAGS = "-fvisibility=hidden";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		659DCE442197E15F00FB3D1D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = lib;
+				OTHER_CFLAGS = "-fvisibility=hidden";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		659DCE462197E15F00FB3D1D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = openwlTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.whatever.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		659DCE472197E15F00FB3D1D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = openwlTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.whatever.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		659DCE292197E15F00FB3D1D /* Build configuration list for PBXProject "openwl" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				659DCE402197E15F00FB3D1D /* Debug */,
+				659DCE412197E15F00FB3D1D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		659DCE422197E15F00FB3D1D /* Build configuration list for PBXNativeTarget "openwl" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				659DCE432197E15F00FB3D1D /* Debug */,
+				659DCE442197E15F00FB3D1D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		659DCE452197E15F00FB3D1D /* Build configuration list for PBXNativeTarget "openwlTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				659DCE462197E15F00FB3D1D /* Debug */,
+				659DCE472197E15F00FB3D1D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 659DCE262197E15F00FB3D1D /* Project object */;
+}

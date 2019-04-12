@@ -1,0 +1,5 @@
+.DS_Store
+.vs
+examples/apidemo/build/build-haiku-Desktop-Debug
+.vscode/
+
