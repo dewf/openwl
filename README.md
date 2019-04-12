@@ -1,3 +1,5 @@
+[![Gitter](https://badges.gitter.im/OpenWL-DL/community.svg)](https://gitter.im/OpenWL-DL/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 # OpenWL
 **The Open Windowing Library**
 
