@@ -1,4 +1,4 @@
-# openwl
+# OpenWL
 **The Open Windowing Library**
 
 This is a cross-platform (win/mac/linux) library for:
