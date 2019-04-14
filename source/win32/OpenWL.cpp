@@ -121,20 +121,35 @@ long getWindowStyle(WLWindowProperties *props) {
 			break;
 		}
 	}
+	else if (props && (props->usedFields & WLWindowProp_AttachToNative)) {
+		dwStyle = WS_CHILD;
+	}
 	return dwStyle;
 }
 
-wlWindow wlWindowCreate(int width, int height, const char *title, void *userData, WLWindowProperties *props) {
+wlWindow wlWindowCreate(int width, int height, const char *title, void *userData, WLWindowProperties *props)
+{
 	auto wideTitle = title ? utf8_to_wstring(title) : L"(UNTITLED)";
 	auto dwStyle = getWindowStyle(props);
 
 	int extraWidth = 0;
 	int extraHeight = 0;
-    calcChromeExtra(&extraWidth, &extraHeight, dwStyle, FALSE); // FALSE = no menu for now ... will recalc when the time comes
 
-	HWND hWnd = CreateWindowW(szWindowClass, wideTitle.c_str(), dwStyle,
-		CW_USEDEFAULT, CW_USEDEFAULT,
-		width + extraWidth, height + extraHeight, nullptr, nullptr, hInstance, nullptr);
+	HWND hWnd = NULL;
+	if (props->usedFields & WLWindowProp_AttachToNative)
+	{
+		hWnd = CreateWindowW(szWindowClass, wideTitle.c_str(), dwStyle,
+			0, 0,
+			width, height, props->attachTo, nullptr, hInstance, nullptr);
+	}
+	else {
+		// normal top-level window
+		calcChromeExtra(&extraWidth, &extraHeight, dwStyle, FALSE); // FALSE = no menu for now ... will recalc when the time comes
+
+		hWnd = CreateWindowW(szWindowClass, wideTitle.c_str(), dwStyle,
+			CW_USEDEFAULT, CW_USEDEFAULT,
+			width + extraWidth, height + extraHeight, nullptr, nullptr, hInstance, nullptr);
+	}
 
 	if (hWnd) {
 		// associate data

@@ -342,6 +342,7 @@ extern "C" {
 		WLWindowProp_MaxWidth = 1 << 2,
 		WLWindowProp_MaxHeight = 1 << 3,
 		WLWindowProp_Style = 1 << 4,
+		WLWindowProp_AttachToNative = 1 << 5
 	};
 
 	enum WLWindowStyleEnum {
@@ -355,6 +356,9 @@ extern "C" {
 		int minWidth, minHeight;
 		int maxWidth, maxHeight;
 		enum WLWindowStyleEnum style;
+#ifdef WL_PLATFORM_WINDOWS
+		HWND attachTo;
+#endif
 	};
 
 	enum WLPlatform {
