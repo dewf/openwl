@@ -43,7 +43,7 @@
 }
 
 - (void)windowDidResize:(NSNotification *)notification {
-    auto size = [[nsWindow contentView] frame].size;
+    auto size = [contentViewObj frame].size;
     int newWidth = size.width;
     int newHeight = size.height;
     

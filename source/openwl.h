@@ -20,8 +20,11 @@
 #   else
 #       define OPENWL_API __declspec(dllimport)
 #   endif
-//#   define CDECL __cdecl
-#elif defined WL_PLATFORM_LINUX || defined WL_PLATFORM_APPLE || defined WL_PLATFORM_HAIKU
+#elif defined WL_PLATFORM_APPLE
+#   define OPENWL_API __attribute__((visibility("default")))
+#   define CDECL
+#   include <AppKit/AppKit.h>
+#elif defined WL_PLATFORM_LINUX || defined WL_PLATFORM_HAIKU
 #   define OPENWL_API __attribute__((visibility("default")))
 #   define CDECL
 #endif
@@ -379,12 +382,15 @@ extern "C" {
 
 	/* application api */
 	struct WLPlatformOptions {
-		int reserved;
 #ifdef WL_PLATFORM_WINDOWS
 		bool useDirect2D; // instead of GDI
 		struct {
 			ID2D1Factory *factory; // filled by wlInit()
 		} outParams;
+#elif defined WL_PLATFORM_APPLE
+        bool pluginSlaveMode; // special wlInit() mode, for when there's an existing runloop and we're only creating NSViews
+#else
+        int reserved;
 #endif
 	};
 	OPENWL_API int CDECL wlInit(wlEventCallback callback, struct WLPlatformOptions *options);
@@ -394,6 +400,9 @@ extern "C" {
 
 	/* window api */
 	OPENWL_API wlWindow CDECL wlWindowCreate(int width, int height, const char *title, void *userData, struct WLWindowProperties *props);
+#ifdef WL_PLATFORM_APPLE
+    OPENWL_API NSView *CDECL wlWindowCreateNSViewOnly(int width, int height, void *userData, wlWindow *dummyWindow);
+#endif
 	OPENWL_API void CDECL wlWindowDestroy(wlWindow window);
 	OPENWL_API void CDECL wlWindowShow(wlWindow window);
 	OPENWL_API void CDECL wlWindowShowRelative(wlWindow window, wlWindow relativeTo, int x, int y, int newWidth, int newHeight); // for pop-up windows
