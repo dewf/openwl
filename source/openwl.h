@@ -20,8 +20,11 @@
 #   else
 #       define OPENWL_API __declspec(dllimport)
 #   endif
-//#   define CDECL __cdecl
-#elif defined WL_PLATFORM_LINUX || defined WL_PLATFORM_APPLE || defined WL_PLATFORM_HAIKU
+#elif defined WL_PLATFORM_APPLE
+#   define OPENWL_API __attribute__((visibility("default")))
+#   define CDECL
+//#   include <AppKit/AppKit.h>
+#elif defined WL_PLATFORM_LINUX || defined WL_PLATFORM_HAIKU
 #   define OPENWL_API __attribute__((visibility("default")))
 #   define CDECL
 #endif
@@ -342,11 +345,13 @@ extern "C" {
 		WLWindowProp_MaxWidth = 1 << 2,
 		WLWindowProp_MaxHeight = 1 << 3,
 		WLWindowProp_Style = 1 << 4,
+		WLWindowProp_NativeParent = 1 << 5
 	};
 
 	enum WLWindowStyleEnum {
 		WLWindowStyle_Default,
-		WLWindowStyle_Frameless
+		WLWindowStyle_Frameless,
+        WLWindowStyle_PluginWindow // for VST/AU/etc
 	};
 
 	struct WLWindowProperties {
@@ -354,7 +359,17 @@ extern "C" {
 		// ======
 		int minWidth, minHeight;
 		int maxWidth, maxHeight;
-		enum WLWindowStyleEnum style;
+        enum WLWindowStyleEnum style;
+
+        // stuff related to the AttachToNative mode (at this time, for audio plugin GUIs)
+#ifdef WL_PLATFORM_WINDOWS
+        HWND nativeParent; // only used when style = pluginWindow - WLWindowProp_Parent must also be set in used fields
+#elif defined WL_PLATFORM_APPLE
+        struct {
+            void *nsView; // wlWindow returned will be a dummy window, this is the good stuff
+                          // void* for now, because pulling Objective-C headers into this file (for NSView) causes problems
+        } outParams;
+#endif
 	};
 
 	enum WLPlatform {
@@ -375,12 +390,15 @@ extern "C" {
 
 	/* application api */
 	struct WLPlatformOptions {
-		int reserved;
 #ifdef WL_PLATFORM_WINDOWS
 		bool useDirect2D; // instead of GDI
 		struct {
 			ID2D1Factory *factory; // filled by wlInit()
 		} outParams;
+#elif defined WL_PLATFORM_APPLE
+        bool pluginSlaveMode; // special wlInit() mode, for when there's an existing runloop and we're only creating NSViews
+#else
+        int reserved;
 #endif
 	};
 	OPENWL_API int CDECL wlInit(wlEventCallback callback, struct WLPlatformOptions *options);

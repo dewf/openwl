@@ -34,25 +34,28 @@ OPENWL_API int CDECL wlInit(wlEventCallback callback, struct WLPlatformOptions *
     initKeyMap();
     
     eventCallback = callback;
+    
+    if (!options->pluginSlaveMode) {
+        // when creating UIs for plugins (eg. AudioUnits),
+        //   we can't do any of this stuff or it breaks the host program
 
-    pool = [[NSAutoreleasePool alloc] init];
-    
-    sharedApp = [NSApplication sharedApplication];
-    
-    myDelegate = [[WLAppDelegate alloc] init];
-    [sharedApp setDelegate:myDelegate];
-
-    // root menu
-    
-    rootMenu = [[NSMenu alloc] init];
-    // create application menu that every app has
-    auto appMenuItem = [rootMenu addItemWithTitle:@"APPMENU" action:nil keyEquivalent:@""];
-    appMenu = [[NSMenu alloc] init];
-    [appMenuItem setSubmenu:appMenu];
+        pool = [[NSAutoreleasePool alloc] init];
         
-    [sharedApp setMainMenu:rootMenu];
-
-    // end menu
+        sharedApp = [NSApplication sharedApplication];
+        
+        myDelegate = [[WLAppDelegate alloc] init];
+        [sharedApp setDelegate:myDelegate];
+        
+        // root menu
+        
+        rootMenu = [[NSMenu alloc] init];
+        // create application menu that every app has
+        auto appMenuItem = [rootMenu addItemWithTitle:@"APPMENU" action:nil keyEquivalent:@""];
+        appMenu = [[NSMenu alloc] init];
+        [appMenuItem setSubmenu:appMenu];
+        
+        [sharedApp setMainMenu:rootMenu];
+    }
     
     // get monotonic clock for timers
     host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &systemClock);
@@ -100,7 +103,7 @@ static void setProps(NSWindow *window, WLWindowProperties *props) {
     [window setContentMaxSize:maxSize];
 }
 
-OPENWL_API wlWindow CDECL wlWindowCreate(int width, int height, const char *title, void *userData, struct WLWindowProperties *props)
+static wlWindow _createNormalWindow(int width, int height, const char *title, void *userData, WLWindowProperties *props)
 {
     NSRect frame = NSMakeRect(300, 300, width, height);
     
@@ -116,16 +119,16 @@ OPENWL_API wlWindow CDECL wlWindowCreate(int width, int height, const char *titl
     }
 #endif
     auto nsWindow = [[NSWindow alloc] initWithContentRect:frame
-                                                     styleMask:styleMask
-                                                       backing:NSBackingStoreBuffered
-                                                        defer:NO];
+                                                styleMask:styleMask
+                                                  backing:NSBackingStoreBuffered
+                                                    defer:NO];
     
     auto ret = [[WLWindowObject alloc] init];
     ret.nsWindow = nsWindow;
     ret.userData = userData;
     ret.width = width;
     ret.height = height;
-
+    
     [nsWindow setDelegate:ret];
     if (title) {
         [nsWindow setTitle:[NSString stringWithUTF8String:title]];
@@ -142,10 +145,55 @@ OPENWL_API wlWindow CDECL wlWindowCreate(int width, int height, const char *titl
         setProps(nsWindow, props);
     }
     
-//    [nsWindow makeKeyAndOrderFront:NSApp];
+    //    [nsWindow makeKeyAndOrderFront:NSApp];
     printf("nswindow is: %zX\n", (size_t)nsWindow);
     
     return (wlWindow)ret;
+}
+
+static wlWindow _createNSViewForPlugin(int width, int height, void *userData, WLWindowProperties *props)
+{
+    // create a dummy WLWindowObject with no actual NSWindow associated with it
+    //   really just a holder for UserData
+    auto windowObj = [[WLWindowObject alloc] init];
+    windowObj.nsWindow = NULL;
+    windowObj.userData = userData;
+    windowObj.width = width;
+    windowObj.height = height;
+    
+    // create content view (what we actually care about here)
+    auto contentViewObj = [[WLContentView alloc] init];
+    windowObj.contentViewObj = contentViewObj;
+    contentViewObj.parentWindowObj = windowObj;
+    
+    auto mask = NSViewWidthSizable | NSViewHeightSizable | NSViewMinXMargin | NSViewMaxXMargin | NSViewMinYMargin | NSViewMaxYMargin;
+    [contentViewObj setAutoresizingMask:mask];
+    [contentViewObj setFrame:NSMakeRect(0, 0, width, height)];
+    
+    // normally we don't get resize events for views, so ....
+    [[NSNotificationCenter defaultCenter]
+     addObserver: windowObj
+     selector: @selector(windowDidResize:)
+     name: NSViewFrameDidChangeNotification
+     object: contentViewObj];
+    [contentViewObj setPostsFrameChangedNotifications:YES];
+    
+    // TODO: need to control lifetime of dummy window properly (if the view gets destroyed, it needs to go, too)
+    props->outParams.nsView = contentViewObj;
+    return (wlWindow)windowObj;
+}
+
+OPENWL_API wlWindow CDECL wlWindowCreate(int width, int height, const char *title, void *userData, struct WLWindowProperties *props)
+{
+    if (props && (props->usedFields & WLWindowProp_Style) && (props->style == WLWindowStyle_PluginWindow))
+    {
+        // special NSView creation w/ a dummy window
+        // it will return the NSView in the properties : props->attachInfo.outView
+        return _createNSViewForPlugin(width, height, userData, props);
+    } else {
+        // normal
+        return _createNormalWindow(width, height, title, userData, props);
+    }
 }
 
 OPENWL_API void CDECL wlWindowDestroy(wlWindow window)

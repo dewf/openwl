@@ -44,6 +44,28 @@
     return self;
 }
 
+- (void)dealloc {
+    if (parentWindowObj.nsWindow == NULL) {
+        // this is an orphan NSView used for things like audio plugin views
+        // make sure the client gets its destroy message to properly clean up
+        auto notification = [[NSNotification alloc] initWithName:NSWindowWillCloseNotification object:NULL userInfo:NULL];
+        [parentWindowObj windowWillClose:notification];
+        [notification release];
+        
+        // also need to destroy the dummy parent window ourselves, since nobody else knows anything about it
+
+        // first unsub from frame changes ...
+        [[NSNotificationCenter defaultCenter]
+            removeObserver:parentWindowObj
+                      name:NSViewFrameDidChangeNotification
+                    object:self];
+        
+        // bye
+        [parentWindowObj dealloc];
+    }
+    [super dealloc];
+}
+
 - (BOOL)acceptsFirstResponder {
     return YES;
 }

@@ -45,7 +45,7 @@
 		659DCE2E2197E15F00FB3D1D /* libopenwl.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libopenwl.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		659DCE392197E15F00FB3D1D /* openwlTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = openwlTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		659DCE3F2197E15F00FB3D1D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		65CA16C62197E22A0080E434 /* openwl.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; fileEncoding = 4; path = openwl.h; sourceTree = "<group>"; };
+		65CA16C62197E22A0080E434 /* openwl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = openwl.h; sourceTree = "<group>"; };
 		65CA16C92197E2430080E434 /* globals.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = globals.mm; sourceTree = "<group>"; };
 		65CA16CA2197E2430080E434 /* globals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = globals.h; sourceTree = "<group>"; };
 		65CA16CB2197E2430080E434 /* keystuff.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = keystuff.mm; sourceTree = "<group>"; };
