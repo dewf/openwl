@@ -345,12 +345,12 @@ extern "C" {
 		WLWindowProp_MaxWidth = 1 << 2,
 		WLWindowProp_MaxHeight = 1 << 3,
 		WLWindowProp_Style = 1 << 4,
-		WLWindowProp_AttachToNative = 1 << 5
 	};
 
 	enum WLWindowStyleEnum {
 		WLWindowStyle_Default,
-		WLWindowStyle_Frameless
+		WLWindowStyle_Frameless,
+        WLWindowStyle_PluginWindow // for VST/AU/etc
 	};
 
 	struct WLWindowProperties {
@@ -358,9 +358,15 @@ extern "C" {
 		// ======
 		int minWidth, minHeight;
 		int maxWidth, maxHeight;
-		enum WLWindowStyleEnum style;
+        enum WLWindowStyleEnum style;
+
+        // stuff related to the AttachToNative mode (at this time, for audio plugin GUIs)
 #ifdef WL_PLATFORM_WINDOWS
-		HWND attachTo;
+        HWND parent; // only used when style = pluginWindow - WLWindowProp_Parent must also be set in used fields
+#elif defined WL_PLATFORM_APPLE
+        struct {
+            NSView *nsView; // wlWindow returned will be a dummy window, this is the good stuff
+        } outParams;
 #endif
 	};
 
@@ -400,9 +406,6 @@ extern "C" {
 
 	/* window api */
 	OPENWL_API wlWindow CDECL wlWindowCreate(int width, int height, const char *title, void *userData, struct WLWindowProperties *props);
-#ifdef WL_PLATFORM_APPLE
-    OPENWL_API NSView *CDECL wlWindowCreateNSViewOnly(int width, int height, void *userData, wlWindow *dummyWindow);
-#endif
 	OPENWL_API void CDECL wlWindowDestroy(wlWindow window);
 	OPENWL_API void CDECL wlWindowShow(wlWindow window);
 	OPENWL_API void CDECL wlWindowShowRelative(wlWindow window, wlWindow relativeTo, int x, int y, int newWidth, int newHeight); // for pop-up windows

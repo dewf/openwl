@@ -103,7 +103,7 @@ static void setProps(NSWindow *window, WLWindowProperties *props) {
     [window setContentMaxSize:maxSize];
 }
 
-OPENWL_API wlWindow CDECL wlWindowCreate(int width, int height, const char *title, void *userData, struct WLWindowProperties *props)
+static wlWindow _createNormalWindow(int width, int height, const char *title, void *userData, WLWindowProperties *props)
 {
     NSRect frame = NSMakeRect(300, 300, width, height);
     
@@ -119,16 +119,16 @@ OPENWL_API wlWindow CDECL wlWindowCreate(int width, int height, const char *titl
     }
 #endif
     auto nsWindow = [[NSWindow alloc] initWithContentRect:frame
-                                                     styleMask:styleMask
-                                                       backing:NSBackingStoreBuffered
-                                                        defer:NO];
+                                                styleMask:styleMask
+                                                  backing:NSBackingStoreBuffered
+                                                    defer:NO];
     
     auto ret = [[WLWindowObject alloc] init];
     ret.nsWindow = nsWindow;
     ret.userData = userData;
     ret.width = width;
     ret.height = height;
-
+    
     [nsWindow setDelegate:ret];
     if (title) {
         [nsWindow setTitle:[NSString stringWithUTF8String:title]];
@@ -145,14 +145,13 @@ OPENWL_API wlWindow CDECL wlWindowCreate(int width, int height, const char *titl
         setProps(nsWindow, props);
     }
     
-//    [nsWindow makeKeyAndOrderFront:NSApp];
+    //    [nsWindow makeKeyAndOrderFront:NSApp];
     printf("nswindow is: %zX\n", (size_t)nsWindow);
     
     return (wlWindow)ret;
 }
 
-
-OPENWL_API NSView *CDECL wlWindowCreateNSViewOnly(int width, int height, void *userData, wlWindow *dummyWindow)
+static wlWindow _createNSViewForPlugin(int width, int height, void *userData, WLWindowProperties *props)
 {
     // create a dummy WLWindowObject with no actual NSWindow associated with it
     //   really just a holder for UserData
@@ -173,15 +172,28 @@ OPENWL_API NSView *CDECL wlWindowCreateNSViewOnly(int width, int height, void *u
     
     // normally we don't get resize events for views, so ....
     [[NSNotificationCenter defaultCenter]
-             addObserver: windowObj
-                selector: @selector(windowDidResize:)
-                    name: NSViewFrameDidChangeNotification
-                  object: contentViewObj];
+     addObserver: windowObj
+     selector: @selector(windowDidResize:)
+     name: NSViewFrameDidChangeNotification
+     object: contentViewObj];
     [contentViewObj setPostsFrameChangedNotifications:YES];
     
     // TODO: need to control lifetime of dummy window properly (if the view gets destroyed, it needs to go, too)
-    *dummyWindow = (wlWindow)windowObj;
-    return contentViewObj;
+    props->outParams.nsView = contentViewObj;
+    return (wlWindow)windowObj;
+}
+
+OPENWL_API wlWindow CDECL wlWindowCreate(int width, int height, const char *title, void *userData, struct WLWindowProperties *props)
+{
+    if (props && (props->usedFields & WLWindowProp_Style) && (props->style == WLWindowStyle_PluginWindow))
+    {
+        // special NSView creation w/ a dummy window
+        // it will return the NSView in the properties : props->attachInfo.outView
+        return _createNSViewForPlugin(width, height, userData, props);
+    } else {
+        // normal
+        return _createNormalWindow(width, height, title, userData, props);
+    }
 }
 
 OPENWL_API void CDECL wlWindowDestroy(wlWindow window)
