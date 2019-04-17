@@ -23,7 +23,7 @@
 #elif defined WL_PLATFORM_APPLE
 #   define OPENWL_API __attribute__((visibility("default")))
 #   define CDECL
-#   include <AppKit/AppKit.h>
+//#   include <AppKit/AppKit.h>
 #elif defined WL_PLATFORM_LINUX || defined WL_PLATFORM_HAIKU
 #   define OPENWL_API __attribute__((visibility("default")))
 #   define CDECL
@@ -366,7 +366,8 @@ extern "C" {
         HWND nativeParent; // only used when style = pluginWindow - WLWindowProp_Parent must also be set in used fields
 #elif defined WL_PLATFORM_APPLE
         struct {
-            NSView *nsView; // wlWindow returned will be a dummy window, this is the good stuff
+            void *nsView; // wlWindow returned will be a dummy window, this is the good stuff
+                          // void* for now, because pulling Objective-C headers into this file (for NSView) causes problems
         } outParams;
 #endif
 	};
