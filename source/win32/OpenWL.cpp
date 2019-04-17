@@ -106,9 +106,11 @@ void calcChromeExtra(int *extraWidth, int *extraHeight, DWORD dwStyle, BOOL hasM
     *extraHeight = (rect.bottom - rect.top) - arbitraryExtent; // bottom - top = outer height
 }
 
-long getWindowStyle(WLWindowProperties *props) {
+long getWindowStyle(WLWindowProperties *props, bool isPluginWindow) {
 	long dwStyle = WS_OVERLAPPEDWINDOW;
-	if (props && (props->usedFields & WLWindowProp_Style)) {
+	if (isPluginWindow) {
+		dwStyle = WS_CHILD;
+	} else if (props && (props->usedFields & WLWindowProp_Style)) {
 		switch (props->style) {
 		case WLWindowStyle_Default:
 			dwStyle = WS_OVERLAPPEDWINDOW;
@@ -121,26 +123,29 @@ long getWindowStyle(WLWindowProperties *props) {
 			break;
 		}
 	}
-	else if (props && (props->usedFields & WLWindowProp_AttachToNative)) {
-		dwStyle = WS_CHILD;
-	}
 	return dwStyle;
 }
 
 wlWindow wlWindowCreate(int width, int height, const char *title, void *userData, WLWindowProperties *props)
 {
 	auto wideTitle = title ? utf8_to_wstring(title) : L"(UNTITLED)";
-	auto dwStyle = getWindowStyle(props);
 
 	int extraWidth = 0;
 	int extraHeight = 0;
 
+	bool isPluginWindow = (props &&
+		(props->usedFields & WLWindowProp_Style) &&
+		(props->usedFields & WLWindowProp_NativeParent) &&
+		(props->style == WLWindowStyle_PluginWindow));
+
+	auto dwStyle = getWindowStyle(props, isPluginWindow);
+
 	HWND hWnd = NULL;
-	if (props->usedFields & WLWindowProp_AttachToNative)
+	if (isPluginWindow)
 	{
 		hWnd = CreateWindowW(szWindowClass, wideTitle.c_str(), dwStyle,
 			0, 0,
-			width, height, props->attachTo, nullptr, hInstance, nullptr);
+			width, height, props->nativeParent, nullptr, hInstance, nullptr);
 	}
 	else {
 		// normal top-level window

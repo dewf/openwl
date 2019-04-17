@@ -345,6 +345,7 @@ extern "C" {
 		WLWindowProp_MaxWidth = 1 << 2,
 		WLWindowProp_MaxHeight = 1 << 3,
 		WLWindowProp_Style = 1 << 4,
+		WLWindowProp_NativeParent = 1 << 5
 	};
 
 	enum WLWindowStyleEnum {
@@ -362,7 +363,7 @@ extern "C" {
 
         // stuff related to the AttachToNative mode (at this time, for audio plugin GUIs)
 #ifdef WL_PLATFORM_WINDOWS
-        HWND parent; // only used when style = pluginWindow - WLWindowProp_Parent must also be set in used fields
+        HWND nativeParent; // only used when style = pluginWindow - WLWindowProp_Parent must also be set in used fields
 #elif defined WL_PLATFORM_APPLE
         struct {
             NSView *nsView; // wlWindow returned will be a dummy window, this is the good stuff
