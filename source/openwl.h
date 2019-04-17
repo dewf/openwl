@@ -15,10 +15,15 @@
 #	include <Windows.h>
 #   include <d2d1_1.h>
 #   include <dwrite.h>
-#   ifdef OPENWL_EXPORTS
-#       define OPENWL_API __declspec(dllexport)
+#   if defined __MINGW32__ || defined __MINGW64__
+#       define OPENWL_API __attribute__((visibility("default")))
+#       define CDECL
 #   else
-#       define OPENWL_API __declspec(dllimport)
+#       ifdef OPENWL_EXPORTS
+#           define OPENWL_API __declspec(dllexport)
+#       else
+#           define OPENWL_API __declspec(dllimport)
+#       endif
 #   endif
 #elif defined WL_PLATFORM_APPLE
 #   define OPENWL_API __attribute__((visibility("default")))

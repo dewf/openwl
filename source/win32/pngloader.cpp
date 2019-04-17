@@ -62,7 +62,7 @@ void InitBitmapInfo(__out_bcount(cbInfo) BITMAPINFO *pbmi, ULONG cbInfo, LONG cx
     pbmi->bmiHeader.biBitCount = bpp;
 }
 
-HRESULT Create32BitHBITMAP(HDC hdc, const SIZE *psize, __deref_opt_out void **ppvBits, __out HBITMAP* phBmp)
+HRESULT Create32BitHBITMAP(HDC hdc, const SIZE *psize, /*__deref_opt_out*/ void **ppvBits, /*__out*/ HBITMAP* phBmp)
 {
     *phBmp = NULL;
 
