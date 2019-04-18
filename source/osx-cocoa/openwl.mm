@@ -290,14 +290,14 @@ OPENWL_API wl_Icon CDECL wl_IconLoadFromFile(const char *filename, int sizeToWid
     auto scaled = resizeImage(image, newSize);
     [image release];
     
-    auto ret = new _wlIcon;
+    auto ret = new _wl_Icon;
     ret->image = scaled;
     return ret;
 }
 
 OPENWL_API wl_Accelerator CDECL wl_AccelCreate(enum wl_KeyEnum key, unsigned int modifiers)
 {
-    auto ret = new _wlAccelerator;
+    auto ret = new _wl_Accelerator;
     ret->key = key;
     ret->modifiers = modifiers;
     return ret;
@@ -317,7 +317,7 @@ OPENWL_API wl_Action CDECL wl_ActionCreate(int id, const char *label, wl_Icon ic
 
 OPENWL_API wl_Menu CDECL wl_MenuCreate()
 {
-    auto ret = new _wlMenu;
+    auto ret = new _wl_Menu;
     ret->menu = [[NSMenu alloc] init];
     return ret;
 }
@@ -353,7 +353,7 @@ OPENWL_API wl_MenuItem CDECL wl_MenuAddAction(wl_Menu menu, wl_Action action)
         [item setImage:actionObj.icon->image];
     }
     
-    auto ret = new _wlMenuItem;
+    auto ret = new _wl_MenuItem;
     ret->menuItem = item;
     return ret;
 }
@@ -366,7 +366,7 @@ static wl_MenuItem addSubMenuCommon(NSMenu *parent, const char *label, NSMenu *c
     [child setTitle:title]; // apparently necessary ...
     [item setSubmenu:child];
     
-    auto ret = new _wlMenuItem;
+    auto ret = new _wl_MenuItem;
     ret->menuItem = item;
     return ret;
 }
@@ -397,7 +397,7 @@ OPENWL_API void CDECL wl_WindowShowContextMenu(wl_Window window, int x, int y, w
 // Mac-specific menu stuff (sigh)
 OPENWL_API wl_MenuBar CDECL wl_MenuBarGetDefault()
 {
-    auto ret = new _wlMenuBar;
+    auto ret = new _wl_MenuBar;
     ret->menuBar = rootMenu;
     return ret;
 }
@@ -405,7 +405,7 @@ OPENWL_API wl_MenuBar CDECL wl_MenuBarGetDefault()
 OPENWL_API wl_Menu CDECL wl_GetApplicationMenu()
 {
     if (appMenu) {
-        auto ret = new _wlMenu;
+        auto ret = new _wl_Menu;
         ret->menu = appMenu;
         return ret;
     } else {
@@ -491,7 +491,7 @@ OPENWL_API bool CDECL wl_DropGetFiles(wl_DropData dropData, const struct wl_File
         NSArray *pboard_files = [dropData->pboard propertyListForType:NSFilenamesPboardType];
         
         auto numFiles = (int)[pboard_files count];
-        dropData->files = new _wlFilesInternal(numFiles);
+        dropData->files = new _wl_FilesInternal(numFiles);
         for (int i=0; i< numFiles; i++) {
             const char *utf8 = [(NSString*)(pboard_files[i]) UTF8String];
             dropData->files->filenames[i] = strdup(utf8);
@@ -506,7 +506,7 @@ OPENWL_API bool CDECL wl_DropGetFiles(wl_DropData dropData, const struct wl_File
 
 OPENWL_API wl_DragData CDECL wl_DragDataCreate(wl_Window forWindow)
 {
-    auto ret = new _wlDragData;
+    auto ret = new _wl_DragData;
     ret->forWindow = forWindow;
     ret->formats.clear();
     return ret;
@@ -587,7 +587,7 @@ OPENWL_API void CDECL wl_DragRenderFiles(wl_RenderPayload payload, const struct 
 
 OPENWL_API wl_DropData CDECL wl_ClipboardGet()
 {
-    auto ret = new _wlDropData;
+    auto ret = new _wl_DropData;
     ret->pboard = [[NSPasteboard pasteboardWithName:NSGeneralPboard] retain];
     return ret;
 }

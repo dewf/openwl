@@ -17,16 +17,16 @@
 #include <set>
 #include <string>
 
-struct _wlEventPrivate {
+struct _wl_EventPrivate {
     NSEvent *event;
 };
 
-struct _wlAccelerator {
+struct _wl_Accelerator {
     enum wl_KeyEnum key;
     unsigned int modifiers;
 };
 
-struct _wlIcon {
+struct _wl_Icon {
     NSImage *image;
 };
 
@@ -39,15 +39,15 @@ struct _wlIcon {
 // maintain list of NSMenuItems that it's connected to, so that it can be updated?
 @end
 
-struct _wlMenuBar {
+struct _wl_MenuBar {
     NSMenu *menuBar;
 };
 
-struct _wlMenu {
+struct _wl_Menu {
     NSMenu *menu;
 };
 
-struct _wlMenuItem {
+struct _wl_MenuItem {
     NSMenuItem *menuItem;
 };
 
@@ -66,19 +66,19 @@ struct _wlMenuItem {
 @end
 
 // drag data: drag source / clipboard source
-struct _wlDragData {
+struct _wl_DragData {
     wl_Window forWindow;
     std::set<std::string> formats;
 };
 
 // drop data: for drag dest / clipboard paste
-struct _wlFilesInternal : public wl_Files
+struct _wl_FilesInternal : public wl_Files
 {
-    _wlFilesInternal(int numFiles) {
+    _wl_FilesInternal(int numFiles) {
         this->numFiles = numFiles;
         filenames = new const char *[numFiles];
     }
-    ~_wlFilesInternal() {
+    ~_wl_FilesInternal() {
         for (int i=0; i< numFiles; i++) {
             free(const_cast<char *>(filenames[i])); // created w/ strdup
         }
@@ -86,20 +86,20 @@ struct _wlFilesInternal : public wl_Files
     }
 };
 
-struct _wlDropData {
+struct _wl_DropData {
     NSPasteboard *pboard;
     
     void *data = nullptr;
     size_t dataSize = 0;
-    _wlFilesInternal *files = nullptr;
+    _wl_FilesInternal *files = nullptr;
     
-    ~_wlDropData() {
+    ~_wl_DropData() {
         if (data) free(data);
         if (files) delete files;
     }
 };
 
-struct _wlRenderPayload {
+struct _wl_RenderPayload {
     id data; // NSData, NSString, etc etc ... PList types?
 };
 
