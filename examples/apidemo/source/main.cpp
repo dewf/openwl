@@ -12,30 +12,30 @@
 #define FILE_ACTION_1 1
 #define FILE_ACTION_2 2
 #define EXIT_ACTION 3
-wlAction fileAction1;
-wlAction fileAction2;
-wlAction exitAction;
+wl_Action fileAction1;
+wl_Action fileAction2;
+wl_Action exitAction;
 
 // edit menu
 #define COPY_ACTION 4
 #define PASTE_ACTION 5
-wlAction copyAction;
-wlAction pasteAction;
+wl_Action copyAction;
+wl_Action pasteAction;
 
 // help menu
 #define HELP_ACTION_1 6
-wlAction helpAction1;
+wl_Action helpAction1;
 
 // context menu
 #define CONTEXT_ACTION_1 7
 #define CONTEXT_ACTION_2 8
 #define CONTEXT_ACTION_3 9
 #define CONTEXT_ACTION_4 10
-wlAction contextAction1;
-wlAction contextAction2;
-wlAction contextAction3;
-wlAction contextAction4;
-wlMenu contextMenu;
+wl_Action contextAction1;
+wl_Action contextAction2;
+wl_Action contextAction3;
+wl_Action contextAction4;
+wl_Menu contextMenu;
 
 int lastFrame = 0;
 int totalFrames = 0;
@@ -44,10 +44,10 @@ int width, height;
 
 #define FAST_TIMER 1
 #define SLOW_TIMER 2
-wlTimer fastTimer, slowTimer;
+wl_Timer fastTimer, slowTimer;
 
-wlWindow mainWindow;
-wlWindow framelessWindow;
+wl_Window mainWindow;
+wl_Window framelessWindow;
 bool framelessWindowVisible = false;
 
 bool mouseDown = false;
@@ -64,10 +64,10 @@ inline bool strEqual(const char *a, const char *b) {
 	return !strcmp(a, b);
 }
 
-int CDECL eventCallback(wlWindow window, WLEvent *event, void *userData) {
+int CDECL eventCallback(wl_Window window, wl_Event *event, void *userData) {
 	event->handled = true;
 	switch (event->eventType) {
-	case WLEventType_WindowCloseRequest:
+	case wl_kEventTypeWindowCloseRequest:
 		if (window == mainWindow) {
 			printf("main window closing ... or is it?\n");
 			//event->closeRequestEvent.cancelClose = true;
@@ -76,45 +76,45 @@ int CDECL eventCallback(wlWindow window, WLEvent *event, void *userData) {
 			printf("closed something else, staying\n");
 		}
 		break;
-	case WLEventType_WindowDestroyed:
+	case wl_kEventTypeWindowDestroyed:
 		if (window == mainWindow) {
 			printf("main window destroyed! exiting runloop\n");
-			wlExitRunloop();
+			wl_ExitRunloop();
 		}
 		break;
-	case WLEventType_Action:
+	case wl_kEventTypeAction:
 		printf("action %zx chosen\n", (size_t)event->actionEvent.action);
 		if (event->actionEvent.action == exitAction) {
-			wlWindowDestroy(window); // app will close when destroy message received (see above)
+			wl_WindowDestroy(window); // app will close when destroy message received (see above)
 		}
 		else if (event->actionEvent.action == copyAction) {
-			auto clipData = wlDragDataCreate(window);
-			wlDragAddFormat(clipData, kWLDragFormatUTF8);
-			wlClipboardSet(clipData);
+			auto clipData = wl_DragDataCreate(window);
+			wl_DragAddFormat(clipData, wl_kDragFormatUTF8);
+			wl_ClipboardSet(clipData);
 			printf("clipboard copy done\n");
-			wlDragDataRelease(&clipData);
+			wl_DragDataRelease(&clipData);
 		}
 		else if (event->actionEvent.action == pasteAction) {
-			auto clipData = wlClipboardGet();
-			if (wlDropHasFormat(clipData, kWLDragFormatFiles)) {
-				const WLFiles *files;
-				wlDropGetFiles(clipData, &files);
+			auto clipData = wl_ClipboardGet();
+			if (wl_DropHasFormat(clipData, wl_kDragFormatFiles)) {
+				const wl_Files *files;
+				wl_DropGetFiles(clipData, &files);
 				for (int i = 0; i < files->numFiles; i++) {
 					printf("Got file: [%s]\n", files->filenames[i]);
 				}
 			}
-			else if (wlDropHasFormat(clipData, kWLDragFormatUTF8)) {
+			else if (wl_DropHasFormat(clipData, wl_kDragFormatUTF8)) {
 				const char *text;
 				size_t textSize;
-				if (wlDropGetFormat(clipData, kWLDragFormatUTF8, (const void **)&text, &textSize)) {
+				if (wl_DropGetFormat(clipData, wl_kDragFormatUTF8, (const void **)&text, &textSize)) {
 					printf("got clipboard text: [%s]\n", text);
 				}
 			}
-			wlClipboardRelease(clipData);
+			wl_ClipboardRelease(clipData);
 		}
 		break;
 
-	case WLEventType_WindowRepaint:
+	case wl_kEventTypeWindowRepaint:
 		if (window == mainWindow) {
 			platformDraw(event->repaintEvent.platformContext);
 		}
@@ -123,7 +123,7 @@ int CDECL eventCallback(wlWindow window, WLEvent *event, void *userData) {
 		}
 		break;
 
-	case WLEventType_WindowResized:
+	case wl_kEventTypeWindowResized:
 		if (window == mainWindow) {
 			width = event->resizeEvent.newWidth;
 			height = event->resizeEvent.newHeight;
@@ -131,16 +131,16 @@ int CDECL eventCallback(wlWindow window, WLEvent *event, void *userData) {
 			printf("new size: %d, %d\n", width, height);
 
 			printf("TODO: remove resize inval\n");
-			wlWindowInvalidate(window, 0, 0, 0, 0);
+			wl_WindowInvalidate(window, 0, 0, 0, 0);
 
 			lastFrame = 0;
 		}
 		break;
 
-	case WLEventType_Timer:
+	case wl_kEventTypeTimer:
 		//printf("window %zu timer %zu event\n", window, event->timerEvent.timer);
 		if (event->timerEvent.timer == fastTimer) {
-			wlWindowInvalidate(window, 0, 0, 0, 0); // entire window
+			wl_WindowInvalidate(window, 0, 0, 0, 0); // entire window
 		}
 		else if (event->timerEvent.timer == slowTimer) {
 			//printf("%d frames\n", numFrames);
@@ -149,10 +149,10 @@ int CDECL eventCallback(wlWindow window, WLEvent *event, void *userData) {
 		}
 		break;
 
-	case WLEventType_Mouse:
+	case wl_kEventTypeMouse:
 	{
-		if (event->mouseEvent.eventType == WLMouseEventType_MouseDown) {
-			if (event->mouseEvent.button == WLMouseButton_Left) {
+		if (event->mouseEvent.eventType == wl_kMouseEventTypeMouseDown) {
+			if (event->mouseEvent.button == wl_kMouseButtonLeft) {
 				if (pointInRect(event->mouseEvent.x, event->mouseEvent.y, DRAG_SOURCE_X, DRAG_SOURCE_Y, DRAG_SOURCE_W, DRAG_SOURCE_H)) {
 					// start drag, save position
 					mouseDown = true;
@@ -161,28 +161,28 @@ int CDECL eventCallback(wlWindow window, WLEvent *event, void *userData) {
 					printf("(potentially) starting drag...\n");
 				}
 			}
-			else if (event->mouseEvent.button == WLMouseButton_Right) {
+			else if (event->mouseEvent.button == wl_kMouseButtonRight) {
 				printf("mouse down event, button %d @ %d,%d\n", event->mouseEvent.button, event->mouseEvent.x, event->mouseEvent.y);
-				wlWindowShowContextMenu(window, event->mouseEvent.x, event->mouseEvent.y, contextMenu, event);
+				wl_WindowShowContextMenu(window, event->mouseEvent.x, event->mouseEvent.y, contextMenu, event);
 			}
 		}
-		else if (event->mouseEvent.eventType == WLMouseEventType_MouseUp) {
+		else if (event->mouseEvent.eventType == wl_kMouseEventTypeMouseUp) {
 			mouseDown = false;
 		}
-		else if (event->mouseEvent.eventType == WLMouseEventType_MouseMove) {
+		else if (event->mouseEvent.eventType == wl_kMouseEventTypeMouseMove) {
 			// if dragging ...
 			if (mouseDown) {
 				if (pointDist(dragStartX, dragStartY, event->mouseEvent.x, event->mouseEvent.y) > 4.0) {
-					auto dragData = wlDragDataCreate(window);
+					auto dragData = wl_DragDataCreate(window);
 
-					wlDragAddFormat(dragData, kWLDragFormatUTF8);
-					//                    wlDragAddFormat(dragData, wlDragFormatFiles);
+					wl_DragAddFormat(dragData, wl_kDragFormatUTF8);
+					//                    wl_DragAddFormat(dragData, wlDragFormatFiles);
 
 					printf("starting drag ...\n");
-					auto whichAction = wlDragExec(dragData, WLDropEffect_Copy | WLDropEffect_Move | WLDropEffect_Link, event);
+					auto whichAction = wl_DragExec(dragData, wl_kDropEffectCopy | wl_kDropEffectMove | wl_kDropEffectLink, event);
 					printf("selected dragexec action: %d\n", whichAction);
 					mouseDown = false;
-					wlDragDataRelease(&dragData);
+					wl_DragDataRelease(&dragData);
 					printf("drag complete\n");
 				}
 			}
@@ -192,64 +192,64 @@ int CDECL eventCallback(wlWindow window, WLEvent *event, void *userData) {
 				// show/move no matter what
 				auto x2 = event->mouseEvent.x - POPUP_WIDTH / 2;
 				auto y2 = event->mouseEvent.y - (POPUP_HEIGHT + 50);
-				wlWindowShowRelative(framelessWindow, mainWindow, x2, y2, 0, 0);
+				wl_WindowShowRelative(framelessWindow, mainWindow, x2, y2, 0, 0);
 				framelessWindowVisible = true;
 			}
 			else {
 				if (framelessWindowVisible) {
-					wlWindowHide(framelessWindow);
+					wl_WindowHide(framelessWindow);
 					framelessWindowVisible = false;
 				}
 			}
 
 		}
-		else if (event->mouseEvent.eventType == WLMouseEventType_MouseEnter) {
+		else if (event->mouseEvent.eventType == wl_kMouseEventTypeMouseEnter) {
 			printf("==> mouse entered window\n");
 		}
-		else if (event->mouseEvent.eventType == WLMouseEventType_MouseLeave) {
+		else if (event->mouseEvent.eventType == wl_kMouseEventTypeMouseLeave) {
 			printf("<== mouse left window\n");
 		}
 
 		break;
 	}
 
-	case WLEventType_Key:
+	case wl_kEventTypeKey:
 		switch (event->keyEvent.eventType) {
-		case WLKeyEventType_Down:
+		case wl_kKeyEventTypeDown:
 		{
 			const char *loc =
-				event->keyEvent.location == WLKeyLocation_Default ? "Default" :
-				(event->keyEvent.location == WLKeyLocation_Left ? "Left" :
-				(event->keyEvent.location == WLKeyLocation_Right ? "Right" :
-					(event->keyEvent.location == WLKeyLocation_NumPad ? "Numpad" : "Unknown")));
+				event->keyEvent.location == wl_kKeyLocationDefault ? "Default" :
+				(event->keyEvent.location == wl_kKeyLocationLeft ? "Left" :
+				(event->keyEvent.location == wl_kKeyLocationRight ? "Right" :
+					(event->keyEvent.location == wl_kKeyLocationNumPad ? "Numpad" : "Unknown")));
 			printf("Key down: %d [%s] (mods %02X) (loc %s)\n", event->keyEvent.key, event->keyEvent.string, event->keyEvent.modifiers, loc);
 			break;
 		}
-		case WLKeyEventType_Up:
+		case wl_kKeyEventTypeUp:
 			//printf(" - keyup: %d [%s]\n", event->keyEvent.key, event->keyEvent.string);
 			break;
-		case WLKeyEventType_Char:
+		case wl_kKeyEventTypeChar:
 			printf("CHAR: '%s'\n", event->keyEvent.string);
 			break;
 		}
 		break;
 
-	case WLEventType_DragRender:
+	case wl_kEventTypeDragRender:
 		if (platformProvidesDragFormat(event->dragRenderEvent.dragFormat)) {
 			platformRenderDragFormat(event->dragRenderEvent.payload, event->dragRenderEvent.dragFormat);
 		}
-		else if (strEqual(event->dragRenderEvent.dragFormat, kWLDragFormatUTF8)) {
-			wlDragRenderUTF8(event->dragRenderEvent.payload, u8"<<Here's your ad-hoc generated text, woooot!!>>");
+		else if (strEqual(event->dragRenderEvent.dragFormat, wl_kDragFormatUTF8)) {
+			wl_DragRenderUTF8(event->dragRenderEvent.payload, u8"<<Here's your ad-hoc generated text, woooot!!>>");
 		}
-		else if (strEqual(event->dragRenderEvent.dragFormat, kWLDragFormatFiles)) {
-			WLFiles files;
+		else if (strEqual(event->dragRenderEvent.dragFormat, wl_kDragFormatFiles)) {
+			wl_Files files;
 			files.numFiles = 3;
 			files.filenames = new const char*[3];
 			files.filenames[0] = "/boot/home/Desktop/cool_bitmap";
 			files.filenames[1] = "/boot/home/Desktop/text_file";
 			files.filenames[2] = "/boot/home/Desktop/dragme";
 			//
-			wlDragRenderFiles(event->dragRenderEvent.payload, &files);
+			wl_DragRenderFiles(event->dragRenderEvent.payload, &files);
 			// safe to delete
 			delete files.filenames;
 		}
@@ -259,23 +259,23 @@ int CDECL eventCallback(wlWindow window, WLEvent *event, void *userData) {
 		}
 		break;
 
-	case WLEventType_Drop:
+	case wl_kEventTypeDrop:
 		switch (event->dropEvent.eventType) {
-		case WLDropEventType_Feedback:
+		case wl_kDropEventTypeFeedback:
 			if (pointInRect(event->dropEvent.x, event->dropEvent.y, DROP_TARGET_X, DROP_TARGET_Y, DROP_TARGET_W, DROP_TARGET_H))
 			{
-				if (wlDropHasFormat(event->dropEvent.data, kWLDragFormatUTF8) ||
-					wlDropHasFormat(event->dropEvent.data, kWLDragFormatFiles) ||
+				if (wl_DropHasFormat(event->dropEvent.data, wl_kDragFormatUTF8) ||
+					wl_DropHasFormat(event->dropEvent.data, wl_kDragFormatFiles) ||
 					platformCheckDropFormats(event->dropEvent.data))
 				{
 					event->dropEvent.allowedEffectMask &= event->dropEvent.defaultModifierAction; // use platform-specific suggestion based on mod keys
 				}
 			}
 			else {
-				event->dropEvent.allowedEffectMask = WLDropEffect_None;
+				event->dropEvent.allowedEffectMask = wl_kDropEffectNone;
 			}
 			break;
-		case WLDropEventType_Drop:
+		case wl_kDropEventTypeDrop:
 			// check final modifiers?
 			event->dropEvent.allowedEffectMask &= event->dropEvent.defaultModifierAction; // why is this here?
 
@@ -284,18 +284,18 @@ int CDECL eventCallback(wlWindow window, WLEvent *event, void *userData) {
 				// (eg, haiku's translation kit offers to convert all kinds of things to text, which is silly)
 				platformHandleDrop(event->dropEvent.data);
 			}
-			else if (wlDropHasFormat(event->dropEvent.data, kWLDragFormatFiles)) {
-				const WLFiles *files;
-				if (wlDropGetFiles(event->dropEvent.data, &files)) {
+			else if (wl_DropHasFormat(event->dropEvent.data, wl_kDragFormatFiles)) {
+				const wl_Files *files;
+				if (wl_DropGetFiles(event->dropEvent.data, &files)) {
 					for (int i = 0; i < files->numFiles; i++) {
 						printf("Got file: [%s]\n", files->filenames[i]);
 					}
 				}
 			}
-			else if (wlDropHasFormat(event->dropEvent.data, kWLDragFormatUTF8)) {
+			else if (wl_DropHasFormat(event->dropEvent.data, wl_kDragFormatUTF8)) {
 				const char *text;
 				size_t textSize;
-				if (wlDropGetFormat(event->dropEvent.data, kWLDragFormatUTF8, (const void **)&text, &textSize)) {
+				if (wl_DropGetFormat(event->dropEvent.data, wl_kDragFormatUTF8, (const void **)&text, &textSize)) {
 					printf("got text: [%s]\n", text);
 				}
 				else {
@@ -303,12 +303,12 @@ int CDECL eventCallback(wlWindow window, WLEvent *event, void *userData) {
 				}
 			}
 			else {
-				printf("unhandled format in WLDropEventType_Drop\n");
+				printf("unhandled format in wl_kDropEventTypeDrop\n");
 			}
 
 			break;
 		}
-		break; // case WLEventType_DragEvent
+		break; // case wl_kEventTypeDragEvent
 
 	default:
 		printf("unhandled wl callback event type: %d\n", event->eventType);
@@ -318,35 +318,35 @@ int CDECL eventCallback(wlWindow window, WLEvent *event, void *userData) {
 }
 
 void createActions() {
-	auto icon1 = wlIconLoadFromFile("_icons/tall.png", 64);
-	auto icon2 = wlIconLoadFromFile("_icons/wide.png", 64);
-	//auto icon1 = wlIconLoadFromFile("_icons/horse.png", 16);
-	//auto icon2 = wlIconLoadFromFile("_icons/laptop.png", 16);
+	auto icon1 = wl_IconLoadFromFile("_icons/tall.png", 64);
+	auto icon2 = wl_IconLoadFromFile("_icons/wide.png", 64);
+	//auto icon1 = wl_IconLoadFromFile("_icons/horse.png", 16);
+	//auto icon2 = wl_IconLoadFromFile("_icons/laptop.png", 16);
 
-	fileAction1 = wlActionCreate(FILE_ACTION_1, "Something", icon1, 0);
+	fileAction1 = wl_ActionCreate(FILE_ACTION_1, "Something", icon1, 0);
 
 	// user uppercase key enums here because that's required for win32 virtual key codes,
 	//  and doesn't require any special handling when generating labels (toupper etc)
-	auto fa2Accel = wlAccelCreate(WLKey_K, WLModifier_Alt);
-	fileAction2 = wlActionCreate(FILE_ACTION_2, "SubMenuItem", 0, fa2Accel);
+	auto fa2Accel = wl_AccelCreate(wl_kKeyK, wl_kModifierAlt);
+	fileAction2 = wl_ActionCreate(FILE_ACTION_2, "SubMenuItem", 0, fa2Accel);
 
-	auto exitAccel = wlAccelCreate(WLKey_Q, WLModifier_Control);
-	exitAction = wlActionCreate(EXIT_ACTION, "Quit c-client", 0, exitAccel);
+	auto exitAccel = wl_AccelCreate(wl_kKeyQ, wl_kModifierControl);
+	exitAction = wl_ActionCreate(EXIT_ACTION, "Quit c-client", 0, exitAccel);
 
-	auto copyAccel = wlAccelCreate(WLKey_C, WLModifier_Control);
-	copyAction = wlActionCreate(COPY_ACTION, "Copy", 0, copyAccel);
+	auto copyAccel = wl_AccelCreate(wl_kKeyC, wl_kModifierControl);
+	copyAction = wl_ActionCreate(COPY_ACTION, "Copy", 0, copyAccel);
 
-	auto pasteAccel = wlAccelCreate(WLKey_V, WLModifier_Control);
-	pasteAction = wlActionCreate(PASTE_ACTION, "Paste", 0, pasteAccel);
+	auto pasteAccel = wl_AccelCreate(wl_kKeyV, wl_kModifierControl);
+	pasteAction = wl_ActionCreate(PASTE_ACTION, "Paste", 0, pasteAccel);
 
-	helpAction1 = wlActionCreate(HELP_ACTION_1, "Placeholder", icon2, 0);
-	contextAction1 = wlActionCreate(CONTEXT_ACTION_1, "Context 01", 0, 0);
-	contextAction2 = wlActionCreate(CONTEXT_ACTION_2, "Context 02", 0, 0);
-	auto c3Accel = wlAccelCreate(WLKey_N, WLModifier_Shift);
-	contextAction3 = wlActionCreate(CONTEXT_ACTION_3, "Context 03", 0, c3Accel);
+	helpAction1 = wl_ActionCreate(HELP_ACTION_1, "Placeholder", icon2, 0);
+	contextAction1 = wl_ActionCreate(CONTEXT_ACTION_1, "Context 01", 0, 0);
+	contextAction2 = wl_ActionCreate(CONTEXT_ACTION_2, "Context 02", 0, 0);
+	auto c3Accel = wl_AccelCreate(wl_kKeyN, wl_kModifierShift);
+	contextAction3 = wl_ActionCreate(CONTEXT_ACTION_3, "Context 03", 0, c3Accel);
 
-	//auto c4Accel = wlAccelCreate(WLKey_OEM_4, WLModifier_Control);
-	//contextAction4 = wlActionCreate(CONTEXT_ACTION_4, "Context WAT", 0, c4Accel);
+	//auto c4Accel = wl_AccelCreate(wl_kKeyOEM_4, wl_kModifierControl);
+	//contextAction4 = wl_ActionCreate(CONTEXT_ACTION_4, "Context WAT", 0, c4Accel);
 }
 
 void createMenu() {
@@ -354,59 +354,59 @@ void createMenu() {
 	createActions();
 
 #ifdef WL_PLATFORM_APPLE
-	auto menuBar = wlMenuBarGetDefault();
-	auto appMenu = wlGetApplicationMenu();
+	auto menuBar = wl_MenuBarGetDefault();
+	auto appMenu = wl_GetApplicationMenu();
 #else
-	auto menuBar = wlMenuBarCreate();
+	auto menuBar = wl_MenuBarCreate();
 #endif
 	/* file menu */
-	auto fileMenu = wlMenuCreate();
-	wlMenuAddAction(fileMenu, fileAction1);
+	auto fileMenu = wl_MenuCreate();
+	wl_MenuAddAction(fileMenu, fileAction1);
 
-	auto fileSubMenu = wlMenuCreate();
-	wlMenuAddAction(fileSubMenu, fileAction2);
-	wlMenuAddSubmenu(fileMenu, "Su&bmenu", fileSubMenu);
+	auto fileSubMenu = wl_MenuCreate();
+	wl_MenuAddAction(fileSubMenu, fileAction2);
+	wl_MenuAddSubmenu(fileMenu, "Su&bmenu", fileSubMenu);
 
 #ifdef WL_PLATFORM_APPLE
 	// app menu gets exit action on Apple platforms
-	wlMenuAddAction(appMenu, exitAction);
+	wl_MenuAddAction(appMenu, exitAction);
 #else
 	// but it goes on the File menu elsewhere
-	wlMenuAddSeparator(fileMenu);
-	wlMenuAddAction(fileMenu, exitAction);
+	wl_MenuAddSeparator(fileMenu);
+	wl_MenuAddAction(fileMenu, exitAction);
 #endif
-	wlMenuBarAddMenu(menuBar, "&File", fileMenu);
+	wl_MenuBarAddMenu(menuBar, "&File", fileMenu);
 
 	/* edit menu */
-	auto editMenu = wlMenuCreate();
-	wlMenuAddAction(editMenu, copyAction);
-	wlMenuAddAction(editMenu, pasteAction);
-	wlMenuBarAddMenu(menuBar, "&Edit", editMenu);
+	auto editMenu = wl_MenuCreate();
+	wl_MenuAddAction(editMenu, copyAction);
+	wl_MenuAddAction(editMenu, pasteAction);
+	wl_MenuBarAddMenu(menuBar, "&Edit", editMenu);
 
 	/* context menu (useful later) */
-	contextMenu = wlMenuCreate();
-	wlMenuAddAction(contextMenu, contextAction1);
-	wlMenuAddAction(contextMenu, contextAction2);
-	wlMenuAddSeparator(contextMenu);
+	contextMenu = wl_MenuCreate();
+	wl_MenuAddAction(contextMenu, contextAction1);
+	wl_MenuAddAction(contextMenu, contextAction2);
+	wl_MenuAddSeparator(contextMenu);
 
-	auto contextSubMenu = wlMenuCreate();
-	wlMenuAddAction(contextSubMenu, contextAction3);
-	wlMenuAddSubmenu(contextMenu, "Su&bmenu", contextSubMenu);
+	auto contextSubMenu = wl_MenuCreate();
+	wl_MenuAddAction(contextSubMenu, contextAction3);
+	wl_MenuAddSubmenu(contextMenu, "Su&bmenu", contextSubMenu);
 	/* end context menu*/
 
-	wlMenuBarAddMenu(menuBar, "&Context", contextMenu);
+	wl_MenuBarAddMenu(menuBar, "&Context", contextMenu);
 
 	/* help menu */
-	auto helpMenu = wlMenuCreate();
-	wlMenuAddAction(helpMenu, helpAction1);
+	auto helpMenu = wl_MenuCreate();
+	wl_MenuAddAction(helpMenu, helpAction1);
 
-	wlMenuBarAddMenu(menuBar, "&Help", helpMenu);
+	wl_MenuBarAddMenu(menuBar, "&Help", helpMenu);
 
 	/* end */
 #ifdef WL_PLATFORM_APPLE
 	// nothing to do
 #else
-	wlWindowSetMenuBar(mainWindow, menuBar);
+	wl_WindowSetMenuBar(mainWindow, menuBar);
 #endif
 }
 
@@ -439,25 +439,25 @@ void addNewBox(void *data) {
 
 	platformDrawBox(box);
 
-	wlWindowInvalidate(mainWindow, box->x, box->y, box->width, box->height);
+	wl_WindowInvalidate(mainWindow, box->x, box->y, box->width, box->height);
 }
 
 void bgThreadFunc(int threadID) {
 	while (true) {
 		size_t void_arg = threadID;
-		wlExecuteOnMainThread(mainWindow, addNewBox, (void *)void_arg);
-		wlSleep(200);
+		wl_ExecuteOnMainThread(mainWindow, addNewBox, (void *)void_arg);
+		wl_Sleep(200);
 	}
 }
 
 int main(int argc, const char * argv[]) {
 	srand((unsigned int)time(NULL));
 
-	WLPlatformOptions opts = { 0 };
-	wlInit(eventCallback, &opts);
+	wl_PlatformOptions opts = { 0 };
+	wl_Init(eventCallback, &opts);
 
-	WLWindowProperties props = { 0 };
-	props.usedFields = WLWindowProp_MinWidth | WLWindowProp_MinHeight | WLWindowProp_MaxWidth | WLWindowProp_MaxHeight;
+	wl_WindowProperties props = { 0 };
+	props.usedFields = wl_kWindowPropMinWidth | wl_kWindowPropMinHeight | wl_kWindowPropMaxWidth | wl_kWindowPropMaxHeight;
 	props.minWidth = 300;
 	props.minHeight = 200;
 	props.maxWidth = MAX_WIDTH;
@@ -466,36 +466,36 @@ int main(int argc, const char * argv[]) {
 	width = 800;
 	height = 600;
 
-	mainWindow = wlWindowCreate(width, height, u8"hello there, cross-platform friend āǢʥϢ۩ใ ♥☺☼", nullptr, &props);
+	mainWindow = wl_WindowCreate(width, height, u8"hello there, cross-platform friend āǢʥϢ۩ใ ♥☺☼", nullptr, &props);
 
 	props = { 0 };
-	props.usedFields = WLWindowProp_Style;
-	props.style = WLWindowStyle_Frameless;
-	framelessWindow = wlWindowCreate(POPUP_WIDTH, POPUP_HEIGHT, nullptr, nullptr, &props);
+	props.usedFields = wl_kWindowPropStyle;
+	props.style = wl_kWindowStyleFrameless;
+	framelessWindow = wl_WindowCreate(POPUP_WIDTH, POPUP_HEIGHT, nullptr, nullptr, &props);
 
 	createMenu();
 
 	platformInit();
 
-	fastTimer = wlTimerCreate(mainWindow, FAST_TIMER, 16); // ~60fps
-	slowTimer = wlTimerCreate(mainWindow, SLOW_TIMER, 1000);
+	fastTimer = wl_TimerCreate(mainWindow, FAST_TIMER, 16); // ~60fps
+	slowTimer = wl_TimerCreate(mainWindow, SLOW_TIMER, 1000);
 
-	wlWindowEnableDrops(mainWindow, true);
+	wl_WindowEnableDrops(mainWindow, true);
 
 	platformCreateThreads(bgThreadFunc, NUM_THREADS);
 
-	wlWindowShow(mainWindow);
+	wl_WindowShow(mainWindow);
 
-	wlRunloop();
+	wl_Runloop();
 
-	wlTimerDestroy(fastTimer);
-	wlTimerDestroy(slowTimer);
+	wl_TimerDestroy(fastTimer);
+	wl_TimerDestroy(slowTimer);
 
-	wlClipboardFlush();
+	wl_ClipboardFlush();
 
 	platformJoinThreads();
 	platformShutdown();
 
-	wlShutdown();
+	wl_Shutdown();
 	return 0;
 }

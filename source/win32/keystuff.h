@@ -5,14 +5,14 @@
 
 struct KeyInfo {
 	int virtualCode;
-	WLKeyEnum key;
+	wl_KeyEnum key;
 	const char *stringRep;
 	bool suppressCharEvent;
-	int knownLocation = WLKeyLocation_Default;
+	int knownLocation = wl_kKeyLocationDefault;
 };
 
 extern std::map<WPARAM, KeyInfo *> keyMap; // win32 virtual keys to WL key enums
-extern std::map<WLKeyEnum, KeyInfo *> reverseKeyMap; // reverse
+extern std::map<wl_KeyEnum, KeyInfo *> reverseKeyMap; // reverse
 
 void initKeyMap();
-WLKeyLocation locationForKey(WLKeyEnum key, unsigned char scanCode, bool extended);
+wl_KeyLocation locationForKey(wl_KeyEnum key, unsigned char scanCode, bool extended);

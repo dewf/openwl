@@ -22,7 +22,7 @@ struct _wlEventPrivate {
 };
 
 struct _wlAccelerator {
-    enum WLKeyEnum key;
+    enum wl_KeyEnum key;
     unsigned int modifiers;
 };
 
@@ -30,12 +30,12 @@ struct _wlIcon {
     NSImage *image;
 };
 
-// wlAction
+// wl_Action
 @interface WLActionObject : NSObject
 @property int _id;
 @property (copy) NSString *label;
-@property wlIcon icon;
-@property wlAccelerator accel;
+@property wl_Icon icon;
+@property wl_Accelerator accel;
 // maintain list of NSMenuItems that it's connected to, so that it can be updated?
 @end
 
@@ -51,7 +51,7 @@ struct _wlMenuItem {
     NSMenuItem *menuItem;
 };
 
-// wlTimer
+// wl_Timer
 // can't seem to properly subclass NSTimer (factory methods don't return (id), but instead (NSTimer), etc)
 // http://www.cocoabuilder.com/archive/cocoa/174162-creating-an-nstimer-subclass.html
 // so just inherit from NSObject, and pass this as userInfo * to an NSTimer
@@ -67,12 +67,12 @@ struct _wlMenuItem {
 
 // drag data: drag source / clipboard source
 struct _wlDragData {
-    wlWindow forWindow;
+    wl_Window forWindow;
     std::set<std::string> formats;
 };
 
 // drop data: for drag dest / clipboard paste
-struct _wlFilesInternal : public WLFiles
+struct _wlFilesInternal : public wl_Files
 {
     _wlFilesInternal(int numFiles) {
         this->numFiles = numFiles;

@@ -81,12 +81,12 @@
 
 // key events
 - (void)flagsChanged:(NSEvent *)theEvent {
-    WLEvent event;
+    wl_Event event;
     event.handled = false;
-    event.eventType = WLEventType_Key;
-    event.keyEvent.eventType = WLKeyEventType_Down;
+    event.eventType = wl_kEventTypeKey;
+    event.keyEvent.eventType = wl_kKeyEventTypeDown;
     event.keyEvent.modifiers = cocoa_to_wl_modifiers_multi(theEvent.modifierFlags);
-    event.keyEvent.location = WLKeyLocation_Default;
+    event.keyEvent.location = wl_kKeyLocationDefault;
     
     auto found = codeToKeyInfo.find(theEvent.keyCode);
     keymapInfo *info = found != codeToKeyInfo.end() ? found->second : nullptr;
@@ -94,7 +94,7 @@
         event.keyEvent.key = info->key;
         event.keyEvent.string = info->stringRep;
         event.keyEvent.location = info->location;
-        eventCallback((wlWindow)parentWindowObj, &event, parentWindowObj.userData);
+        eventCallback((wl_Window)parentWindowObj, &event, parentWindowObj.userData);
         
         if (!event.handled) {
             [super flagsChanged:theEvent];
@@ -108,13 +108,13 @@
 - (void)keyDown:(NSEvent *)theEvent {
     if (![rootMenu performKeyEquivalent:theEvent]) {
         // menu didn't have any shortcuts for it ...
-        WLEvent event;
+        wl_Event event;
         event.handled = false;
-        event.eventType = WLEventType_Key;
-        event.keyEvent.eventType = WLKeyEventType_Down;
+        event.eventType = wl_kEventTypeKey;
+        event.keyEvent.eventType = wl_kKeyEventTypeDown;
         event.keyEvent.modifiers = cocoa_to_wl_modifiers_multi(theEvent.modifierFlags);
-        event.keyEvent.location = WLKeyLocation_Default;
-        event.keyEvent.key = WLKey_Unknown;
+        event.keyEvent.location = wl_kKeyLocationDefault;
+        event.keyEvent.key = wl_kKeyUnknown;
         
         /**** keydown event *****/
         
@@ -132,7 +132,7 @@
             event.keyEvent.key = info->key;
             event.keyEvent.string = info->stringRep;
             event.keyEvent.location = info->location;
-            eventCallback((wlWindow)parentWindowObj, &event, parentWindowObj.userData);
+            eventCallback((wl_Window)parentWindowObj, &event, parentWindowObj.userData);
         }
         auto keyDown_handled = event.handled;
         
@@ -142,10 +142,10 @@
             !(info && info->suppressCharEvent))
         {
             event.handled = false;
-            event.keyEvent.eventType = WLKeyEventType_Char;
+            event.keyEvent.eventType = wl_kKeyEventTypeChar;
             // .key, .modifiers, .location still set from earlier
             event.keyEvent.string = [theEvent.characters UTF8String];
-            eventCallback((wlWindow)parentWindowObj, &event, parentWindowObj.userData);
+            eventCallback((wl_Window)parentWindowObj, &event, parentWindowObj.userData);
         }
         auto char_handled = event.handled;
         
@@ -168,15 +168,15 @@
     if (matching.count > 0) {
         [keyDownSet removeObject:matching[0]];
         
-        //        WLEvent event;
+        //        wl_Event event;
         //        event.handled = false;
-        //        event.eventType = WLEventType_Key;
-        //        event.keyEvent.eventType = WLKeyEventType_Up;
+        //        event.eventType = wl_kEventTypeKey;
+        //        event.keyEvent.eventType = wl_kKeyEventTypeUp;
         //        event.keyEvent.modifiers = cocoa_to_wl_modifiers_multi(theEvent.modifierFlags);
         //        event.keyEvent.string = [theEvent.characters UTF8String];
         //        event.keyEvent.keysym = keyCodeToKeySym(theEvent.keyCode, theEvent.modifierFlags);
         //
-        //        eventCallback((wlWindow)parentWindowObj, &event, parentWindowObj.userData);
+        //        eventCallback((wl_Window)parentWindowObj, &event, parentWindowObj.userData);
         //        if (!event.handled) {
         //            [super keyDown:theEvent];
         //        }
@@ -187,16 +187,16 @@
 }
 
 // mouse button common
-- (BOOL)mouseButtonCommon:(WLMouseEventType)mouseEventType
-              whichButton:(WLMouseButton)whichButton
+- (BOOL)mouseButtonCommon:(wl_MouseEventType)mouseEventType
+              whichButton:(wl_MouseButton)whichButton
                 fromEvent:(NSEvent *)theEvent
 {
     _wlEventPrivate priv;
     priv.event = theEvent;
-    WLEvent event;
+    wl_Event event;
     event._private = &priv;
     event.handled = false;
-    event.eventType = WLEventType_Mouse;
+    event.eventType = wl_kEventTypeMouse;
     event.mouseEvent.eventType = mouseEventType;
     event.mouseEvent.button = whichButton;
     
@@ -205,14 +205,14 @@
     event.mouseEvent.y = point.y;
     
     event.mouseEvent.modifiers = cocoa_to_wl_modifiers_multi(theEvent.modifierFlags);
-    eventCallback((wlWindow)parentWindowObj, &event, parentWindowObj.userData);
+    eventCallback((wl_Window)parentWindowObj, &event, parentWindowObj.userData);
     return event.handled;
 }
 
 - (void)mouseDown:(NSEvent *)theEvent {
     //    printf("mouse down -- left button\n");
-    if (![self mouseButtonCommon:WLMouseEventType_MouseDown
-                     whichButton:WLMouseButton_Left
+    if (![self mouseButtonCommon:wl_kMouseEventTypeMouseDown
+                     whichButton:wl_kMouseButtonLeft
                        fromEvent:theEvent]) {
         [super mouseDown:theEvent];
     }
@@ -220,8 +220,8 @@
 
 - (void)rightMouseDown:(NSEvent *)theEvent {
     //    printf("mouse down -- right button\n");
-    if (![self mouseButtonCommon:WLMouseEventType_MouseDown
-                     whichButton:WLMouseButton_Right
+    if (![self mouseButtonCommon:wl_kMouseEventTypeMouseDown
+                     whichButton:wl_kMouseButtonRight
                        fromEvent:theEvent]) {
         [super rightMouseDown:theEvent];
     }
@@ -229,8 +229,8 @@
 
 - (void)otherMouseDown:(NSEvent *)theEvent {
     //    printf("mouse down -- MIDDLE button\n");
-    if (![self mouseButtonCommon:WLMouseEventType_MouseDown
-                     whichButton:(theEvent.buttonNumber == 2 ? WLMouseButton_Middle : WLMouseButton_Other)
+    if (![self mouseButtonCommon:wl_kMouseEventTypeMouseDown
+                     whichButton:(theEvent.buttonNumber == 2 ? wl_kMouseButtonMiddle : wl_kMouseButtonOther)
                        fromEvent:theEvent]) {
         [super otherMouseDown:theEvent];
     }
@@ -238,8 +238,8 @@
 
 - (void)mouseUp:(NSEvent *)theEvent {
     //    printf("mouse up\n");
-    if (![self mouseButtonCommon:WLMouseEventType_MouseUp
-                     whichButton:WLMouseButton_Left
+    if (![self mouseButtonCommon:wl_kMouseEventTypeMouseUp
+                     whichButton:wl_kMouseButtonLeft
                        fromEvent:theEvent]) {
         [super mouseUp:theEvent];
     }
@@ -247,8 +247,8 @@
 
 - (void)rightMouseUp:(NSEvent *)theEvent {
     //    printf("right mouse up\n");
-    if (![self mouseButtonCommon:WLMouseEventType_MouseUp
-                     whichButton:WLMouseButton_Right
+    if (![self mouseButtonCommon:wl_kMouseEventTypeMouseUp
+                     whichButton:wl_kMouseButtonRight
                        fromEvent:theEvent]) {
         [super rightMouseUp:theEvent];
     }
@@ -256,8 +256,8 @@
 
 - (void)otherMouseUp:(NSEvent *)theEvent {
     //    printf("other mouse up\n");
-    if (![self mouseButtonCommon:WLMouseEventType_MouseUp
-                     whichButton:(theEvent.buttonNumber == 2 ? WLMouseButton_Middle : WLMouseButton_Other)
+    if (![self mouseButtonCommon:wl_kMouseEventTypeMouseUp
+                     whichButton:(theEvent.buttonNumber == 2 ? wl_kMouseButtonMiddle : wl_kMouseButtonOther)
                        fromEvent:theEvent]) {
         [super otherMouseUp:theEvent];
     }
@@ -265,8 +265,8 @@
 
 - (void)mouseEntered:(NSEvent *)theEvent {
     //    printf("mouse entered\n");
-    if (![self mouseButtonCommon:WLMouseEventType_MouseEnter
-                     whichButton:WLMouseButton_None
+    if (![self mouseButtonCommon:wl_kMouseEventTypeMouseEnter
+                     whichButton:wl_kMouseButtonNone
                        fromEvent:theEvent]) {
         [super mouseEntered:theEvent];
     }
@@ -274,8 +274,8 @@
 
 - (void)mouseExited:(NSEvent *)theEvent {
     //    printf("mouse exited\n");
-    if (![self mouseButtonCommon:WLMouseEventType_MouseLeave
-                     whichButton:WLMouseButton_None
+    if (![self mouseButtonCommon:wl_kMouseEventTypeMouseLeave
+                     whichButton:wl_kMouseButtonNone
                        fromEvent:theEvent]) {
         [super mouseExited:theEvent];
     }
@@ -283,8 +283,8 @@
 
 - (void)mouseMoved:(NSEvent *)theEvent {
     //    printf("mouse moved!\n");
-    if (![self mouseButtonCommon:WLMouseEventType_MouseMove
-                     whichButton:WLMouseButton_None
+    if (![self mouseButtonCommon:wl_kMouseEventTypeMouseMove
+                     whichButton:wl_kMouseButtonNone
                        fromEvent:theEvent]) {
         [super mouseMoved:theEvent];
     }
@@ -292,8 +292,8 @@
 
 - (void)mouseDragged:(NSEvent *)theEvent {
     //    printf("mouse dragged!\n");
-    if (![self mouseButtonCommon:WLMouseEventType_MouseMove
-                     whichButton:WLMouseButton_None
+    if (![self mouseButtonCommon:wl_kMouseEventTypeMouseMove
+                     whichButton:wl_kMouseButtonNone
                        fromEvent:theEvent]) {
         [super mouseDragged:theEvent];
     }
@@ -303,9 +303,9 @@
     // no need to call super, since direct descendant of NSView
     //    auto size = self.bounds.size;
     
-    WLEvent event;
+    wl_Event event;
     event.handled = false;
-    event.eventType = WLEventType_WindowRepaint;
+    event.eventType = wl_kEventTypeWindowRepaint;
     event.repaintEvent.x = dirtyRect.origin.x;
     event.repaintEvent.y = dirtyRect.origin.y;
     event.repaintEvent.width = dirtyRect.size.width;
@@ -318,7 +318,7 @@
     //    CGContextScaleCTM (cgc, 1.0, -1.0);
     event.repaintEvent.platformContext = cgc;
     
-    eventCallback((wlWindow)parentWindowObj, &event, parentWindowObj.userData);
+    eventCallback((wl_Window)parentWindowObj, &event, parentWindowObj.userData);
     // nothing to do if not handled (no super to forward to ...)
 }
 
@@ -336,7 +336,7 @@
     [self unregisterDraggedTypes];
 }
 
-- (NSDragOperation) dragCommonEvent:(id<NSDraggingInfo>)sender dropEventType:(WLDropEventType)eventType {
+- (NSDragOperation) dragCommonEvent:(id<NSDraggingInfo>)sender dropEventType:(wl_DropEventType)eventType {
     auto sourceDragMask = [sender draggingSourceOperationMask];
     printf("source drag mask: %08lX\n", sourceDragMask);
     
@@ -346,11 +346,11 @@
     //   the raw source mask, or applies its own masking based on modifier keys before we get this,
     //   so just pick a first reasonable default
     auto defaultDragOperation =
-    ((allowedEffectMask & WLDropEffect_Copy) ? WLDropEffect_Copy :
-     ((allowedEffectMask & WLDropEffect_Link) ? WLDropEffect_Link :
-      ((allowedEffectMask & WLDropEffect_Move) ? WLDropEffect_Move :
-       ((allowedEffectMask & WLDropEffect_Other) ? WLDropEffect_Other :
-        WLDropEffect_None))));
+    ((allowedEffectMask & wl_kDropEffectCopy) ? wl_kDropEffectCopy :
+     ((allowedEffectMask & wl_kDropEffectLink) ? wl_kDropEffectLink :
+      ((allowedEffectMask & wl_kDropEffectMove) ? wl_kDropEffectMove :
+       ((allowedEffectMask & wl_kDropEffectOther) ? wl_kDropEffectOther :
+        wl_kDropEffectNone))));
     printf("sending default: %d\n", defaultDragOperation);
     
     auto data = new _wlDropData;
@@ -359,9 +359,9 @@
     // view-converted (y-inverted) location
     auto location = [self convertPoint:[sender draggingLocation] fromView:nil];
     
-    WLEvent event;
+    wl_Event event;
     event.handled = false;
-    event.eventType = WLEventType_Drop;
+    event.eventType = wl_kEventTypeDrop;
     event.dropEvent.eventType = eventType;
     event.dropEvent.x = location.x;
     event.dropEvent.y = location.y;
@@ -369,7 +369,7 @@
     event.dropEvent.defaultModifierAction = defaultDragOperation;
     event.dropEvent.data = data;
     
-    eventCallback((wlWindow)parentWindowObj, &event, parentWindowObj.userData);
+    eventCallback((wl_Window)parentWindowObj, &event, parentWindowObj.userData);
     
     delete data; // not needed anymore
     
@@ -387,17 +387,17 @@
 // drop destination protocol methods
 - (NSDragOperation) draggingEntered:(id<NSDraggingInfo>)sender {
     printf("dragging entered!\n");
-    return [self dragCommonEvent:sender dropEventType:WLDropEventType_Feedback];
+    return [self dragCommonEvent:sender dropEventType:wl_kDropEventTypeFeedback];
 }
 
 - (NSDragOperation) draggingUpdated:(id<NSDraggingInfo>)sender {
     printf("dragging updated!\n");
-    return [self dragCommonEvent:sender dropEventType:WLDropEventType_Feedback];
+    return [self dragCommonEvent:sender dropEventType:wl_kDropEventTypeFeedback];
 }
 
 - (BOOL) performDragOperation:(id<NSDraggingInfo>)sender {
     printf("performDragOperation...\n");
-    [self dragCommonEvent:sender dropEventType:WLDropEventType_Drop];
+    [self dragCommonEvent:sender dropEventType:wl_kDropEventTypeDrop];
     return YES;
 }
 
@@ -425,15 +425,15 @@
 
 - (id)pasteboardPropertyListForType:(NSString *)type {
     // produce the data
-    WLEvent event;
+    wl_Event event;
     event.handled = false;
-    event.eventType = WLEventType_DragRender;
+    event.eventType = wl_kEventTypeDragRender;
     event.dragRenderEvent.dragFormat = cocoa_to_wl_dragFormat((CFStringRef)type);
     
     auto payload = new _wlRenderPayload;
     event.dragRenderEvent.payload = payload;
     
-    eventCallback((wlWindow)parentWindowObj, &event, parentWindowObj.userData);
+    eventCallback((wl_Window)parentWindowObj, &event, parentWindowObj.userData);
     
     id ret = nil;
     if (event.handled) {

@@ -11,7 +11,7 @@
 #include <gtkmm/accelgroup.h>
 #include <gtkmm/clipboard.h>
 
-extern wlEventCallback eventCallback;
+extern wl_EventCallback eventCallback;
 extern Gtk::Main *appMain;
 extern Glib::RefPtr<Gtk::AccelGroup> globalAccelGroup;
 extern Glib::RefPtr<Gtk::Clipboard> gtkClipboard;

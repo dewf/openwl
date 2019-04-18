@@ -21,11 +21,11 @@
 @synthesize height;
 
 - (BOOL)windowShouldClose:(NSWindow *)sender {
-    WLEvent event;
+    wl_Event event;
     event.handled = false;
-    event.eventType = WLEventType_WindowCloseRequest;
+    event.eventType = wl_kEventTypeWindowCloseRequest;
     event.closeRequestEvent.cancelClose = false;
-    eventCallback((wlWindow)self, &event, userData);
+    eventCallback((wl_Window)self, &event, userData);
     if (event.handled && event.closeRequestEvent.cancelClose) {
         return NO;
     } else {
@@ -34,11 +34,11 @@
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
-    WLEvent event;
+    wl_Event event;
     event.handled = false;
-    event.eventType = WLEventType_WindowDestroyed;
+    event.eventType = wl_kEventTypeWindowDestroyed;
     event.destroyEvent.reserved = 0;
-    eventCallback((wlWindow)self, &event, userData);
+    eventCallback((wl_Window)self, &event, userData);
     // doesn't matter if handled
 }
 
@@ -47,14 +47,14 @@
     int newWidth = size.width;
     int newHeight = size.height;
     
-    WLEvent event;
+    wl_Event event;
     event.handled = false;
-    event.eventType = WLEventType_WindowResized;
+    event.eventType = wl_kEventTypeWindowResized;
     event.resizeEvent.oldWidth = width;
     event.resizeEvent.oldHeight = height;
     event.resizeEvent.newWidth = newWidth;
     event.resizeEvent.newHeight = newHeight;
-    eventCallback((wlWindow)self, &event, userData);
+    eventCallback((wl_Window)self, &event, userData);
     // doesn't matter if handled
     
     width = newWidth;
@@ -66,12 +66,12 @@
     NSMenuItem *menuItem = sender;
     WLActionObject *actionObj = [menuItem representedObject];
     
-    WLEvent event;
+    wl_Event event;
     event.handled = false;
-    event.eventType = WLEventType_Action;
+    event.eventType = wl_kEventTypeAction;
     event.actionEvent.id = actionObj._id;
-    event.actionEvent.action = (wlAction)actionObj;
-    eventCallback((wlWindow)self, &event, userData);
+    event.actionEvent.action = (wl_Action)actionObj;
+    eventCallback((wl_Window)self, &event, userData);
 }
 
 - (NSPoint) pointToScreen: (NSPoint)p {

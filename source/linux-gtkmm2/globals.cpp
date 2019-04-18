@@ -4,7 +4,7 @@
 
 #include "globals.h"
 
-wlEventCallback eventCallback;
+wl_EventCallback eventCallback;
 Gtk::Main *appMain;
 Glib::RefPtr<Gtk::AccelGroup> globalAccelGroup;
 Glib::RefPtr<Gtk::Clipboard> gtkClipboard;

@@ -20,7 +20,7 @@ enum Win32MessageEnum {
 };
 
 // globals
-extern std::map<int, wlAction> actionMap;
+extern std::map<int, wl_Action> actionMap;
 extern std::vector<ACCEL> acceleratorList;
 extern std::set<unsigned char> suppressedScanCodes;
 
@@ -31,19 +31,19 @@ extern LARGE_INTEGER perfCounterTicksPerSecond;
 extern bool useDirect2D;
 extern ID2D1Factory1 *d2dFactory;
 extern IDWriteFactory *writeFactory;
-void d2dCreateTarget(wlWindow wlw);
+void d2dCreateTarget(wl_Window wlw);
 
-// fwd decls for wlExecuteOnMainThread
+// fwd decls for wl_ExecuteOnMainThread
 struct MainThreadExecItem {
 
-    wlVoidCallback callback;
+    wl_VoidCallback callback;
     void *data;
     std::condition_variable& execCond;
 };
 void ExecuteMainItem(MainThreadExecItem *item);
 
 // client-supplied callback
-extern wlEventCallback eventCallback;
+extern wl_EventCallback eventCallback;
 
 // custom messages
 #define OPENWL_TIMER_MESSAGE WM_USER+0

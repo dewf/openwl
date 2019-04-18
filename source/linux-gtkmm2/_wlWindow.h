@@ -14,17 +14,17 @@
 
 struct _wlWindow : public Gtk::Window {
 private:
-    WLWindowProperties props = {0}; // save these because they need to be reapplied when a menu is added
+    wl_WindowProperties props = {0}; // save these because they need to be reapplied when a menu is added
 
     int width = -1, height = -1;
     Gtk::VBox vbox;
     Gtk::DrawingArea drawArea;
     void *userData;
     //_wlEventPrivate _private;
-    //WLEvent wlEvent;
-    std::set<wlTimer> timers;
+    //wl_Event wl_Event;
+    std::set<wl_Timer> timers;
 
-    wlMenuBar attachedMenuBar = nullptr;
+    wl_MenuBar attachedMenuBar = nullptr;
     int menuHeight = -1;
 
     bool dragActive = false;
@@ -35,9 +35,9 @@ private:
 
     bool dragDataAwait = false; // to make getDropData synchronous
 
-    inline void dispatchEvent(WLEvent *wlEvent) {
-        wlEvent->handled = false;
-        eventCallback(this, wlEvent, userData);
+    inline void dispatchEvent(wl_Event *wl_Event) {
+        wl_Event->handled = false;
+        eventCallback(this, wl_Event, userData);
     }
 
     // common for drag source / clipboard set
@@ -46,14 +46,14 @@ private:
 public:
     Gtk::DrawingArea *getDrawArea() { return &drawArea; }
 
-    void insertTimer(wlTimer timer) {
+    void insertTimer(wl_Timer timer) {
         timers.insert(timer);
     }
-    void removeTimer(wlTimer timer) {
+    void removeTimer(wl_Timer timer) {
         timers.erase(timer);
     }
 
-    _wlWindow(void *userData, WLWindowProperties *props);
+    _wlWindow(void *userData, wl_WindowProperties *props);
     virtual ~_wlWindow();
 
     /**** callbacks ****/
@@ -79,7 +79,7 @@ public:
     bool on_drawArea_dragDrop(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint time);
     void on_drawArea_dragLeave(const Glib::RefPtr<Gdk::DragContext>& context, guint time);
     void on_drawArea_dragDataReceived(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& selection_data, guint info, guint time);
-    bool on_timer_timeout(wlTimer timer);
+    bool on_timer_timeout(wl_Timer timer);
     bool on_delete(GdkEventAny *gdkEvent);
     void on_clipboard_get(Gtk::SelectionData& selectionData, guint info);
     void on_clipboard_clear();
@@ -87,13 +87,13 @@ public:
     /**** public API *****/
     void invalidate(int x, int y, int width, int height);
     void setFocus();
-    void setMenuBar(wlMenuBar menuBar);
-    void execAction(wlAction action);
+    void setMenuBar(wl_MenuBar menuBar);
+    void execAction(wl_Action action);
 
     bool getDragActive();
     void getDropData(GdkDragContext *dragContext, GdkAtom formatAtom, void **data, size_t *size);
     void releaseDropData(void **dragData);
-    void setClipboard(wlDragData dragData);
+    void setClipboard(wl_DragData dragData);
 
     size_t getWindowHandle();
     void mouseGrab();

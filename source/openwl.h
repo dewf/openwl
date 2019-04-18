@@ -31,8 +31,8 @@
 
 #include <stddef.h>
 
-#define WLHANDLE(x) struct _##x; typedef struct _##x* x
-// e.g. struct _wlWindow; typedef struct _wlWindow* wlWindow;
+#define WLHANDLE(x) struct _wl_##x; typedef struct _wl_##x* wl_##x
+// e.g. struct _wlWindow; typedef struct _wlWindow* wl_Window;
 
 #ifndef __cplusplus
 #include <stdbool.h>
@@ -42,443 +42,443 @@
 extern "C" {
 #endif
 
-	WLHANDLE(wlWindow);
-	WLHANDLE(wlTimer);
-	WLHANDLE(wlMenuBar);
-	WLHANDLE(wlMenu);
-	WLHANDLE(wlMenuItem);
-	WLHANDLE(wlIcon);
-	WLHANDLE(wlAccelerator); // keyboard shortcuts
-	WLHANDLE(wlAction); // keyboard shortcut or menu happening
-	WLHANDLE(wlDragData); // dnd source
-	WLHANDLE(wlDropData); // dnd dest
-	WLHANDLE(wlEventPrivate); // implementation-specific private WLEvent fields
-	WLHANDLE(wlRenderPayload); // drag source rendering payload -- platform-specific, use rendering functions to modify it
+	WLHANDLE(Window);
+	WLHANDLE(Timer);
+	WLHANDLE(MenuBar);
+	WLHANDLE(Menu);
+	WLHANDLE(MenuItem);
+	WLHANDLE(Icon);
+	WLHANDLE(Accelerator); // keyboard shortcuts
+	WLHANDLE(Action); // keyboard shortcut or menu happening
+	WLHANDLE(DragData); // dnd source
+	WLHANDLE(DropData); // dnd dest
+	WLHANDLE(EventPrivate); // implementation-specific private wl_Event fields
+	WLHANDLE(RenderPayload); // drag source rendering payload -- platform-specific, use rendering functions to modify it
 
-	enum WLKeyEnum {
-		WLKey_Unknown,
+	enum wl_KeyEnum {
+		wl_kKeyUnknown,
 		//
-		WLKey_Escape,
-		WLKey_Tab,
-		WLKey_Backspace,
-		WLKey_Return,
-		WLKey_Space,
+		wl_kKeyEscape,
+		wl_kKeyTab,
+		wl_kKeyBackspace,
+		wl_kKeyReturn,
+		wl_kKeySpace,
 		//
-		WLKey_F1,
-		WLKey_F2,
-		WLKey_F3,
-		WLKey_F4,
-		WLKey_F5,
-		WLKey_F6,
-		WLKey_F7,
-		WLKey_F8,
-		WLKey_F9,
-		WLKey_F10,
-		WLKey_F11,
-		WLKey_F12,
-		WLKey_F13,
-		WLKey_F14,
-		WLKey_F15,
-		WLKey_F16,
-		WLKey_F17,
-		WLKey_F18,
-		WLKey_F19,
+		wl_kKeyF1,
+		wl_kKeyF2,
+		wl_kKeyF3,
+		wl_kKeyF4,
+		wl_kKeyF5,
+		wl_kKeyF6,
+		wl_kKeyF7,
+		wl_kKeyF8,
+		wl_kKeyF9,
+		wl_kKeyF10,
+		wl_kKeyF11,
+		wl_kKeyF12,
+		wl_kKeyF13,
+		wl_kKeyF14,
+		wl_kKeyF15,
+		wl_kKeyF16,
+		wl_kKeyF17,
+		wl_kKeyF18,
+		wl_kKeyF19,
 		//
-		WLKey_0,
-		WLKey_1,
-		WLKey_2,
-		WLKey_3,
-		WLKey_4,
-		WLKey_5,
-		WLKey_6,
-		WLKey_7,
-		WLKey_8,
-		WLKey_9,
+		wl_kKey0,
+		wl_kKey1,
+		wl_kKey2,
+		wl_kKey3,
+		wl_kKey4,
+		wl_kKey5,
+		wl_kKey6,
+		wl_kKey7,
+		wl_kKey8,
+		wl_kKey9,
 		//
-		WLKey_A,
-		WLKey_B,
-		WLKey_C,
-		WLKey_D,
-		WLKey_E,
-		WLKey_F,
-		WLKey_G,
-		WLKey_H,
-		WLKey_I,
-		WLKey_J,
-		WLKey_K,
-		WLKey_L,
-		WLKey_M,
-		WLKey_N,
-		WLKey_O,
-		WLKey_P,
-		WLKey_Q,
-		WLKey_R,
-		WLKey_S,
-		WLKey_T,
-		WLKey_U,
-		WLKey_V,
-		WLKey_W,
-		WLKey_X,
-		WLKey_Y,
-		WLKey_Z,
+		wl_kKeyA,
+		wl_kKeyB,
+		wl_kKeyC,
+		wl_kKeyD,
+		wl_kKeyE,
+		wl_kKeyF,
+		wl_kKeyG,
+		wl_kKeyH,
+		wl_kKeyI,
+		wl_kKeyJ,
+		wl_kKeyK,
+		wl_kKeyL,
+		wl_kKeyM,
+		wl_kKeyN,
+		wl_kKeyO,
+		wl_kKeyP,
+		wl_kKeyQ,
+		wl_kKeyR,
+		wl_kKeyS,
+		wl_kKeyT,
+		wl_kKeyU,
+		wl_kKeyV,
+		wl_kKeyW,
+		wl_kKeyX,
+		wl_kKeyY,
+		wl_kKeyZ,
 		// modifiers
-		WLKey_Control,
-		WLKey_Shift,
-		WLKey_AltOption,
-		WLKey_WinCommand,
-		WLKey_Fn,
+		wl_kKeyControl,
+		wl_kKeyShift,
+		wl_kKeyAltOption,
+		wl_kKeyWinCommand,
+		wl_kKeyFn,
 		// home/end block
-		WLKey_Insert,
-		WLKey_Delete,
-		WLKey_PageUp,
-		WLKey_PageDown,
-		WLKey_Home,
-		WLKey_End,
+		wl_kKeyInsert,
+		wl_kKeyDelete,
+		wl_kKeyPageUp,
+		wl_kKeyPageDown,
+		wl_kKeyHome,
+		wl_kKeyEnd,
 		// arrow keys
-		WLKey_LeftArrow,
-		WLKey_UpArrow,
-		WLKey_RightArrow,
-		WLKey_DownArrow,
+		wl_kKeyLeftArrow,
+		wl_kKeyUpArrow,
+		wl_kKeyRightArrow,
+		wl_kKeyDownArrow,
 		// keypad numbers
-		WLKey_KP_0,
-		WLKey_KP_1,
-		WLKey_KP_2,
-		WLKey_KP_3,
-		WLKey_KP_4,
-		WLKey_KP_5,
-		WLKey_KP_6,
-		WLKey_KP_7,
-		WLKey_KP_8,
-		WLKey_KP_9,
+		wl_kKeyKP0,
+		wl_kKeyKP1,
+		wl_kKeyKP2,
+		wl_kKeyKP3,
+		wl_kKeyKP4,
+		wl_kKeyKP5,
+		wl_kKeyKP6,
+		wl_kKeyKP7,
+		wl_kKeyKP8,
+		wl_kKeyKP9,
 		// keypad ops
-		WLKey_KP_Clear,
-		WLKey_KP_Equals,
-		WLKey_KP_Divide,
-		WLKey_KP_Multiply,
-		WLKey_KP_Subtract,
-		WLKey_KP_Add,
-		WLKey_KP_Enter,
-		WLKey_KP_Decimal,
+		wl_kKeyKPClear,
+		wl_kKeyKPEquals,
+		wl_kKeyKPDivide,
+		wl_kKeyKPMultiply,
+		wl_kKeyKPSubtract,
+		wl_kKeyKPAdd,
+		wl_kKeyKPEnter,
+		wl_kKeyKPDecimal,
 		// locks
-		WLKey_CapsLock,
-		WLKey_NumLock,
-		WLKey_ScrollLock,
+		wl_kKeyCapsLock,
+		wl_kKeyNumLock,
+		wl_kKeyScrollLock,
 		// misc
-		WLKey_PrintScreen,
-		WLKey_Pause,  // Pause/Break button minus Ctrl
-		WLKey_Cancel, // Ctrl-Break
+		wl_kKeyPrintScreen,
+		wl_kKeyPause,  // Pause/Break button minus Ctrl
+		wl_kKeyCancel, // Ctrl-Break
 		// media
-		WLKey_MediaMute,
-		WLKey_MediaVolumeDown,
-		WLKey_MediaVolumeUp,
-		WLKey_MediaNext,
-		WLKey_MediaPrev,
-		WLKey_MediaStop,
-		WLKey_MediaPlayPause,
+		wl_kKeyMediaMute,
+		wl_kKeyMediaVolumeDown,
+		wl_kKeyMediaVolumeUp,
+		wl_kKeyMediaNext,
+		wl_kKeyMediaPrev,
+		wl_kKeyMediaStop,
+		wl_kKeyMediaPlayPause,
 	};
 
-	enum WLEventType {
-		WLEventType_None,
-		WLEventType_Action,
-		WLEventType_WindowCloseRequest,
-		WLEventType_WindowDestroyed,
-		WLEventType_WindowResized,
-		WLEventType_WindowRepaint,
-		WLEventType_Timer,
-		WLEventType_Mouse,
-		WLEventType_Key,
-		WLEventType_Drop,
-		WLEventType_DragRender, // generate drag/clip data right when it's needed
-		WLEventType_ClipboardClear, // let the app know it's safe to clear whatever it had copied
+	enum wl_EventType {
+		wl_kEventTypeNone,
+		wl_kEventTypeAction,
+		wl_kEventTypeWindowCloseRequest,
+		wl_kEventTypeWindowDestroyed,
+		wl_kEventTypeWindowResized,
+		wl_kEventTypeWindowRepaint,
+		wl_kEventTypeTimer,
+		wl_kEventTypeMouse,
+		wl_kEventTypeKey,
+		wl_kEventTypeDrop,
+		wl_kEventTypeDragRender, // generate drag/clip data right when it's needed
+		wl_kEventTypeClipboardClear, // let the app know it's safe to clear whatever it had copied
 		//
-		WLEventType_PlatformSpecific = 4999,
+		wl_kEventTypePlatformSpecific = 4999,
 		// no #ifdef WL_PLATFORM_WINDOWS here because Dlang won't let us use version() in an enum,
 		// so all the platform specific stuff will exist together
-		WLEventType_D2DTargetRecreated, // so the clients know to purge any device-dependent resources
+		wl_kEventTypeD2DTargetRecreated, // so the clients know to purge any device-dependent resources
 		//
-		WLEventType_UserBegin = 9999
+		wl_kEventTypeUserBegin = 9999
 	};
 
-	enum WLMouseEventType {
-		WLMouseEventType_MouseDown,
-		WLMouseEventType_MouseUp,
-		WLMouseEventType_MouseMove,
-		WLMouseEventType_MouseEnter,
-		WLMouseEventType_MouseLeave,
-		WLMouseEventType_MouseClick, // down then up within a certain spatial / time range
-		WLMouseEventType_MouseWheel
+	enum wl_MouseEventType {
+		wl_kMouseEventTypeMouseDown,
+		wl_kMouseEventTypeMouseUp,
+		wl_kMouseEventTypeMouseMove,
+		wl_kMouseEventTypeMouseEnter,
+		wl_kMouseEventTypeMouseLeave,
+		wl_kMouseEventTypeMouseClick, // down then up within a certain spatial / time range
+		wl_kMouseEventTypeMouseWheel
 	};
 
-	enum WLMouseButton {
-		WLMouseButton_None,
-		WLMouseButton_Left,
-		WLMouseButton_Middle,
-		WLMouseButton_Right,
-		WLMouseButton_Other
+	enum wl_MouseButton {
+		wl_kMouseButtonNone,
+		wl_kMouseButtonLeft,
+		wl_kMouseButtonMiddle,
+		wl_kMouseButtonRight,
+		wl_kMouseButtonOther
 	};
 
-	enum WLKeyEventType {
-		WLKeyEventType_Up,
-		WLKeyEventType_Down,
-		WLKeyEventType_Char
+	enum wl_KeyEventType {
+		wl_kKeyEventTypeUp,
+		wl_kKeyEventTypeDown,
+		wl_kKeyEventTypeChar
 	};
 
-	enum WLModifiers {
-		WLModifier_Shift = 1 << 0,
-		WLModifier_Control = 1 << 1, // command on mac
-		WLModifier_Alt = 1 << 2,
-		WLModifier_MacControl = 1 << 3,
+	enum wl_Modifiers {
+		wl_kModifierShift = 1 << 0,
+		wl_kModifierControl = 1 << 1, // command on mac
+		wl_kModifierAlt = 1 << 2,
+		wl_kModifierMacControl = 1 << 3,
 	};
 
-	enum WLKeyLocation {
-		WLKeyLocation_Default,
-		WLKeyLocation_Left,
-		WLKeyLocation_Right,
-		WLKeyLocation_NumPad
+	enum wl_KeyLocation {
+		wl_kKeyLocationDefault,
+		wl_kKeyLocationLeft,
+		wl_kKeyLocationRight,
+		wl_kKeyLocationNumPad
 	};
 
-	enum WLDropEventType {
-		WLDropEventType_Feedback,
-		WLDropEventType_Drop
+	enum wl_DropEventType {
+		wl_kDropEventTypeFeedback,
+		wl_kDropEventTypeDrop
 	};
 
-	enum WLDropEffect {
-		WLDropEffect_None = 0,
-		WLDropEffect_Copy = 1 << 0,
-		WLDropEffect_Move = 1 << 1,
-		WLDropEffect_Link = 1 << 2,
-		WLDropEffect_Other = 1 << 3 // ask / private / etc
+	enum wl_DropEffect {
+		wl_kDropEffectNone = 0,
+		wl_kDropEffectCopy = 1 << 0,
+		wl_kDropEffectMove = 1 << 1,
+		wl_kDropEffectLink = 1 << 2,
+		wl_kDropEffectOther = 1 << 3 // ask / private / etc
 	};
 
 #ifdef WL_PLATFORM_WINDOWS
-	struct WLPlatformContextD2D { // special case for the platformContext void*
+	struct wl_PlatformContextD2D { // special case for the platformContext void*
 		ID2D1Factory *factory;
 		ID2D1RenderTarget *target;
 	};
 #endif
 
-	struct WLActionEvent {
-		wlAction action;
+	struct wl_ActionEvent {
+		wl_Action action;
 		int id;
 	};
-	struct WLCloseRequestEvent {
+	struct wl_CloseRequestEvent {
 		bool cancelClose;
 	};
-	struct WLDestroyEvent {
+	struct wl_DestroyEvent {
 		int reserved;
 	};
-	struct WLResizeEvent {
+	struct wl_ResizeEvent {
 		int oldWidth, oldHeight;
 		int newWidth, newHeight;
 	};
-	struct WLRepaintEvent {
-		void *platformContext; // HDC, CGContextRef, cairo_t, WLPlatformContextD2D *, etc
+	struct wl_RepaintEvent {
+		void *platformContext; // HDC, CGContextRef, cairo_t, wl_PlatformContextD2D *, etc
 		int x, y, width, height; // affected area
 	};
-	struct WLTimerEvent {
-		wlTimer timer;
+	struct wl_TimerEvent {
+		wl_Timer timer;
 		int timerID;
 		bool stopTimer;
 		double secondsSinceLast;
 	};
-	struct WLMouseEvent {
-		enum WLMouseEventType eventType;
+	struct wl_MouseEvent {
+		enum wl_MouseEventType eventType;
 		int x, y;
 		int wheelDelta;
-		enum WLMouseButton button;
+		enum wl_MouseButton button;
 		unsigned int modifiers;
 	};
-	struct WLKeyEvent {
-		enum WLKeyEventType eventType; // down, up, char
-		enum WLKeyEnum key; // only for down/up events
+	struct wl_KeyEvent {
+		enum wl_KeyEventType eventType; // down, up, char
+		enum wl_KeyEnum key; // only for down/up events
 		const char *string; // only for char events
 		unsigned int modifiers;
-		enum WLKeyLocation location; // left / right / etc
+		enum wl_KeyLocation location; // left / right / etc
 	};
-	struct WLDropEvent {
-		enum WLDropEventType eventType; // all have the same data (so no union below)
-		wlDropData data;
+	struct wl_DropEvent {
+		enum wl_DropEventType eventType; // all have the same data (so no union below)
+		wl_DropData data;
 		unsigned int modifiers;
 		int x, y;
-		enum WLDropEffect defaultModifierAction; // platform-specific suggestion based on modifier combination
-		unsigned int allowedEffectMask; // from WLDropEffect enum
+		enum wl_DropEffect defaultModifierAction; // platform-specific suggestion based on modifier combination
+		unsigned int allowedEffectMask; // from wl_DropEffect enum
 	};
-	struct WLDragRenderEvent {
+	struct wl_DragRenderEvent {
 		const char *dragFormat; // requested format
-		wlRenderPayload payload; // target for rendering methods
+		wl_RenderPayload payload; // target for rendering methods
 	};
-	struct WLClipboardClearEvent {
+	struct wl_ClipboardClearEvent {
 		int reserved;
 	};
 #ifdef WL_PLATFORM_WINDOWS
-	struct WLD2DTargetRecreatedEvent {
+	struct wl_D2DTargetRecreatedEvent {
 		ID2D1RenderTarget *newTarget;
 		ID2D1RenderTarget *oldTarget; // optional
 	};
 #endif
 
-	struct WLEvent {
-		wlEventPrivate _private;
-		enum WLEventType eventType;
+	struct wl_Event {
+		wl_EventPrivate _private;
+		enum wl_EventType eventType;
 		bool handled;
 		union {
-			struct WLActionEvent actionEvent;
-			struct WLCloseRequestEvent closeRequestEvent;
-			struct WLDestroyEvent destroyEvent;
-			struct WLResizeEvent resizeEvent;
-			struct WLRepaintEvent repaintEvent;
-			struct WLTimerEvent timerEvent;
-			struct WLMouseEvent mouseEvent;
-			struct WLKeyEvent keyEvent;
-			struct WLDropEvent dropEvent;
-			struct WLDragRenderEvent dragRenderEvent;
-			struct WLClipboardClearEvent clipboardClearEvent;
+			struct wl_ActionEvent actionEvent;
+			struct wl_CloseRequestEvent closeRequestEvent;
+			struct wl_DestroyEvent destroyEvent;
+			struct wl_ResizeEvent resizeEvent;
+			struct wl_RepaintEvent repaintEvent;
+			struct wl_TimerEvent timerEvent;
+			struct wl_MouseEvent mouseEvent;
+			struct wl_KeyEvent keyEvent;
+			struct wl_DropEvent dropEvent;
+			struct wl_DragRenderEvent dragRenderEvent;
+			struct wl_ClipboardClearEvent clipboardClearEvent;
 #ifdef WL_PLATFORM_WINDOWS
-			struct WLD2DTargetRecreatedEvent d2dTargetRecreatedEvent;
+			struct wl_D2DTargetRecreatedEvent d2dTargetRecreatedEvent;
 #endif
 		};
 	};
 
-	enum WLWindowPropertyEnum {
-		WLWindowProp_MinWidth = 1,
-		WLWindowProp_MinHeight = 1 << 1,
-		WLWindowProp_MaxWidth = 1 << 2,
-		WLWindowProp_MaxHeight = 1 << 3,
-		WLWindowProp_Style = 1 << 4,
-		WLWindowProp_NativeParent = 1 << 5
+	enum wl_WindowPropertyEnum {
+		wl_kWindowPropMinWidth = 1,
+		wl_kWindowPropMinHeight = 1 << 1,
+		wl_kWindowPropMaxWidth = 1 << 2,
+		wl_kWindowPropMaxHeight = 1 << 3,
+		wl_kWindowPropStyle = 1 << 4,
+		wl_kWindowPropNativeParent = 1 << 5
 	};
 
-	enum WLWindowStyleEnum {
-		WLWindowStyle_Default,
-		WLWindowStyle_Frameless,
-        WLWindowStyle_PluginWindow // for VST/AU/etc
+	enum wl_WindowStyleEnum {
+		wl_kWindowStyleDefault,
+		wl_kWindowStyleFrameless,
+        wl_kWindowStylePluginWindow // for VST/AU/etc
 	};
 
-	struct WLWindowProperties {
-		unsigned int usedFields; // set of WLWindowPropertyEnum
+	struct wl_WindowProperties {
+		unsigned int usedFields; // set of wl_WindowPropertyEnum
 		// ======
 		int minWidth, minHeight;
 		int maxWidth, maxHeight;
-        enum WLWindowStyleEnum style;
+        enum wl_WindowStyleEnum style;
 
         // stuff related to the AttachToNative mode (at this time, for audio plugin GUIs)
 #ifdef WL_PLATFORM_WINDOWS
-        HWND nativeParent; // only used when style = pluginWindow - WLWindowProp_Parent must also be set in used fields
+        HWND nativeParent; // only used when style = pluginWindow - wl_kWindowPropParent must also be set in used fields
 #elif defined WL_PLATFORM_APPLE
         struct {
-            void *nsView; // wlWindow returned will be a dummy window, this is the good stuff
+            void *nsView; // wl_Window returned will be a dummy window, this is the good stuff
                           // void* for now, because pulling Objective-C headers into this file (for NSView) causes problems
         } outParams;
 #endif
 	};
 
-	enum WLPlatform {
-		WLPlatform_Windows,
-		WLPlatform_Linux,
-		WLPlatform_Mac
+	enum wl_Platform {
+		wl_kPlatformWindows,
+		wl_kPlatformLinux,
+		wl_kPlatformMac
 	};
 
-	struct WLFiles {
+	struct wl_Files {
 		const char **filenames;
 		int numFiles;
 	};
 
-	typedef int(CDECL *wlEventCallback)(wlWindow window, struct WLEvent *event, void *userData); // akin to win32 wndproc, handles everything
-	typedef void (CDECL *wlVoidCallback)(void *data);
+	typedef int(CDECL *wl_EventCallback)(wl_Window window, struct wl_Event *event, void *userData); // akin to win32 wndproc, handles everything
+	typedef void (CDECL *wl_VoidCallback)(void *data);
 
-	OPENWL_API enum WLPlatform wlGetPlatform();
+	OPENWL_API enum wl_Platform wl_GetPlatform();
 
 	/* application api */
-	struct WLPlatformOptions {
+	struct wl_PlatformOptions {
 #ifdef WL_PLATFORM_WINDOWS
 		bool useDirect2D; // instead of GDI
 		struct {
-			ID2D1Factory *factory; // filled by wlInit()
+			ID2D1Factory *factory; // filled by wl_Init()
 		} outParams;
 #elif defined WL_PLATFORM_APPLE
-        bool pluginSlaveMode; // special wlInit() mode, for when there's an existing runloop and we're only creating NSViews
+        bool pluginSlaveMode; // special wl_Init() mode, for when there's an existing runloop and we're only creating NSViews
 #else
         int reserved;
 #endif
 	};
-	OPENWL_API int CDECL wlInit(wlEventCallback callback, struct WLPlatformOptions *options);
-	OPENWL_API int CDECL wlRunloop();
-	OPENWL_API void CDECL wlExitRunloop(); // posts a message to exit runloop, returns immediately
-	OPENWL_API void CDECL wlShutdown();
+	OPENWL_API int CDECL wl_Init(wl_EventCallback callback, struct wl_PlatformOptions *options);
+	OPENWL_API int CDECL wl_Runloop();
+	OPENWL_API void CDECL wl_ExitRunloop(); // posts a message to exit runloop, returns immediately
+	OPENWL_API void CDECL wl_Shutdown();
 
 	/* window api */
-	OPENWL_API wlWindow CDECL wlWindowCreate(int width, int height, const char *title, void *userData, struct WLWindowProperties *props);
-	OPENWL_API void CDECL wlWindowDestroy(wlWindow window);
-	OPENWL_API void CDECL wlWindowShow(wlWindow window);
-	OPENWL_API void CDECL wlWindowShowRelative(wlWindow window, wlWindow relativeTo, int x, int y, int newWidth, int newHeight); // for pop-up windows
-	OPENWL_API void CDECL wlWindowHide(wlWindow window);
-	OPENWL_API void CDECL wlWindowInvalidate(wlWindow window, int x, int y, int width, int height);
-	OPENWL_API size_t CDECL wlWindowGetOSHandle(wlWindow window);
+	OPENWL_API wl_Window CDECL wl_WindowCreate(int width, int height, const char *title, void *userData, struct wl_WindowProperties *props);
+	OPENWL_API void CDECL wl_WindowDestroy(wl_Window window);
+	OPENWL_API void CDECL wl_WindowShow(wl_Window window);
+	OPENWL_API void CDECL wl_WindowShowRelative(wl_Window window, wl_Window relativeTo, int x, int y, int newWidth, int newHeight); // for pop-up windows
+	OPENWL_API void CDECL wl_WindowHide(wl_Window window);
+	OPENWL_API void CDECL wl_WindowInvalidate(wl_Window window, int x, int y, int width, int height);
+	OPENWL_API size_t CDECL wl_WindowGetOSHandle(wl_Window window);
 
-	OPENWL_API void CDECL wlWindowSetFocus(wlWindow window);
-	OPENWL_API void CDECL wlMouseGrab(wlWindow window);
-	OPENWL_API void CDECL wlMouseUngrab();
+	OPENWL_API void CDECL wl_WindowSetFocus(wl_Window window);
+	OPENWL_API void CDECL wl_MouseGrab(wl_Window window);
+	OPENWL_API void CDECL wl_MouseUngrab();
 
 	/* timer API */
-	OPENWL_API wlTimer CDECL wlTimerCreate(wlWindow window, int timerID, unsigned int msTimeout);
-	OPENWL_API void CDECL wlTimerDestroy(wlTimer timer);
+	OPENWL_API wl_Timer CDECL wl_TimerCreate(wl_Window window, int timerID, unsigned int msTimeout);
+	OPENWL_API void CDECL wl_TimerDestroy(wl_Timer timer);
 
 	/* action API */
-	OPENWL_API wlIcon CDECL wlIconLoadFromFile(const char *filename, int sizeToWidth);
-	OPENWL_API wlAccelerator CDECL wlAccelCreate(enum WLKeyEnum key, unsigned int modifiers);
-	OPENWL_API wlAction CDECL wlActionCreate(int id, const char *label, wlIcon icon, wlAccelerator accel);
+	OPENWL_API wl_Icon CDECL wl_IconLoadFromFile(const char *filename, int sizeToWidth);
+	OPENWL_API wl_Accelerator CDECL wl_AccelCreate(enum wl_KeyEnum key, unsigned int modifiers);
+	OPENWL_API wl_Action CDECL wl_ActionCreate(int id, const char *label, wl_Icon icon, wl_Accelerator accel);
 
 	/* menu API */
-	OPENWL_API wlMenu CDECL wlMenuCreate(); // for menu bars or standalone popups
-	OPENWL_API wlMenuItem CDECL wlMenuAddAction(wlMenu menu, wlAction action);
-	OPENWL_API wlMenuItem CDECL wlMenuAddSubmenu(wlMenu menu, const char *label, wlMenu sub);
-	OPENWL_API void CDECL wlMenuAddSeparator(wlMenu menu);
-	OPENWL_API wlMenuItem CDECL wlMenuBarAddMenu(wlMenuBar menuBar, const char *label, wlMenu menu);
-	OPENWL_API void CDECL wlWindowShowContextMenu(wlWindow window, int x, int y, wlMenu menu, struct WLEvent *fromEvent);
+	OPENWL_API wl_Menu CDECL wl_MenuCreate(); // for menu bars or standalone popups
+	OPENWL_API wl_MenuItem CDECL wl_MenuAddAction(wl_Menu menu, wl_Action action);
+	OPENWL_API wl_MenuItem CDECL wl_MenuAddSubmenu(wl_Menu menu, const char *label, wl_Menu sub);
+	OPENWL_API void CDECL wl_MenuAddSeparator(wl_Menu menu);
+	OPENWL_API wl_MenuItem CDECL wl_MenuBarAddMenu(wl_MenuBar menuBar, const char *label, wl_Menu menu);
+	OPENWL_API void CDECL wl_WindowShowContextMenu(wl_Window window, int x, int y, wl_Menu menu, struct wl_Event *fromEvent);
 #ifdef WL_PLATFORM_APPLE
 	// Mac-specific menu stuff (sigh)
-	OPENWL_API wlMenuBar CDECL wlMenuBarGetDefault();
-	OPENWL_API wlMenu CDECL wlGetApplicationMenu(); // special section of menu for Macs (prefs, quit, etc)
+	OPENWL_API wl_MenuBar CDECL wl_MenuBarGetDefault();
+	OPENWL_API wl_Menu CDECL wl_GetApplicationMenu(); // special section of menu for Macs (prefs, quit, etc)
 #else
-	OPENWL_API wlMenuBar CDECL wlMenuBarCreate();
-	OPENWL_API void CDECL wlWindowSetMenuBar(wlWindow window, wlMenuBar menuBar);
+	OPENWL_API wl_MenuBar CDECL wl_MenuBarCreate();
+	OPENWL_API void CDECL wl_WindowSetMenuBar(wl_Window window, wl_MenuBar menuBar);
 #endif
 
 	/* DND API */
-	extern OPENWL_API const char *kWLDragFormatUTF8;
-	extern OPENWL_API const char *kWLDragFormatFiles;
+	extern OPENWL_API const char *wl_kDragFormatUTF8;
+	extern OPENWL_API const char *wl_kDragFormatFiles;
 	// user can provide anything else with a custom mime type
 
 	// drag source methods
-	OPENWL_API wlDragData CDECL wlDragDataCreate(wlWindow forWindow);
-	OPENWL_API void CDECL wlDragDataRelease(wlDragData *dragData);
-	OPENWL_API void CDECL wlDragAddFormat(wlDragData dragData, const char *dragFormatMIME); // drag source: we're capable of generating this format
-	OPENWL_API enum WLDropEffect CDECL wlDragExec(wlDragData dragData, unsigned int dropActionsMask, struct WLEvent *fromEvent); // modal / blocking
+	OPENWL_API wl_DragData CDECL wl_DragDataCreate(wl_Window forWindow);
+	OPENWL_API void CDECL wl_DragDataRelease(wl_DragData *dragData);
+	OPENWL_API void CDECL wl_DragAddFormat(wl_DragData dragData, const char *dragFormatMIME); // drag source: we're capable of generating this format
+	OPENWL_API enum wl_DropEffect CDECL wl_DragExec(wl_DragData dragData, unsigned int dropActionsMask, struct wl_Event *fromEvent); // modal / blocking
 
 	// drop target methods
-	OPENWL_API bool CDECL wlDropHasFormat(wlDropData dropData, const char *dropFormatMIME); // drag target: testing for availability of this format
-	// wlDropGetFormat merely gets a pointer to data that is owned by the wlDropData - and it is only valid as long as the wlDropData is (typically for the duration of the callback)
-	OPENWL_API bool CDECL wlDropGetFormat(wlDropData dropData, const char *dropFormatMIME, const void **data, size_t *dataSize);
-	// the WLFiles* is owned by the wlDropData (points to internal wlDropData structure) - onyl valid for life of dropData
-	OPENWL_API bool CDECL wlDropGetFiles(wlDropData dropData, const struct WLFiles **files);
+	OPENWL_API bool CDECL wl_DropHasFormat(wl_DropData dropData, const char *dropFormatMIME); // drag target: testing for availability of this format
+	// wl_DropGetFormat merely gets a pointer to data that is owned by the wl_DropData - and it is only valid as long as the wl_DropData is (typically for the duration of the callback)
+	OPENWL_API bool CDECL wl_DropGetFormat(wl_DropData dropData, const char *dropFormatMIME, const void **data, size_t *dataSize);
+	// the wl_Files* is owned by the wl_DropData (points to internal wl_DropData structure) - onyl valid for life of dropData
+	OPENWL_API bool CDECL wl_DropGetFiles(wl_DropData dropData, const struct wl_Files **files);
 
 	// clip/drop data rendering
-	OPENWL_API void CDECL wlDragRenderUTF8(wlRenderPayload payload, const char *text);
-	OPENWL_API void CDECL wlDragRenderFiles(wlRenderPayload payload, const struct WLFiles *files);
-	OPENWL_API void CDECL wlDragRenderFormat(wlRenderPayload payload, const char *formatMIME, const void *data, size_t dataSize);
+	OPENWL_API void CDECL wl_DragRenderUTF8(wl_RenderPayload payload, const char *text);
+	OPENWL_API void CDECL wl_DragRenderFiles(wl_RenderPayload payload, const struct wl_Files *files);
+	OPENWL_API void CDECL wl_DragRenderFormat(wl_RenderPayload payload, const char *formatMIME, const void *data, size_t dataSize);
 
-	OPENWL_API void wlWindowEnableDrops(wlWindow window, bool enabled); // start/stop receiving drop events
+	OPENWL_API void wl_WindowEnableDrops(wl_Window window, bool enabled); // start/stop receiving drop events
 
 	/* CLIPBOARD API */
-	OPENWL_API void CDECL wlClipboardSet(wlDragData dragData);
-	OPENWL_API wlDropData CDECL wlClipboardGet();
-	OPENWL_API void CDECL wlClipboardRelease(wlDropData dropData);
-	OPENWL_API void CDECL wlClipboardFlush();
+	OPENWL_API void CDECL wl_ClipboardSet(wl_DragData dragData);
+	OPENWL_API wl_DropData CDECL wl_ClipboardGet();
+	OPENWL_API void CDECL wl_ClipboardRelease(wl_DropData dropData);
+	OPENWL_API void CDECL wl_ClipboardFlush();
 
 	/* MISC */
-	OPENWL_API void CDECL wlExecuteOnMainThread(wlWindow window, wlVoidCallback callback, void *data);
-	OPENWL_API void CDECL wlSleep(unsigned int millis);
-	OPENWL_API size_t CDECL wlSystemMillis();
+	OPENWL_API void CDECL wl_ExecuteOnMainThread(wl_Window window, wl_VoidCallback callback, void *data);
+	OPENWL_API void CDECL wl_Sleep(unsigned int millis);
+	OPENWL_API size_t CDECL wl_SystemMillis();
 
 #ifdef __cplusplus
 }

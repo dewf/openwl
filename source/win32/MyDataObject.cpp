@@ -31,11 +31,11 @@ bool MyDataObject::renderFormat(FORMATETC *pFormatEtc, STGMEDIUM *pMedium) {
             auto dragFormat = kv.first;
             //
 
-			_wlRenderPayload payload; // used as render target
+			_wl_RenderPayload payload; // used as render target
 
-            WLEvent event;
+            wl_Event event;
             event._private = nullptr;
-            event.eventType = WLEventType_DragRender;
+            event.eventType = wl_kEventTypeDragRender;
             event.dragRenderEvent.dragFormat = dragFormat.c_str();
             event.dragRenderEvent.payload = &payload;
             eventCallback(mWindow, &event, mWindow->userData);
@@ -71,7 +71,7 @@ void MyDataObject::enumFormats(FORMATETC **formats, LONG *numFormats) {
     }
 }
 
-MyDataObject::MyDataObject(wlWindow window)
+MyDataObject::MyDataObject(wl_Window window)
     : CDataObject()
 {
     mWindow = window;
@@ -83,7 +83,7 @@ MyDataObject::~MyDataObject() {
 
 void MyDataObject::addDragFormat(const char *dragFormat) {
     FORMATETC fmtetc;
-	if (!strcmp(dragFormat, kWLDragFormatUTF8)) {
+	if (!strcmp(dragFormat, wl_kDragFormatUTF8)) {
 		fmtetc = { CF_UNICODETEXT, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
 	}
 	else {

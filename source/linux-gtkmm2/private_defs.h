@@ -26,20 +26,20 @@ struct _wlIcon {
 };
 
 struct _wlAccelerator {
-    WLKeyEnum key;
+    wl_KeyEnum key;
     unsigned int modifiers;
 };
 
 struct _wlAction {
     int id;
     std::string label;
-    wlIcon icon;
-    wlAccelerator accel;
-    std::vector<wlMenuItem> attachedItems; // for disabling multiple menu items at once, etc
+    wl_Icon icon;
+    wl_Accelerator accel;
+    std::vector<wl_MenuItem> attachedItems; // for disabling multiple menu items at once, etc
 };
 
 struct _wlTimer {
-    wlWindow window;
+    wl_Window window;
     int timerID;
     sigc::connection conn;
     bool connected = false;
@@ -62,36 +62,36 @@ struct _wlTimer {
 };
 
 struct _wlMenuShell {
-    virtual wlWindow getAssociatedWindow() = 0;
+    virtual wl_Window getAssociatedWindow() = 0;
     virtual Gtk::MenuShell &getShell() = 0;
 };
 
 struct _wlMenuItem {
     _wlMenuShell *parentShell;
     Gtk::MenuItem *gtkItem;
-    wlAction action;
-    wlMenu sub;
+    wl_Action action;
+    wl_Menu sub;
 };
 
 struct _wlMenuBar : _wlMenuShell {
-    wlWindow attachedTo = nullptr;
+    wl_Window attachedTo = nullptr;
     Gtk::MenuBar gtkMenuBar;
 
     Gtk::MenuShell &getShell() override { return gtkMenuBar; }
 
-    wlWindow getAssociatedWindow() override {
+    wl_Window getAssociatedWindow() override {
         return attachedTo;
     }
 };
 
 struct _wlMenu : _wlMenuShell {
     Gtk::Menu gtkMenu;
-    wlMenuItem parentItem = nullptr;
-    wlWindow contextFor = nullptr;
+    wl_MenuItem parentItem = nullptr;
+    wl_Window contextFor = nullptr;
 
     Gtk::MenuShell &getShell() override { return gtkMenu; }
 
-    wlWindow getAssociatedWindow() override {
+    wl_Window getAssociatedWindow() override {
         if (contextFor) {
             return contextFor;
         } else {
@@ -102,7 +102,7 @@ struct _wlMenu : _wlMenuShell {
             }
         }
     }
-    void on_item_activate(wlMenuItem item) {
+    void on_item_activate(wl_MenuItem item) {
         auto window = getAssociatedWindow();
         if (window) {
             window->execAction(item->action);
@@ -113,15 +113,15 @@ struct _wlMenu : _wlMenuShell {
 };
 
 struct _wlDragData {
-    wlWindow forWindow = nullptr;
+    wl_Window forWindow = nullptr;
     std::set<std::string> formats;
     bool dragActive = false;
 };
 
-struct _wlFilesInternal : public WLFiles
+struct _wlFilesInternal : public wl_Files
 {
     _wlFilesInternal(int numFiles)
-        :WLFiles()
+        :wl_Files()
     {
         this->numFiles = numFiles;
         filenames = new const char *[numFiles];
@@ -147,7 +147,7 @@ struct _wlDropData {
         delete files; // apparently OK to delete null ptrs!
     }
 
-    bool getFiles(const struct WLFiles **outFiles);
+    bool getFiles(const struct wl_Files **outFiles);
 
     virtual bool hasTarget(const char *target) = 0;
     virtual bool getFormat(const char *dropFormatMIME, const void **data, size_t *dataSize) = 0;
@@ -166,10 +166,10 @@ struct _wlRenderPayload {
 
 struct _wlDropData_Drop : _wlDropData {
     const Glib::RefPtr<Gdk::DragContext> &dragContext;
-    wlWindow window;
+    wl_Window window;
 
 // "public" ================================
-    _wlDropData_Drop(const Glib::RefPtr<Gdk::DragContext> &dragContext, wlWindow window)
+    _wlDropData_Drop(const Glib::RefPtr<Gdk::DragContext> &dragContext, wl_Window window)
             : dragContext(dragContext),
               window(window) {}
 
