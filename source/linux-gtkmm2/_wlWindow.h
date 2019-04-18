@@ -12,7 +12,7 @@
 #include <set>
 #include "globals.h"
 
-struct _wlWindow : public Gtk::Window {
+struct _wl_Window : public Gtk::Window {
 private:
     wl_WindowProperties props = {0}; // save these because they need to be reapplied when a menu is added
 
@@ -53,8 +53,8 @@ public:
         timers.erase(timer);
     }
 
-    _wlWindow(void *userData, wl_WindowProperties *props);
-    virtual ~_wlWindow();
+    _wl_Window(void *userData, wl_WindowProperties *props);
+    virtual ~_wl_Window();
 
     /**** callbacks ****/
     bool on_drawArea_expose(GdkEventExpose *gdkEvent);

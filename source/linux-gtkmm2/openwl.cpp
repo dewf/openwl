@@ -48,7 +48,7 @@ OPENWL_API void CDECL wl_Shutdown() {
 
 OPENWL_API wl_Window CDECL
 wl_WindowCreate(int width, int height, const char *title, void *userData, wl_WindowProperties *props) {
-    auto window = new _wlWindow(userData, props);
+    auto window = new _wl_Window(userData, props);
 
     if (title) {
         window->set_title(title);
@@ -118,12 +118,12 @@ OPENWL_API void CDECL wl_MouseUngrab()
 
 OPENWL_API wl_Timer CDECL wl_TimerCreate(wl_Window window, int timerID, unsigned int msTimeout)
 {
-    auto timer = new _wlTimer;
+    auto timer = new _wl_Timer;
     timer->window = window;
     timer->timerID = timerID;
     clock_gettime(CLOCK_MONOTONIC, &timer->lastTime);
 
-    auto slot = sigc::bind(sigc::mem_fun(*window, &_wlWindow::on_timer_timeout), timer);
+    auto slot = sigc::bind(sigc::mem_fun(*window, &_wl_Window::on_timer_timeout), timer);
     timer->conn = Glib::signal_timeout().connect(slot, msTimeout);
 
     timer->connected = true;
@@ -174,14 +174,14 @@ OPENWL_API wl_Icon CDECL wl_IconLoadFromFile(const char *filename, int sizeToWid
         // no need to delete pixbuf before reassignment, it's reference-counted
         pixbuf = scaled;
     }
-    auto ret = new _wlIcon;
+    auto ret = new _wl_Icon;
     ret->gtkImage = new Gtk::Image(pixbuf);
     return ret;
 }
 
 OPENWL_API wl_Accelerator CDECL wl_AccelCreate(wl_KeyEnum key, unsigned int modifiers)
 {
-    auto ret = new _wlAccelerator;
+    auto ret = new _wl_Accelerator;
     ret->key = key;
     ret->modifiers = modifiers;
     return ret;
@@ -189,7 +189,7 @@ OPENWL_API wl_Accelerator CDECL wl_AccelCreate(wl_KeyEnum key, unsigned int modi
 
 OPENWL_API wl_Action CDECL wl_ActionCreate(int id, const char *label, wl_Icon icon, wl_Accelerator accel)
 {
-    auto ret = new _wlAction;
+    auto ret = new _wl_Action;
     ret->id = id;
     ret->label = label;
     ret->icon = icon;
@@ -206,7 +206,7 @@ OPENWL_API wl_Action CDECL wl_ActionCreate(int id, const char *label, wl_Icon ic
 
 OPENWL_API wl_Menu CDECL wl_MenuCreate()
 {
-    return new _wlMenu;
+    return new _wl_Menu;
 }
 
 OPENWL_API wl_MenuItem CDECL wl_MenuAddAction(wl_Menu menu, wl_Action action)
@@ -214,7 +214,7 @@ OPENWL_API wl_MenuItem CDECL wl_MenuAddAction(wl_Menu menu, wl_Action action)
     std::string label_copy = action->label;
     replace_all(label_copy, "&", "_"); // menu mnemonics are prefixed with underscores, not &
 
-    auto ret = new _wlMenuItem;
+    auto ret = new _wl_MenuItem;
     if (action->icon) {
         ret->gtkItem = new Gtk::ImageMenuItem(*action->icon->gtkImage, label_copy, true);
     } else {
@@ -229,7 +229,7 @@ OPENWL_API wl_MenuItem CDECL wl_MenuAddAction(wl_Menu menu, wl_Action action)
 //    auto slot = sigc::bind(sigc::mem_fun(*window, &_wlWindow::on_timer_timeout), timer);
 //    timer->conn = Glib::signal_timeout().connect(slot, msTimeout);
 
-    auto slot = sigc::bind(sigc::mem_fun(*menu, &_wlMenu::on_item_activate), ret);
+    auto slot = sigc::bind(sigc::mem_fun(*menu, &_wl_Menu::on_item_activate), ret);
     ret->gtkItem->signal_activate().connect(slot);
 
     // add accelerator if any
@@ -245,7 +245,7 @@ OPENWL_API wl_MenuItem CDECL wl_MenuAddAction(wl_Menu menu, wl_Action action)
 
 }
 
-static wl_MenuItem addSubmenuCommon(_wlMenuShell *shell, const char *label, wl_Menu sub)
+static wl_MenuItem addSubmenuCommon(_wl_MenuShell *shell, const char *label, wl_Menu sub)
 {
     std::string label_copy = label;
     replace_all(label_copy, "&", "_");
@@ -254,7 +254,7 @@ static wl_MenuItem addSubmenuCommon(_wlMenuShell *shell, const char *label, wl_M
     item->set_submenu(sub->gtkMenu);
     shell->getShell().append(*item);
 
-    auto ret = new _wlMenuItem;
+    auto ret = new _wl_MenuItem;
     ret->parentShell = shell;
     ret->gtkItem = item;
     ret->action = nullptr;
@@ -279,7 +279,7 @@ OPENWL_API void CDECL wl_MenuAddSeparator(wl_Menu menu)
 
 OPENWL_API wl_MenuBar CDECL wl_MenuBarCreate()
 {
-    auto ret = new _wlMenuBar;
+    auto ret = new _wl_MenuBar;
     ret->attachedTo = nullptr;
     return ret;
 }
@@ -318,7 +318,7 @@ OPENWL_API const char *wl_kDragFormatFiles = "text/uri-list";
 
 OPENWL_API wl_DragData CDECL wl_DragDataCreate(wl_Window forWindow)
 {
-    auto ret = new _wlDragData;
+    auto ret = new _wl_DragData;
     ret->forWindow = forWindow;
     return ret;
 }
@@ -437,7 +437,7 @@ OPENWL_API void CDECL wl_ClipboardSet(wl_DragData dragData)
 
 OPENWL_API wl_DropData CDECL wl_ClipboardGet()
 {
-    return new _wlDropData_Clip();
+    return new _wl_DropData_Clip();
 }
 
 OPENWL_API void CDECL wl_ClipboardFlush()

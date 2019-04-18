@@ -35,7 +35,7 @@ std::vector<std::string> split_items(char *uri_chars, size_t dataSize) {
     return items;
 }
 
-bool _wlDropData::getFiles(const struct wl_Files **outFiles)
+bool _wl_DropData::getFiles(const struct wl_Files **outFiles)
 {
     const void *uri_list;
     size_t dataSize;
@@ -48,7 +48,7 @@ bool _wlDropData::getFiles(const struct wl_Files **outFiles)
     auto items = split_items(uri_chars, dataSize);
     auto numFiles = (int)items.size();
 
-    files = new _wlFilesInternal(numFiles);
+    files = new _wl_FilesInternal(numFiles);
     for (int i=0; i< numFiles; i++) {
         files->filenames[i] = strdup(items[i].c_str());
     }

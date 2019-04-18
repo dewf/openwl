@@ -6,27 +6,27 @@
 #include <gdk/gdkx.h>
 
 struct EventFrame {
-    _wlEventPrivate _priv;
-    wl_Event wl_Event;
-    EventFrame(GdkEvent *gdkEvent) {
-        wl_Event._private = &_priv;
+    _wl_EventPrivate _priv;
+    wl_Event wlEvent;
+    explicit EventFrame(GdkEvent *gdkEvent) {
+        wlEvent._private = &_priv;
         _priv.gdkEvent = gdkEvent;
     }
 };
 
-void _wlWindow::dragClipRender(Gtk::SelectionData &selectionData, guint info) {
+void _wl_Window::dragClipRender(Gtk::SelectionData &selectionData, guint info) {
     EventFrame ef(nullptr);
-    auto wl_Event = &ef.wl_Event;
-    wl_Event->eventType = wl_kEventTypeDragRender;
+    auto event = &ef.wlEvent;
+    event->eventType = wl_kEventTypeDragRender;
 
-    wl_Event->dragRenderEvent.dragFormat = selectionData.get_target().c_str(); //(WLDragFormatEnum)info
+    event->dragRenderEvent.dragFormat = selectionData.get_target().c_str(); //(WLDragFormatEnum)info
 
-    auto payload = new _wlRenderPayload;
-    wl_Event->dragRenderEvent.payload = payload;
+    auto payload = new _wl_RenderPayload;
+    event->dragRenderEvent.payload = payload;
 
-    dispatchEvent(wl_Event);
+    dispatchEvent(event);
 
-    if (wl_Event->handled) {
+    if (event->handled) {
         selectionData.set(8, (guint8 *)payload->data, (int)payload->dataSize);
         printf("selectiondata set\n");
     } else {
@@ -66,7 +66,7 @@ Gtk::WindowType getWindowType(wl_WindowProperties *props) {
     }
 }
 
-_wlWindow::_wlWindow(void *userData, wl_WindowProperties *props)
+_wl_Window::_wl_Window(void *userData, wl_WindowProperties *props)
         : Window(getWindowType(props)),
           userData(userData)
 {
@@ -77,7 +77,7 @@ _wlWindow::_wlWindow(void *userData, wl_WindowProperties *props)
     }
 
     // GTK stuff below
-    signal_delete_event().connect(sigc::mem_fun1(*this, &_wlWindow::on_delete));
+    signal_delete_event().connect(sigc::mem_fun1(*this, &_wl_Window::on_delete));
 
     // vertical box for menu bar + drawing area
     add(vbox);
@@ -85,8 +85,8 @@ _wlWindow::_wlWindow(void *userData, wl_WindowProperties *props)
 
     drawArea.set_can_focus(true);
 
-    drawArea.signal_expose_event().connect(sigc::mem_fun1(*this, &_wlWindow::on_drawArea_expose));
-    drawArea.signal_size_allocate().connect(sigc::mem_fun1(*this, &_wlWindow::on_drawArea_allocate));
+    drawArea.signal_expose_event().connect(sigc::mem_fun1(*this, &_wl_Window::on_drawArea_expose));
+    drawArea.signal_size_allocate().connect(sigc::mem_fun1(*this, &_wl_Window::on_drawArea_allocate));
 
     drawArea.add_events(Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK |
                         Gdk::KEY_PRESS_MASK | Gdk::KEY_RELEASE_MASK |
@@ -96,23 +96,23 @@ _wlWindow::_wlWindow(void *userData, wl_WindowProperties *props)
                         Gdk::FOCUS_CHANGE_MASK);
     //        drawArea.add_events(Gdk::ALL_EVENTS_MASK);
 
-    drawArea.signal_button_press_event().connect(sigc::mem_fun1(*this, &_wlWindow::on_drawArea_buttonPress));
-    drawArea.signal_button_release_event().connect(sigc::mem_fun1(*this, &_wlWindow::on_drawArea_buttonRelease));
-    drawArea.signal_key_press_event().connect(sigc::mem_fun1(*this, &_wlWindow::on_drawArea_keyPress));
-    drawArea.signal_key_release_event().connect(sigc::mem_fun1(*this, &_wlWindow::on_drawArea_keyRelease));
-    drawArea.signal_motion_notify_event().connect(sigc::mem_fun1(*this, &_wlWindow::on_drawArea_mouseMotion));
-    drawArea.signal_enter_notify_event().connect(sigc::mem_fun1(*this, &_wlWindow::on_drawArea_enterNotify));
-    drawArea.signal_leave_notify_event().connect(sigc::mem_fun1(*this, &_wlWindow::on_drawArea_leaveNotify));
+    drawArea.signal_button_press_event().connect(sigc::mem_fun1(*this, &_wl_Window::on_drawArea_buttonPress));
+    drawArea.signal_button_release_event().connect(sigc::mem_fun1(*this, &_wl_Window::on_drawArea_buttonRelease));
+    drawArea.signal_key_press_event().connect(sigc::mem_fun1(*this, &_wl_Window::on_drawArea_keyPress));
+    drawArea.signal_key_release_event().connect(sigc::mem_fun1(*this, &_wl_Window::on_drawArea_keyRelease));
+    drawArea.signal_motion_notify_event().connect(sigc::mem_fun1(*this, &_wl_Window::on_drawArea_mouseMotion));
+    drawArea.signal_enter_notify_event().connect(sigc::mem_fun1(*this, &_wl_Window::on_drawArea_enterNotify));
+    drawArea.signal_leave_notify_event().connect(sigc::mem_fun1(*this, &_wl_Window::on_drawArea_leaveNotify));
 
     // dnd, ughhh
-    drawArea.signal_drag_begin().connect(sigc::mem_fun1(*this, &_wlWindow::on_drawArea_dragBegin));
-    drawArea.signal_drag_motion().connect(sigc::mem_fun4(*this, &_wlWindow::on_drawArea_dragMotion));
-    drawArea.signal_drag_data_get().connect(sigc::mem_fun4(*this, &_wlWindow::on_drawArea_dragDataGet));
-    drawArea.signal_drag_drop().connect(sigc::mem_fun4(*this, &_wlWindow::on_drawArea_dragDrop));
-    drawArea.signal_drag_end().connect(sigc::mem_fun1(*this, &_wlWindow::on_drawArea_dragEnd));
-    drawArea.signal_drag_data_received().connect(sigc::mem_fun6(*this, &_wlWindow::on_drawArea_dragDataReceived));
-    drawArea.signal_drag_data_delete().connect(sigc::mem_fun1(*this, &_wlWindow::on_drawArea_dragDataDelete));
-    drawArea.signal_drag_leave().connect(sigc::mem_fun2(*this, &_wlWindow::on_drawArea_dragLeave));
+    drawArea.signal_drag_begin().connect(sigc::mem_fun1(*this, &_wl_Window::on_drawArea_dragBegin));
+    drawArea.signal_drag_motion().connect(sigc::mem_fun4(*this, &_wl_Window::on_drawArea_dragMotion));
+    drawArea.signal_drag_data_get().connect(sigc::mem_fun4(*this, &_wl_Window::on_drawArea_dragDataGet));
+    drawArea.signal_drag_drop().connect(sigc::mem_fun4(*this, &_wl_Window::on_drawArea_dragDrop));
+    drawArea.signal_drag_end().connect(sigc::mem_fun1(*this, &_wl_Window::on_drawArea_dragEnd));
+    drawArea.signal_drag_data_received().connect(sigc::mem_fun6(*this, &_wl_Window::on_drawArea_dragDataReceived));
+    drawArea.signal_drag_data_delete().connect(sigc::mem_fun1(*this, &_wl_Window::on_drawArea_dragDataDelete));
+    drawArea.signal_drag_leave().connect(sigc::mem_fun2(*this, &_wl_Window::on_drawArea_dragLeave));
 
     //        EXPOSURE_MASK = 1 << 1,
     //        POINTER_MOTION_MASK = 1 << 2,
@@ -138,7 +138,7 @@ _wlWindow::_wlWindow(void *userData, wl_WindowProperties *props)
     //        ALL_EVENTS_MASK = 0x3FFFFE
 }
 
-_wlWindow::~_wlWindow() {
+_wl_Window::~_wl_Window() {
     printf("wl_Window destruct\n");
     // stop all associated timers
     // copy set so removal doesn't mess with iterator
@@ -149,79 +149,79 @@ _wlWindow::~_wlWindow() {
     }
 
     EventFrame ef(nullptr);
-    auto wl_Event = &ef.wl_Event;
-    wl_Event->eventType = wl_kEventTypeWindowDestroyed;
-    wl_Event->destroyEvent.reserved = 0;
-    dispatchEvent(wl_Event);
+    auto event = &ef.wlEvent;
+    event->eventType = wl_kEventTypeWindowDestroyed;
+    event->destroyEvent.reserved = 0;
+    dispatchEvent(event);
 }
 
 /**** callbacks ****/
-bool _wlWindow::on_drawArea_expose(GdkEventExpose *gdkEvent) {
+bool _wl_Window::on_drawArea_expose(GdkEventExpose *gdkEvent) {
     EventFrame ef((GdkEvent *)gdkEvent);
-    auto wl_Event = &ef.wl_Event;
-    wl_Event->eventType = wl_kEventTypeWindowRepaint;
+    auto event = &ef.wlEvent;
+    event->eventType = wl_kEventTypeWindowRepaint;
     auto context = drawArea.get_window()->create_cairo_context();
-    wl_Event->repaintEvent.platformContext = context->cobj(); // cairo_t *
-    wl_Event->repaintEvent.x = gdkEvent->area.x;
-    wl_Event->repaintEvent.y = gdkEvent->area.y;
-    wl_Event->repaintEvent.width = gdkEvent->area.width;
-    wl_Event->repaintEvent.height = gdkEvent->area.height;
-    dispatchEvent(wl_Event);
-    return wl_Event->handled;
+    event->repaintEvent.platformContext = context->cobj(); // cairo_t *
+    event->repaintEvent.x = gdkEvent->area.x;
+    event->repaintEvent.y = gdkEvent->area.y;
+    event->repaintEvent.width = gdkEvent->area.width;
+    event->repaintEvent.height = gdkEvent->area.height;
+    dispatchEvent(event);
+    return event->handled;
 //        auto width = drawArea.get_allocation().get_width();
 //        auto height = drawArea.get_allocation().get_height();
 //        printf("alloc w/h: %d/%d\n", width, height);
 }
 
-void _wlWindow::on_drawArea_allocate(Gtk::Allocation &allocation) {
+void _wl_Window::on_drawArea_allocate(Gtk::Allocation &allocation) {
     if (allocation.get_width() != width || allocation.get_height() != height) {
         EventFrame ef(nullptr);
-        auto wl_Event = &ef.wl_Event;
-        wl_Event->eventType = wl_kEventTypeWindowResized;
-        wl_Event->resizeEvent.newWidth = allocation.get_width();
-        wl_Event->resizeEvent.newHeight = allocation.get_height();
-        wl_Event->resizeEvent.oldWidth = width;
-        wl_Event->resizeEvent.oldHeight = height;
-        dispatchEvent(wl_Event);
+        auto event = &ef.wlEvent;
+        event->eventType = wl_kEventTypeWindowResized;
+        event->resizeEvent.newWidth = allocation.get_width();
+        event->resizeEvent.newHeight = allocation.get_height();
+        event->resizeEvent.oldWidth = width;
+        event->resizeEvent.oldHeight = height;
+        dispatchEvent(event);
         width = allocation.get_width();
         height = allocation.get_height();
     }
 }
 
-bool _wlWindow::on_drawArea_buttonPress(GdkEventButton *gdkEvent) {
+bool _wl_Window::on_drawArea_buttonPress(GdkEventButton *gdkEvent) {
     EventFrame ef((GdkEvent *)gdkEvent);
-    auto wl_Event = &ef.wl_Event;
-    wl_Event->eventType = wl_kEventTypeMouse;
-    wl_Event->mouseEvent.eventType = wl_kMouseEventTypeMouseDown;
-    wl_Event->mouseEvent.x = (int)gdkEvent->x;
-    wl_Event->mouseEvent.y = (int)gdkEvent->y;
-    wl_Event->mouseEvent.modifiers = gdkToWlModifiers(gdkEvent->state);
-    wl_Event->mouseEvent.button = gdkToWlButton(gdkEvent->button);
-    dispatchEvent(wl_Event);
-    return wl_Event->handled;
+    auto event = &ef.wlEvent;
+    event->eventType = wl_kEventTypeMouse;
+    event->mouseEvent.eventType = wl_kMouseEventTypeMouseDown;
+    event->mouseEvent.x = (int)gdkEvent->x;
+    event->mouseEvent.y = (int)gdkEvent->y;
+    event->mouseEvent.modifiers = gdkToWlModifiers(gdkEvent->state);
+    event->mouseEvent.button = gdkToWlButton(gdkEvent->button);
+    dispatchEvent(event);
+    return event->handled;
 }
 
 
-bool _wlWindow::on_drawArea_buttonRelease(GdkEventButton *gdkEvent) {
+bool _wl_Window::on_drawArea_buttonRelease(GdkEventButton *gdkEvent) {
     EventFrame ef((GdkEvent *)gdkEvent);
-    auto wl_Event = &ef.wl_Event;
-    wl_Event->eventType = wl_kEventTypeMouse;
-    wl_Event->mouseEvent.eventType = wl_kMouseEventTypeMouseUp;
-    wl_Event->mouseEvent.x = (int)gdkEvent->x;
-    wl_Event->mouseEvent.y = (int)gdkEvent->y;
-    wl_Event->mouseEvent.modifiers = gdkToWlModifiers(gdkEvent->state);
-    wl_Event->mouseEvent.button = gdkToWlButton(gdkEvent->button);
-    dispatchEvent(wl_Event);
-    return wl_Event->handled;
+    auto event = &ef.wlEvent;
+    event->eventType = wl_kEventTypeMouse;
+    event->mouseEvent.eventType = wl_kMouseEventTypeMouseUp;
+    event->mouseEvent.x = (int)gdkEvent->x;
+    event->mouseEvent.y = (int)gdkEvent->y;
+    event->mouseEvent.modifiers = gdkToWlModifiers(gdkEvent->state);
+    event->mouseEvent.button = gdkToWlButton(gdkEvent->button);
+    dispatchEvent(event);
+    return event->handled;
 }
 
-bool _wlWindow::on_drawArea_keyPress(GdkEventKey *gdkEvent) {
+bool _wl_Window::on_drawArea_keyPress(GdkEventKey *gdkEvent) {
     EventFrame ef((GdkEvent *)gdkEvent);
-    auto wl_Event = &ef.wl_Event;
-    wl_Event->eventType = wl_kEventTypeKey;
-    wl_Event->keyEvent.key = wl_kKeyUnknown;
-    wl_Event->keyEvent.modifiers = gdkToWlModifiers(gdkEvent->state);
-    wl_Event->keyEvent.location = wl_kKeyLocationDefault;
+    auto event = &ef.wlEvent;
+    event->eventType = wl_kEventTypeKey;
+    event->keyEvent.key = wl_kKeyUnknown;
+    event->keyEvent.modifiers = gdkToWlModifiers(gdkEvent->state);
+    event->keyEvent.location = wl_kKeyLocationDefault;
 
     auto keyHandled = false;
     auto charHandled = false;
@@ -231,14 +231,14 @@ bool _wlWindow::on_drawArea_keyPress(GdkEventKey *gdkEvent) {
     auto found = keyMap.find(gdkEvent->keyval);
     if (found != keyMap.end()) {
         auto info = found->second;
-        wl_Event->keyEvent.eventType = wl_kKeyEventTypeDown;
-        wl_Event->keyEvent.key = info->key;
-        wl_Event->keyEvent.string = info->stringRep;
-        wl_Event->keyEvent.location = info->location;
+        event->keyEvent.eventType = wl_kKeyEventTypeDown;
+        event->keyEvent.key = info->key;
+        event->keyEvent.string = info->stringRep;
+        event->keyEvent.location = info->location;
 
-        dispatchEvent(wl_Event);
+        dispatchEvent(event);
 
-        keyHandled = wl_Event->handled;
+        keyHandled = event->handled;
         suppressChar = info->suppressChar;
     }
 
@@ -247,133 +247,133 @@ bool _wlWindow::on_drawArea_keyPress(GdkEventKey *gdkEvent) {
         && strlen(gdkEvent->string) > 0
         && !suppressChar) // can be suppressed if it's something we don't want characters for (return, esc, etc)
     {
-        wl_Event->keyEvent.eventType = wl_kKeyEventTypeChar;
-        wl_Event->keyEvent.string = gdkEvent->string;
+        event->keyEvent.eventType = wl_kKeyEventTypeChar;
+        event->keyEvent.string = gdkEvent->string;
 
-        dispatchEvent(wl_Event);
+        dispatchEvent(event);
 
-        charHandled = wl_Event->handled;
+        charHandled = event->handled;
     }
     return keyHandled || charHandled;
 }
 
-bool _wlWindow::on_drawArea_keyRelease(GdkEventKey *gdkEvent) {
+bool _wl_Window::on_drawArea_keyRelease(GdkEventKey *gdkEvent) {
     auto found = keyMap.find(gdkEvent->keyval);
     if (found != keyMap.end()) {
         auto info = found->second;
         EventFrame ef((GdkEvent *)gdkEvent);
-        auto wl_Event = &ef.wl_Event;
-        wl_Event->eventType = wl_kEventTypeKey;
-        wl_Event->keyEvent.eventType = wl_kKeyEventTypeUp;
-        wl_Event->keyEvent.modifiers = gdkToWlModifiers(gdkEvent->state);
-        wl_Event->keyEvent.location = info->location;
-        wl_Event->keyEvent.key = info->key;
-        wl_Event->keyEvent.string = info->stringRep;
-        dispatchEvent(wl_Event);
-        return wl_Event->handled;
+        auto event = &ef.wlEvent;
+        event->eventType = wl_kEventTypeKey;
+        event->keyEvent.eventType = wl_kKeyEventTypeUp;
+        event->keyEvent.modifiers = gdkToWlModifiers(gdkEvent->state);
+        event->keyEvent.location = info->location;
+        event->keyEvent.key = info->key;
+        event->keyEvent.string = info->stringRep;
+        dispatchEvent(event);
+        return event->handled;
     }
     return false; // definitely unhandled
 }
 
-bool _wlWindow::on_drawArea_mouseMotion(GdkEventMotion *gdkEvent) {
+bool _wl_Window::on_drawArea_mouseMotion(GdkEventMotion *gdkEvent) {
     EventFrame ef((GdkEvent *)gdkEvent);
-    auto wl_Event = &ef.wl_Event;
-    wl_Event->eventType = wl_kEventTypeMouse;
-    wl_Event->mouseEvent.eventType = wl_kMouseEventTypeMouseMove;
-    wl_Event->mouseEvent.button = wl_kMouseButtonNone;
-    wl_Event->mouseEvent.modifiers = gdkToWlModifiers(gdkEvent->state);
-    wl_Event->mouseEvent.x = (int)gdkEvent->x;
-    wl_Event->mouseEvent.y = (int)gdkEvent->y;
-    dispatchEvent(wl_Event);
-    return wl_Event->handled;
+    auto event = &ef.wlEvent;
+    event->eventType = wl_kEventTypeMouse;
+    event->mouseEvent.eventType = wl_kMouseEventTypeMouseMove;
+    event->mouseEvent.button = wl_kMouseButtonNone;
+    event->mouseEvent.modifiers = gdkToWlModifiers(gdkEvent->state);
+    event->mouseEvent.x = (int)gdkEvent->x;
+    event->mouseEvent.y = (int)gdkEvent->y;
+    dispatchEvent(event);
+    return event->handled;
 }
 
-bool _wlWindow::on_drawArea_enterNotify(GdkEventCrossing *gdkEvent) {
+bool _wl_Window::on_drawArea_enterNotify(GdkEventCrossing *gdkEvent) {
     EventFrame ef((GdkEvent *)gdkEvent);
-    auto wl_Event = &ef.wl_Event;
-    wl_Event->eventType = wl_kEventTypeMouse;
-    wl_Event->mouseEvent.eventType = wl_kMouseEventTypeMouseEnter;
-    wl_Event->mouseEvent.button = wl_kMouseButtonNone;
-    wl_Event->mouseEvent.modifiers = gdkToWlModifiers(gdkEvent->state);
-    wl_Event->mouseEvent.x = (int)gdkEvent->x;
-    wl_Event->mouseEvent.y = (int)gdkEvent->y;
-    dispatchEvent(wl_Event);
-    return wl_Event->handled;
+    auto event = &ef.wlEvent;
+    event->eventType = wl_kEventTypeMouse;
+    event->mouseEvent.eventType = wl_kMouseEventTypeMouseEnter;
+    event->mouseEvent.button = wl_kMouseButtonNone;
+    event->mouseEvent.modifiers = gdkToWlModifiers(gdkEvent->state);
+    event->mouseEvent.x = (int)gdkEvent->x;
+    event->mouseEvent.y = (int)gdkEvent->y;
+    dispatchEvent(event);
+    return event->handled;
 }
 
-bool _wlWindow::on_drawArea_leaveNotify(GdkEventCrossing *gdkEvent) {
+bool _wl_Window::on_drawArea_leaveNotify(GdkEventCrossing *gdkEvent) {
     EventFrame ef((GdkEvent *)gdkEvent);
-    auto wl_Event = &ef.wl_Event;
-    wl_Event->eventType = wl_kEventTypeMouse;
-    wl_Event->mouseEvent.eventType = wl_kMouseEventTypeMouseLeave;
-    wl_Event->mouseEvent.button = wl_kMouseButtonNone;
-    wl_Event->mouseEvent.modifiers = gdkToWlModifiers(gdkEvent->state);
-    wl_Event->mouseEvent.x = (int)gdkEvent->x;
-    wl_Event->mouseEvent.y = (int)gdkEvent->y;
-    dispatchEvent(wl_Event);
-    return wl_Event->handled;
+    auto event = &ef.wlEvent;
+    event->eventType = wl_kEventTypeMouse;
+    event->mouseEvent.eventType = wl_kMouseEventTypeMouseLeave;
+    event->mouseEvent.button = wl_kMouseButtonNone;
+    event->mouseEvent.modifiers = gdkToWlModifiers(gdkEvent->state);
+    event->mouseEvent.x = (int)gdkEvent->x;
+    event->mouseEvent.y = (int)gdkEvent->y;
+    dispatchEvent(event);
+    return event->handled;
 }
 
 
 // drag source handlers
-void _wlWindow::on_drawArea_dragBegin(const Glib::RefPtr<Gdk::DragContext>& context) {
+void _wl_Window::on_drawArea_dragBegin(const Glib::RefPtr<Gdk::DragContext>& context) {
     // on drag source
     printf("=== drag begin\n");
     dragActive = true;
 }
-void _wlWindow::on_drawArea_dragDataGet(const Glib::RefPtr<Gdk::DragContext>& dragContext, Gtk::SelectionData& selectionData, guint info, guint time) {
+void _wl_Window::on_drawArea_dragDataGet(const Glib::RefPtr<Gdk::DragContext>& dragContext, Gtk::SelectionData& selectionData, guint info, guint time) {
     // on drag source, set the data
     // Gtk::SelectionData::set(), _set_text(), etc ...
     printf("{{{*** drag data get }}}\n");
 
     dragClipRender(selectionData, info);
 }
-void _wlWindow::on_drawArea_dragEnd(const Glib::RefPtr<Gdk::DragContext>& context) {
+void _wl_Window::on_drawArea_dragEnd(const Glib::RefPtr<Gdk::DragContext>& context) {
     // emitted on source when drag is finished
     // undo whatever was done in drag_begin
     printf("=== drag end\n");
     dragActive = false;
 }
-void _wlWindow::on_drawArea_dragDataDelete(const Glib::RefPtr<Gdk::DragContext>& context) {
+void _wl_Window::on_drawArea_dragDataDelete(const Glib::RefPtr<Gdk::DragContext>& context) {
     printf("=== drag data delete (move complete)\n");
 }
 
 // drop site handlers
-bool _wlWindow::on_drawArea_dragMotion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint time) {
-    _wlDropData_Drop dropData(context, this);
+bool _wl_Window::on_drawArea_dragMotion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint time) {
+    _wl_DropData_Drop dropData(context, this);
 
     // emitted on drop site
     printf("=== drag motion\n");
     EventFrame ev(nullptr);
-    auto wl_Event = &ev.wl_Event;
-    wl_Event->eventType = wl_kEventTypeDrop;
-    wl_Event->dropEvent.eventType = wl_kDropEventTypeFeedback;
-    wl_Event->dropEvent.x = x;
-    wl_Event->dropEvent.y = y;
-    wl_Event->dropEvent.data = &dropData;
+    auto event = &ev.wlEvent;
+    event->eventType = wl_kEventTypeDrop;
+    event->dropEvent.eventType = wl_kDropEventTypeFeedback;
+    event->dropEvent.x = x;
+    event->dropEvent.y = y;
+    event->dropEvent.data = &dropData;
 
     //        printf("suggested: %d\n", context->get_suggested_action());
     //        printf("default action is: %d\n", wl_Event->dropEvent.defaultModifierAction);
     //        printf("actions: %d\n", context->get_actions());
 
     // set default modifier action to whatever's normal/suggested for this modifier combination (ctrl/alt/shift/etc)
-    wl_Event->dropEvent.defaultModifierAction = gdkToWlDropEffectSingle(context->get_suggested_action());
+    event->dropEvent.defaultModifierAction = gdkToWlDropEffectSingle(context->get_suggested_action());
 
     // set allowed effect mask to all the ones allowed/possible
-    wl_Event->dropEvent.allowedEffectMask = gdkToWlDropEffectMulti(context->get_actions());
+    event->dropEvent.allowedEffectMask = gdkToWlDropEffectMulti(context->get_actions());
 
-    dispatchEvent(wl_Event);
+    dispatchEvent(event);
 
     // final verdict?
-    auto dropAction = wlToGdkDropEffectMulti(wl_Event->dropEvent.allowedEffectMask);
+    auto dropAction = wlToGdkDropEffectMulti(event->dropEvent.allowedEffectMask);
     context->drag_status(dropAction, gtk_get_current_event_time());
 
-    return (wl_Event->dropEvent.allowedEffectMask != wl_kDropEffectNone);
+    return (event->dropEvent.allowedEffectMask != wl_kDropEffectNone);
 }
 
-bool _wlWindow::on_drawArea_dragDrop(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint time)
+bool _wl_Window::on_drawArea_dragDrop(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint time)
 {
-    _wlDropData_Drop dropData(context, this);
+    _wl_DropData_Drop dropData(context, this);
 
     printf("=== drag drop\n");
     // emitted on drop site
@@ -381,23 +381,23 @@ bool _wlWindow::on_drawArea_dragDrop(const Glib::RefPtr<Gdk::DragContext>& conte
     // must also call gtk_drag_finish to let source know drop is done (edit: that doesn't happen until dragDataReceived)
 
     EventFrame ef(nullptr);
-    auto wl_Event = &ef.wl_Event;
-    wl_Event->eventType = wl_kEventTypeDrop;
-    wl_Event->dropEvent.eventType = wl_kDropEventTypeDrop;
-    wl_Event->dropEvent.data = &dropData;
+    auto event = &ef.wlEvent;
+    event->eventType = wl_kEventTypeDrop;
+    event->dropEvent.eventType = wl_kDropEventTypeDrop;
+    event->dropEvent.data = &dropData;
     printf("before dragDrop dispatchEvent\n");
-    dispatchEvent(wl_Event);
+    dispatchEvent(event);
     printf("back from dragDrop dispatchEvent\n");
 
     context->drop_finish(true, gtk_get_current_event_time());
     return true; // always return true because we wouldn't have gotten this far unless cursor was in a drop zone already, right?
 }
 
-void _wlWindow::on_drawArea_dragLeave(const Glib::RefPtr<Gdk::DragContext>& context, guint time) {
+void _wl_Window::on_drawArea_dragLeave(const Glib::RefPtr<Gdk::DragContext>& context, guint time) {
     printf("=== drag leave\n");
 }
 
-void _wlWindow::on_drawArea_dragDataReceived(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& selection_data, guint info, guint time) {
+void _wl_Window::on_drawArea_dragDataReceived(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& selection_data, guint info, guint time) {
     // emitted on drop site once data received
     printf("=== drag data received\n");
 
@@ -417,54 +417,54 @@ void _wlWindow::on_drawArea_dragDataReceived(const Glib::RefPtr<Gdk::DragContext
     dragDataAwait = false;
 }
 
-bool _wlWindow::on_timer_timeout(wl_Timer timer) {
+bool _wl_Window::on_timer_timeout(wl_Timer timer) {
     EventFrame ef(nullptr);
-    auto wl_Event = &ef.wl_Event;
-    wl_Event->eventType = wl_kEventTypeTimer;
-    wl_Event->timerEvent.timer = timer;
-    wl_Event->timerEvent.timerID = timer->timerID;
-    wl_Event->timerEvent.stopTimer = false;
+    auto event = &ef.wlEvent;
+    event->eventType = wl_kEventTypeTimer;
+    event->timerEvent.timer = timer;
+    event->timerEvent.timerID = timer->timerID;
+    event->timerEvent.stopTimer = false;
 
     timespec now;
     clock_gettime(CLOCK_MONOTONIC, &now);
-    wl_Event->timerEvent.secondsSinceLast = timespecDiff(now, timer->lastTime);
+    event->timerEvent.secondsSinceLast = timespecDiff(now, timer->lastTime);
 
-    dispatchEvent(wl_Event);
+    dispatchEvent(event);
 
     timer->lastTime = now;
 
-    if (wl_Event->timerEvent.stopTimer) {
+    if (event->timerEvent.stopTimer) {
         return false; // disconnect (but don't delete)
     }
     return true; // continue by default
 }
 
-bool _wlWindow::on_delete(GdkEventAny *gdkEvent) {
+bool _wl_Window::on_delete(GdkEventAny *gdkEvent) {
     EventFrame ef((GdkEvent *)gdkEvent);
-    auto wl_Event = &ef.wl_Event;
-    wl_Event->eventType = wl_kEventTypeWindowCloseRequest;
-    wl_Event->closeRequestEvent.cancelClose = false;
-    dispatchEvent(wl_Event);
-    if (!wl_Event->closeRequestEvent.cancelClose) {
+    auto event = &ef.wlEvent;
+    event->eventType = wl_kEventTypeWindowCloseRequest;
+    event->closeRequestEvent.cancelClose = false;
+    dispatchEvent(event);
+    if (!event->closeRequestEvent.cancelClose) {
         delete this; // ??
     }
-    return wl_Event->closeRequestEvent.cancelClose;
+    return event->closeRequestEvent.cancelClose;
 }
 
-void _wlWindow::on_clipboard_get(Gtk::SelectionData& selectionData, guint info)
+void _wl_Window::on_clipboard_get(Gtk::SelectionData& selectionData, guint info)
 {
     printf("on_clipboard_get (info %d)\n", info);
     dragClipRender(selectionData, info);
 }
 
-void _wlWindow::on_clipboard_clear()
+void _wl_Window::on_clipboard_clear()
 {
     printf("on_clipboard_clear\n");
     EventFrame ef(nullptr);
-    auto wl_Event = &ef.wl_Event;
-    wl_Event->eventType = wl_kEventTypeClipboardClear;
-    wl_Event->clipboardClearEvent.reserved = 0;
-    dispatchEvent(wl_Event);
+    auto event = &ef.wlEvent;
+    event->eventType = wl_kEventTypeClipboardClear;
+    event->clipboardClearEvent.reserved = 0;
+    dispatchEvent(event);
 }
 
 /**** public API *****/
@@ -472,7 +472,7 @@ void _wlWindow::on_clipboard_clear()
 //        innerDestroy(nullptr, false);
 //    }
 
-void _wlWindow::invalidate(int x, int y, int width, int height) {
+void _wl_Window::invalidate(int x, int y, int width, int height) {
     if (width > 0 && height > 0) {
         drawArea.queue_draw_area(x, y, width, height);
     } else {
@@ -480,13 +480,13 @@ void _wlWindow::invalidate(int x, int y, int width, int height) {
     }
 }
 
-void _wlWindow::setFocus() {
+void _wl_Window::setFocus() {
     drawArea.grab_focus();
     activate_focus();
 }
 
 // helper method to save the packed menu height for us, since it seems difficult to acquire otherwise ...
-void _wlWindow::on_menuBar_allocate(Gtk::Allocation &allocation)
+void _wl_Window::on_menuBar_allocate(Gtk::Allocation &allocation)
 {
     menuHeight = allocation.get_height();
 
@@ -496,31 +496,31 @@ void _wlWindow::on_menuBar_allocate(Gtk::Allocation &allocation)
     }
 }
 
-void _wlWindow::setMenuBar(wl_MenuBar menuBar) {
+void _wl_Window::setMenuBar(wl_MenuBar menuBar) {
     // only way to get the actual menubar height ...
     // which is used to fudge the min/max sizes (see on_menuBar_allocate())
     // as for the initial size, we just rely on setting the drawArea size before the window is visible
-    menuBar->gtkMenuBar.signal_size_allocate().connect(sigc::mem_fun1(*this, &_wlWindow::on_menuBar_allocate));
+    menuBar->gtkMenuBar.signal_size_allocate().connect(sigc::mem_fun1(*this, &_wl_Window::on_menuBar_allocate));
 
     vbox.pack_start(menuBar->gtkMenuBar, false, false, 0);
     menuBar->attachedTo = this;
     attachedMenuBar = menuBar;
 }
 
-void _wlWindow::execAction(wl_Action action) {
+void _wl_Window::execAction(wl_Action action) {
     EventFrame ef(nullptr);
-    auto wl_Event = &ef.wl_Event;
-    wl_Event->eventType = wl_kEventTypeAction;
-    wl_Event->actionEvent.id = action->id;
-    wl_Event->actionEvent.action = action;
-    dispatchEvent(wl_Event);
+    auto event = &ef.wlEvent;
+    event->eventType = wl_kEventTypeAction;
+    event->actionEvent.id = action->id;
+    event->actionEvent.action = action;
+    dispatchEvent(event);
 }
 
-bool _wlWindow::getDragActive() {
+bool _wl_Window::getDragActive() {
     return dragActive;
 }
 
-void _wlWindow::getDropData(GdkDragContext *dragContext, GdkAtom formatAtom, void **data, size_t *size)
+void _wl_Window::getDropData(GdkDragContext *dragContext, GdkAtom formatAtom, void **data, size_t *size)
 {
     dragData = data;
     dragDataSize = size;
@@ -550,7 +550,7 @@ void _wlWindow::getDropData(GdkDragContext *dragContext, GdkAtom formatAtom, voi
 //    *dragData = nullptr;
 //}
 
-void _wlWindow::setClipboard(wl_DragData dragData)
+void _wl_Window::setClipboard(wl_DragData dragData)
 {
     std::list<Gtk::TargetEntry> listTargets;
     auto flags = Gtk::TARGET_SAME_APP | Gtk::TARGET_SAME_WIDGET | Gtk::TARGET_OTHER_APP | Gtk::TARGET_OTHER_WIDGET;
@@ -560,25 +560,25 @@ void _wlWindow::setClipboard(wl_DragData dragData)
     }
 
     gtkClipboard->set(listTargets,
-                      sigc::mem_fun(*this, &_wlWindow::on_clipboard_get),
-                      sigc::mem_fun(*this, &_wlWindow::on_clipboard_clear));
+                      sigc::mem_fun(*this, &_wl_Window::on_clipboard_get),
+                      sigc::mem_fun(*this, &_wl_Window::on_clipboard_clear));
 
     gtkClipboard->set_can_store(); // so it can be flushed on exit
 }
 
-size_t _wlWindow::getWindowHandle()
+size_t _wl_Window::getWindowHandle()
 {
     return (size_t)gdk_x11_window_get_drawable_impl((GdkWindow *)gobj());
 }
 
-void _wlWindow::mouseGrab()
+void _wl_Window::mouseGrab()
 {
     Glib::RefPtr<Gdk::Window> gdkWindow = get_window();
     gdkWindow->pointer_grab(true, Gdk::BUTTON_MOTION_MASK, GDK_CURRENT_TIME);
 //    gdk_pointer_grab((GdkWindow *)gobj(), true, GDK_BUTTON_MOTION_MASK, nullptr, nullptr, GDK_CURRENT_TIME);
 }
 
-void _wlWindow::relativeToAbsolute(int x, int y, int *absX, int *absY)
+void _wl_Window::relativeToAbsolute(int x, int y, int *absX, int *absY)
 {
     int originX, originY;
     gdk_window_get_origin(get_window()->gobj(), &originX, &originY);
