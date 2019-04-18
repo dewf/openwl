@@ -14,7 +14,7 @@
 #include <set>
 #include "globals.h"
 
-#include "_wlWindow.h"
+#include "wlWindow.h"
 
 struct wl_EventPrivateImpl {
     int eventCount = 0; // verify not reentrant
@@ -61,19 +61,19 @@ struct wl_TimerImpl {
     }
 };
 
-struct _wl_MenuShell {
+struct wl_MenuShell {
     virtual wl_Window getAssociatedWindow() = 0;
     virtual Gtk::MenuShell &getShell() = 0;
 };
 
 struct wl_MenuItemImpl {
-    _wl_MenuShell *parentShell;
+    wl_MenuShell *parentShell;
     Gtk::MenuItem *gtkItem;
     wl_Action action;
     wl_Menu sub;
 };
 
-struct wl_MenuBarImpl : _wl_MenuShell {
+struct wl_MenuBarImpl : wl_MenuShell {
     wl_Window attachedTo = nullptr;
     Gtk::MenuBar gtkMenuBar;
 
@@ -84,7 +84,7 @@ struct wl_MenuBarImpl : _wl_MenuShell {
     }
 };
 
-struct wl_MenuImpl : _wl_MenuShell {
+struct wl_MenuImpl : wl_MenuShell {
     Gtk::Menu gtkMenu;
     wl_MenuItem parentItem = nullptr;
     wl_Window contextFor = nullptr;
@@ -118,9 +118,9 @@ struct wl_DragDataImpl {
     bool dragActive = false;
 };
 
-struct _wl_FilesInternal : public wl_Files
+struct wl_FilesInternal : public wl_Files
 {
-    _wl_FilesInternal(int numFiles)
+    wl_FilesInternal(int numFiles)
         :wl_Files()
     {
         this->numFiles = numFiles;
@@ -129,7 +129,7 @@ struct _wl_FilesInternal : public wl_Files
             filenames[i] = nullptr;
         }
     }
-    ~_wl_FilesInternal() {
+    ~wl_FilesInternal() {
         for (int i=0; i< numFiles; i++) {
             free(const_cast<char *>(filenames[i])); // allocated w/ strdup
         }
@@ -140,7 +140,7 @@ struct _wl_FilesInternal : public wl_Files
 struct wl_DropDataImpl {
     void *data = nullptr;
     size_t dataSize = 0;
-    _wl_FilesInternal *files = nullptr;
+    wl_FilesInternal *files = nullptr;
 
     virtual ~wl_DropDataImpl() {
         if (data) free(data);
@@ -164,12 +164,12 @@ struct wl_RenderPayloadImpl {
     }
 };
 
-struct _wl_DropData_Drop : wl_DropDataImpl {
+struct wl_DropData_Drop : wl_DropDataImpl {
     const Glib::RefPtr<Gdk::DragContext> &dragContext;
     wl_Window window;
 
 // "public" ================================
-    _wl_DropData_Drop(const Glib::RefPtr<Gdk::DragContext> &dragContext, wl_Window window)
+    wl_DropData_Drop(const Glib::RefPtr<Gdk::DragContext> &dragContext, wl_Window window)
             : dragContext(dragContext),
               window(window) {}
 
@@ -190,7 +190,7 @@ struct _wl_DropData_Drop : wl_DropDataImpl {
 };
 
 
-struct _wl_DropData_Clip : wl_DropDataImpl {
+struct wl_DropData_Clip : wl_DropDataImpl {
 
 // "public" =============
     bool hasTarget(const char *target) override {

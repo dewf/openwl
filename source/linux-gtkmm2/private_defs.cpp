@@ -48,7 +48,7 @@ bool wl_DropDataImpl::getFiles(const struct wl_Files **outFiles)
     auto items = split_items(uri_chars, dataSize);
     auto numFiles = (int)items.size();
 
-    files = new _wl_FilesInternal(numFiles);
+    files = new wl_FilesInternal(numFiles);
     for (int i=0; i< numFiles; i++) {
         files->filenames[i] = strdup(items[i].c_str());
     }

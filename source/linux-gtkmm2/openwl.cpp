@@ -13,7 +13,7 @@
 #include "globals.h"
 #include "util.h"
 #include "private_defs.h"
-#include "_wlWindow.h"
+#include "wlWindow.h"
 #include "keystuff.h"
 
 /**************************/
@@ -245,7 +245,7 @@ OPENWL_API wl_MenuItem CDECL wl_MenuAddAction(wl_Menu menu, wl_Action action)
 
 }
 
-static wl_MenuItem addSubmenuCommon(_wl_MenuShell *shell, const char *label, wl_Menu sub)
+static wl_MenuItem addSubmenuCommon(wl_MenuShell *shell, const char *label, wl_Menu sub)
 {
     std::string label_copy = label;
     replace_all(label_copy, "&", "_");
@@ -437,7 +437,7 @@ OPENWL_API void CDECL wl_ClipboardSet(wl_DragData dragData)
 
 OPENWL_API wl_DropData CDECL wl_ClipboardGet()
 {
-    return new _wl_DropData_Clip();
+    return new wl_DropData_Clip();
 }
 
 OPENWL_API void CDECL wl_ClipboardFlush()

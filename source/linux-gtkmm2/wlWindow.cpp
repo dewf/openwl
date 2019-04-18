@@ -1,4 +1,4 @@
-#include "_wlWindow.h"
+#include "wlWindow.h"
 #include "private_defs.h"
 #include "util.h"
 #include "keystuff.h"
@@ -340,7 +340,7 @@ void wl_WindowImpl::on_drawArea_dragDataDelete(const Glib::RefPtr<Gdk::DragConte
 
 // drop site handlers
 bool wl_WindowImpl::on_drawArea_dragMotion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint time) {
-    _wl_DropData_Drop dropData(context, this);
+    wl_DropData_Drop dropData(context, this);
 
     // emitted on drop site
     printf("=== drag motion\n");
@@ -373,7 +373,7 @@ bool wl_WindowImpl::on_drawArea_dragMotion(const Glib::RefPtr<Gdk::DragContext>&
 
 bool wl_WindowImpl::on_drawArea_dragDrop(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint time)
 {
-    _wl_DropData_Drop dropData(context, this);
+    wl_DropData_Drop dropData(context, this);
 
     printf("=== drag drop\n");
     // emitted on drop site
