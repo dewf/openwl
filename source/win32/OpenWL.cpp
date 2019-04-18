@@ -33,8 +33,8 @@
 
 // fwd declarations
 
-void RegisterDropWindow(wl_Window window, IDropTarget **ppDropTarget);
-void UnregisterDropWindow(wl_Window window, IDropTarget *pDropTarget);
+void RegisterDropWindow(wl_WindowRef window, IDropTarget **ppDropTarget);
+void UnregisterDropWindow(wl_WindowRef window, IDropTarget *pDropTarget);
 
 void registerWindowClass() {
 	WNDCLASSEXW wcex;
@@ -126,7 +126,7 @@ long getWindowStyle(wl_WindowProperties *props, bool isPluginWindow) {
 	return dwStyle;
 }
 
-wl_Window wl_WindowCreate(int width, int height, const char *title, void *userData, wl_WindowProperties *props)
+wl_WindowRef wl_WindowCreate(int width, int height, const char *title, void *userData, wl_WindowProperties *props)
 {
 	auto wideTitle = title ? utf8_to_wstring(title) : L"(UNTITLED)";
 
@@ -158,7 +158,7 @@ wl_Window wl_WindowCreate(int width, int height, const char *title, void *userDa
 
 	if (hWnd) {
 		// associate data
-		wl_Window wlw = new wl_WindowImpl;
+		wl_WindowRef wlw = new wl_Window;
 		wlw->hwnd = hWnd;
 		wlw->dwStyle = dwStyle;
         wlw->clientWidth = width;
@@ -186,7 +186,7 @@ wl_Window wl_WindowCreate(int width, int height, const char *title, void *userDa
 	return nullptr;
 }
 
-void wl_WindowDestroy(wl_Window window) {
+void wl_WindowDestroy(wl_WindowRef window) {
 	if (window->dropTarget) {
 		UnregisterDropWindow(window, window->dropTarget);
 		window->dropTarget = nullptr;
@@ -194,13 +194,13 @@ void wl_WindowDestroy(wl_Window window) {
 	DestroyWindow(window->hwnd);
 }
 
-void wl_WindowShow(wl_Window window)
+void wl_WindowShow(wl_WindowRef window)
 {
 	ShowWindow(window->hwnd, SW_SHOWNORMAL); // might need to use a different cmd based on whether first time or not
 	UpdateWindow(window->hwnd);
 }
 
-OPENWL_API void CDECL wl_WindowShowRelative(wl_Window window, wl_Window relativeTo, int x, int y, int newWidth, int newHeight)
+OPENWL_API void CDECL wl_WindowShowRelative(wl_WindowRef window, wl_WindowRef relativeTo, int x, int y, int newWidth, int newHeight)
 {
 	POINT p{ x, y };
 	ClientToScreen(relativeTo->hwnd, &p);
@@ -209,7 +209,7 @@ OPENWL_API void CDECL wl_WindowShowRelative(wl_Window window, wl_Window relative
 	SetWindowPos(window->hwnd, HWND_TOP, p.x, p.y, newWidth, newHeight, flags);
 }
 
-void wl_WindowHide(wl_Window window)
+void wl_WindowHide(wl_WindowRef window)
 {
 	ShowWindow(window->hwnd, SW_HIDE);
 }
@@ -247,7 +247,7 @@ void wl_ExitRunloop()
 	PostQuitMessage(0);
 }
 
-void wl_WindowInvalidate(wl_Window window, int x, int y, int width, int height)
+void wl_WindowInvalidate(wl_WindowRef window, int x, int y, int width, int height)
 {
 	if (width > 0 && height > 0) {
 		RECT r;
@@ -262,22 +262,22 @@ void wl_WindowInvalidate(wl_Window window, int x, int y, int width, int height)
 	}
 }
 
-OPENWL_API size_t CDECL wl_WindowGetOSHandle(wl_Window window)
+OPENWL_API size_t CDECL wl_WindowGetOSHandle(wl_WindowRef window)
 {
 	return (size_t)window->hwnd;
 }
 
 
 VOID CALLBACK timerCallback(_In_ PVOID lpParameter, _In_ BOOLEAN TimerOrWaitFired) {
-	wl_Timer timer = (wl_Timer)lpParameter;
+	wl_TimerRef timer = (wl_TimerRef)lpParameter;
 	PostMessage(timer->window->hwnd, OPENWL_TIMER_MESSAGE, 0, (LPARAM)timer);
 }
 
-OPENWL_API wl_Timer CDECL wl_TimerCreate(wl_Window window, int timerID, unsigned int msTimeout)
+OPENWL_API wl_TimerRef CDECL wl_TimerCreate(wl_WindowRef window, int timerID, unsigned int msTimeout)
 {
 	// requires a window because it has userdat and other stuff  ...
-	// which I guess we could put into a wl_Timer structure, but then we have multiple types of userdata ...
-	wl_Timer timer = new wl_TimerImpl;
+	// which I guess we could put into a wl_TimerRef structure, but then we have multiple types of userdata ...
+	wl_TimerRef timer = new wl_Timer;
 	timer->timerID = timerID;
     QueryPerformanceCounter(&timer->lastPerfCount);
 	timer->window = window;
@@ -290,7 +290,7 @@ OPENWL_API wl_Timer CDECL wl_TimerCreate(wl_Window window, int timerID, unsigned
 	return timer;
 }
 
-OPENWL_API void CDECL wl_TimerDestroy(wl_Timer timer)
+OPENWL_API void CDECL wl_TimerDestroy(wl_TimerRef timer)
 {
 	auto timerDeleted = CreateEvent(NULL, TRUE, FALSE, NULL);
 	DeleteTimerQueueTimer(timer->timerQueue, timer->handle, timerDeleted);
@@ -305,48 +305,48 @@ OPENWL_API void CDECL wl_TimerDestroy(wl_Timer timer)
 /*           MENU API               */
 /************************************/
 
-wl_Menu wl_MenuCreate()
+wl_MenuRef wl_MenuCreate()
 {
-	wl_Menu retMenu = new wl_MenuImpl;
+	wl_MenuRef retMenu = new wl_Menu;
 	retMenu->hmenu = CreatePopupMenu();
 	return retMenu;
 }
 
-wl_MenuItem wl_MenuAddSubmenu(wl_Menu menu, const char *label, wl_Menu sub)
+wl_MenuItemRef wl_MenuAddSubmenu(wl_MenuRef menu, const char *label, wl_MenuRef sub)
 {
 	auto wideLabel = utf8_to_wstring(label);
 
-	wl_MenuItem retItem = new wl_MenuItemImpl;
-	memset(retItem, 0, sizeof(wl_MenuItemImpl));
+	wl_MenuItemRef retItem = new wl_MenuItem;
+	memset(retItem, 0, sizeof(wl_MenuItem));
 	AppendMenu(menu->hmenu, MF_STRING | MF_POPUP, (UINT_PTR)sub->hmenu, wideLabel.c_str());
 	retItem->subMenu = sub;
 	return retItem;
 }
 
-void wl_MenuAddSeparator(wl_Menu menu)
+void wl_MenuAddSeparator(wl_MenuRef menu)
 {
 	AppendMenu(menu->hmenu, MF_SEPARATOR, 0, NULL);
 }
 
-wl_MenuBar wl_MenuBarCreate()
+wl_MenuBarRef wl_MenuBarCreate()
 {
-	wl_MenuBar retMenuBar = new wl_MenuBarImpl;
+	wl_MenuBarRef retMenuBar = new wl_MenuBar;
 	retMenuBar->hmenu = CreateMenu();
 	return retMenuBar;
 }
 
-wl_MenuItem wl_MenuBarAddMenu(wl_MenuBar menuBar, const char *label, wl_Menu menu)
+wl_MenuItemRef wl_MenuBarAddMenu(wl_MenuBarRef menuBar, const char *label, wl_MenuRef menu)
 {
 	auto wideLabel = utf8_to_wstring(label);
 
 	AppendMenu(menuBar->hmenu, MF_STRING | MF_POPUP, (UINT_PTR)menu->hmenu, wideLabel.c_str());
-	auto retMenuItem = new wl_MenuItemImpl;
+	auto retMenuItem = new wl_MenuItem;
 	retMenuItem->action = nullptr;
 	retMenuItem->subMenu = menu;
 	return retMenuItem;
 }
 
-void wl_WindowSetMenuBar(wl_Window window, wl_MenuBar menuBar)
+void wl_WindowSetMenuBar(wl_WindowRef window, wl_MenuBarRef menuBar)
 {
 	window->hasMenu = TRUE; // use win32 bool constant ... but shouldn't be different from C++ true/false
 
@@ -364,9 +364,9 @@ void wl_WindowSetMenuBar(wl_Window window, wl_MenuBar menuBar)
     SetMenu(window->hwnd, menuBar->hmenu);
 }
 
-OPENWL_API wl_Action CDECL wl_ActionCreate(int id, const char *label, wl_Icon icon, wl_Accelerator accel)
+OPENWL_API wl_ActionRef CDECL wl_ActionCreate(int id, const char *label, wl_IconRef icon, wl_AcceleratorRef accel)
 {
-	wl_Action retAction = new wl_ActionImpl;
+	wl_ActionRef retAction = new wl_Action;
 	retAction->label = label;
 	printf("retAction label: %s (original %s)\n", retAction->label.c_str(), label);
 	retAction->id = id; // nextActionID++;
@@ -390,7 +390,7 @@ OPENWL_API wl_Action CDECL wl_ActionCreate(int id, const char *label, wl_Icon ic
 	return retAction;
 }
 
-std::string accelToString(wl_Accelerator accel) {
+std::string accelToString(wl_AcceleratorRef accel) {
 	std::vector<std::string> parts;
 	if (accel->modifiers & wl_kModifierControl)
 		parts.push_back("Ctrl");
@@ -406,10 +406,10 @@ std::string accelToString(wl_Accelerator accel) {
 	return joined;
 }
 
-wl_MenuItem wl_MenuAddAction(wl_Menu menu, wl_Action action)
+wl_MenuItemRef wl_MenuAddAction(wl_MenuRef menu, wl_ActionRef action)
 {
-	wl_MenuItem retItem = new wl_MenuItemImpl;
-	memset(retItem, 0, sizeof(wl_MenuItemImpl));
+	wl_MenuItemRef retItem = new wl_MenuItem;
+	memset(retItem, 0, sizeof(wl_MenuItem));
 	
 	// alter label if accelerator present
 	std::string label = action->label;
@@ -437,18 +437,18 @@ return retItem;
 
 //#define TEMP_BMP L"temp.bmp"
 
-wl_Icon wl_IconLoadFromFile(const char *filename, int sizeToWidth)
+wl_IconRef wl_IconLoadFromFile(const char *filename, int sizeToWidth)
 {
     auto pngBitmap = loadPngAndResize(filename, sizeToWidth, sizeToWidth);
     if (pngBitmap) {
-        auto retIcon = new wl_IconImpl;
+        auto retIcon = new wl_Icon;
         retIcon->hbitmap = pngBitmap;
         return retIcon;
     }
     return nullptr;
 }
 
-OPENWL_API void CDECL wl_WindowShowContextMenu(wl_Window window, int x, int y, wl_Menu menu, wl_Event *fromEvent)
+OPENWL_API void CDECL wl_WindowShowContextMenu(wl_WindowRef window, int x, int y, wl_MenuRef menu, wl_Event *fromEvent)
 {
 	int needsRightAlign = GetSystemMetrics(SM_MENUDROPALIGNMENT);
 	UINT alignFlags = needsRightAlign ? TPM_RIGHTALIGN : TPM_LEFTALIGN;
@@ -460,13 +460,12 @@ OPENWL_API void CDECL wl_WindowShowContextMenu(wl_Window window, int x, int y, w
 	TrackPopupMenu(menu->hmenu, alignFlags | TPM_TOPALIGN | TPM_LEFTBUTTON, point.x, point.y, 0, window->hwnd, NULL);
 }
 
-wl_Accelerator wl_AccelCreate(wl_KeyEnum key, unsigned int modifiers)
+OPENWL_API wl_AcceleratorRef CDECL wl_AccelCreate(enum wl_KeyEnum key, unsigned int modifiers)
 {
-	auto retAccel = new wl_AcceleratorImpl;
+	auto retAccel = new wl_Accelerator;
 	retAccel->key = key;
 	retAccel->modifiers = modifiers;
 	return retAccel;
-	//return new _wlAccelerator{ key, modifiers };
 }
 
 /********* CLIPBOARD/DND API ***********/
@@ -481,35 +480,35 @@ HGLOBAL dataToHandle(void *data, int size) {
 OPENWL_API const char *wl_kDragFormatUTF8 = "application/vnd.openwl-utf8"; // doesn't matter what these are on win32, we don't use them directly
 OPENWL_API const char *wl_kDragFormatFiles = "application/vnd.openwl-files";
 
-OPENWL_API wl_DragData CDECL wl_DragDataCreate(wl_Window window)
+OPENWL_API wl_DragDataRef CDECL wl_DragDataCreate(wl_WindowRef window)
 {
-	return new wl_DragDataImpl(window);
+	return new wl_DragData(window);
 }
 
-OPENWL_API void CDECL wl_DragDataRelease(wl_DragData *dragData)
+OPENWL_API void CDECL wl_DragDataRelease(wl_DragDataRef *dragData)
 {
 	delete *dragData;
 	*dragData = nullptr;
 }
 
-OPENWL_API void CDECL wl_DragAddFormat(wl_DragData dragData, const char *dragFormatMIME)
+OPENWL_API void CDECL wl_DragAddFormat(wl_DragDataRef dragData, const char *dragFormatMIME)
 {
 	// we are capable of being a source of these formats
 	// this should only be called one dragdata we're SENDING, because we're assuming a MyDataObject, not a base IDataObject given to us from outside
 	dragData->sendObject->addDragFormat(dragFormatMIME);
 }
 
-OPENWL_API bool CDECL wl_DropHasFormat(wl_DropData dropData, const char *dragFormatMIME)
+OPENWL_API bool CDECL wl_DropHasFormat(wl_DropDataRef dropData, const char *dragFormatMIME)
 {
 	return dropData->hasFormat(dragFormatMIME);
 }
 
-OPENWL_API bool CDECL wl_DropGetFormat(wl_DropData dropData, const char *dropFormatMIME, const void **data, size_t *dataSize)
+OPENWL_API bool CDECL wl_DropGetFormat(wl_DropDataRef dropData, const char *dropFormatMIME, const void **data, size_t *dataSize)
 {
 	return dropData->getFormat(dropFormatMIME, data, dataSize);
 }
 
-//OPENWL_API bool CDECL wlDropGetText(wl_DropData dropData, char *buffer, int maxLen)
+//OPENWL_API bool CDECL wlDropGetText(wl_DropDataRef dropData, char *buffer, int maxLen)
 //{
 //	FORMATETC fmtetc = { CF_UNICODETEXT, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
 //	STGMEDIUM stgmed;
@@ -528,7 +527,7 @@ OPENWL_API bool CDECL wl_DropGetFormat(wl_DropData dropData, const char *dropFor
 //	return false;
 //}
 
-OPENWL_API bool CDECL wl_DropGetFiles(wl_DropData dropData, const struct wl_Files **files)
+OPENWL_API bool CDECL wl_DropGetFiles(wl_DropDataRef dropData, const struct wl_Files **files)
 {
 	return dropData->getFiles(files);
 }
@@ -542,7 +541,7 @@ OPENWL_API bool CDECL wl_DropGetFiles(wl_DropData dropData, const struct wl_File
 //}
 
 
-OPENWL_API void CDECL wl_ClipboardSet(wl_DragData dragData)
+OPENWL_API void CDECL wl_ClipboardSet(wl_DragDataRef dragData)
 {
 	OleSetClipboard(dragData->sendObject);
 	//auto dataObject = mimeToDataObject(dragData);
@@ -553,16 +552,16 @@ OPENWL_API void CDECL wl_ClipboardSet(wl_DragData dragData)
 	//}
 }
 
-OPENWL_API wl_DropData CDECL wl_ClipboardGet()
+OPENWL_API wl_DropDataRef CDECL wl_ClipboardGet()
 {
 	IDataObject *obj;
 	if (OleGetClipboard(&obj) == S_OK) {
-		return new wl_DropDataImpl(obj);
+		return new wl_DropData(obj);
 	}
 	return nullptr;
 }
 
-OPENWL_API void CDECL wl_ClipboardRelease(wl_DropData dropData)
+OPENWL_API void CDECL wl_ClipboardRelease(wl_DropDataRef dropData)
 {
 	delete dropData; // destructor releases contents
 }
@@ -573,7 +572,7 @@ OPENWL_API void CDECL wl_ClipboardFlush()
 	OleFlushClipboard();
 }
 
-OPENWL_API wl_DropEffect CDECL wl_DragExec(wl_DragData dragData, unsigned int dropActionsMask, wl_Event *fromEvent)
+OPENWL_API wl_DropEffect CDECL wl_DragExec(wl_DragDataRef dragData, unsigned int dropActionsMask, wl_Event *fromEvent)
 {
 	auto dataObject = dragData->sendObject;
 	//auto dataObject = mimeToDataObject(dragData);
@@ -597,12 +596,12 @@ OPENWL_API wl_DropEffect CDECL wl_DragExec(wl_DragData dragData, unsigned int dr
 		result = wl_kDropEffectNone;
 	}
 	// ownership based on effect??
-	//dataObject->Release(); // let the wl_DragData destructor take care of that, if need be
+	//dataObject->Release(); // let the wl_DragDataRef destructor take care of that, if need be
 	dropSource->Release();
 	return result;
 }
 
-void RegisterDropWindow(wl_Window window, IDropTarget **ppDropTarget)
+void RegisterDropWindow(wl_WindowRef window, IDropTarget **ppDropTarget)
 {
 	auto pDropTarget = new MyDropTarget(window);
 
@@ -615,7 +614,7 @@ void RegisterDropWindow(wl_Window window, IDropTarget **ppDropTarget)
 	*ppDropTarget = pDropTarget;
 }
 
-void UnregisterDropWindow(wl_Window window, IDropTarget *pDropTarget)
+void UnregisterDropWindow(wl_WindowRef window, IDropTarget *pDropTarget)
 {
 	// remove drag+drop
 	RevokeDragDrop(window->hwnd);
@@ -627,7 +626,7 @@ void UnregisterDropWindow(wl_Window window, IDropTarget *pDropTarget)
 	pDropTarget->Release();
 }
 
-OPENWL_API void wl_WindowEnableDrops(wl_Window window, bool enabled)
+OPENWL_API void wl_WindowEnableDrops(wl_WindowRef window, bool enabled)
 {
 	if (enabled) {
 		RegisterDropWindow(window, &window->dropTarget);
@@ -639,7 +638,7 @@ OPENWL_API void wl_WindowEnableDrops(wl_Window window, bool enabled)
 }
 
 // clip/drop data rendering
-OPENWL_API void CDECL wl_DragRenderUTF8(wl_RenderPayload payload, const char *text)
+OPENWL_API void CDECL wl_DragRenderUTF8(wl_RenderPayloadRef payload, const char *text)
 {
 	// handle converting to the internal required clipboard format here (UTF-16)
 	// that way the data is ready to go in CDataOboject::renderFormat without any special format checks
@@ -650,12 +649,12 @@ OPENWL_API void CDECL wl_DragRenderUTF8(wl_RenderPayload payload, const char *te
 	payload->size = size;
 }
 
-OPENWL_API void CDECL wl_DragRenderFiles(wl_RenderPayload payload, const struct wl_Files *files)
+OPENWL_API void CDECL wl_DragRenderFiles(wl_RenderPayloadRef payload, const struct wl_Files *files)
 {
 	// how ?
 }
 
-OPENWL_API void CDECL wl_DragRenderFormat(wl_RenderPayload payload, const char *formatMIME, const void *data, size_t dataSize)
+OPENWL_API void CDECL wl_DragRenderFormat(wl_RenderPayloadRef payload, const char *formatMIME, const void *data, size_t dataSize)
 {
 	payload->data = malloc(dataSize);
 	memcpy(payload->data, data, dataSize);
@@ -673,7 +672,7 @@ void ExecuteMainItem(MainThreadExecItem *item) {
 	item->execCond.notify_one();
 }
 
-OPENWL_API void CDECL wl_ExecuteOnMainThread(wl_Window window, wl_VoidCallback callback, void *data)
+OPENWL_API void CDECL wl_ExecuteOnMainThread(wl_WindowRef window, wl_VoidCallback callback, void *data)
 {
 	std::unique_lock<std::mutex> lock(execMutex);
 	std::condition_variable cond;
@@ -696,7 +695,7 @@ OPENWL_API size_t CDECL wl_SystemMillis()
 	return (size_t) GetTickCount64();
 }
 
-OPENWL_API void CDECL wl_MouseGrab(wl_Window window)
+OPENWL_API void CDECL wl_MouseGrab(wl_WindowRef window)
 {
 	SetCapture(window->hwnd); // not saving the previous capture (return value) for now, maybe in the future
 }

@@ -30,9 +30,9 @@ unsigned int getMouseModifiers(WPARAM wParam) {
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    wl_Window wlw = (wl_Window)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+    wl_WindowRef wlw = (wl_WindowRef)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
-    wl_EventPrivateImpl eventPrivate(message, wParam, lParam);
+    wl_EventPrivate eventPrivate(message, wParam, lParam);
 	wl_Event event = {};
     event._private = &eventPrivate;
     event.eventType = wl_kEventTypeNone;
@@ -190,7 +190,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     case OPENWL_TIMER_MESSAGE:
     {
-        auto timer = (wl_Timer)lParam;
+        auto timer = (wl_TimerRef)lParam;
 
         event.eventType = wl_kEventTypeTimer;
         event.timerEvent.timer = timer;

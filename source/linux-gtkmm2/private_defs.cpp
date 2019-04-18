@@ -35,7 +35,7 @@ std::vector<std::string> split_items(char *uri_chars, size_t dataSize) {
     return items;
 }
 
-bool wl_DropDataImpl::getFiles(const struct wl_Files **outFiles)
+bool wl_DropData::getFiles(const struct wl_Files **outFiles)
 {
     const void *uri_list;
     size_t dataSize;

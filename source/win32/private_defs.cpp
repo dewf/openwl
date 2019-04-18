@@ -16,9 +16,9 @@ static bool formatEtcFromDragFormat(const char *dragFormatMIME, FORMATETC *fmtet
 	return true;
 }
 
-wl_DropDataImpl::~wl_DropDataImpl()
+wl_DropData::~wl_DropData()
 {
-	printf("wl_DropData dtor\n");
+	printf("wl_DropDataRef dtor\n");
 
 	if (recvObject) recvObject->Release();
 	if (data) {
@@ -29,7 +29,7 @@ wl_DropDataImpl::~wl_DropDataImpl()
 	}
 }
 
-bool wl_DropDataImpl::hasFormat(const char *dragFormatMIME)
+bool wl_DropData::hasFormat(const char *dragFormatMIME)
 {
 	// testing for existence, without triggering a render (or whatever might be required on the other end)
 	FORMATETC fmtetc;
@@ -41,11 +41,11 @@ bool wl_DropDataImpl::hasFormat(const char *dragFormatMIME)
 	return false;
 }
 
-bool wl_DropDataImpl::getFormat(const char *dropFormatMIME, const void ** outData, size_t * outSize)
+bool wl_DropData::getFormat(const char *dropFormatMIME, const void ** outData, size_t * outSize)
 {
 	// force other end to generate data
 	if (!strcmp(dropFormatMIME, wl_kDragFormatFiles)) {
-		printf("wl_DropData::getFormat() - must use ::getFiles() for file drops\n");
+		printf("wl_DropDataRef::getFormat() - must use ::getFiles() for file drops\n");
 		return false;
 	}
 
@@ -86,7 +86,7 @@ bool wl_DropDataImpl::getFormat(const char *dropFormatMIME, const void ** outDat
 	return false;
 }
 
-bool wl_DropDataImpl::getFiles(const wl_Files **outFiles)
+bool wl_DropData::getFiles(const wl_Files **outFiles)
 {
 	FORMATETC fmtetc = { CF_HDROP, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
 	STGMEDIUM stgmed;

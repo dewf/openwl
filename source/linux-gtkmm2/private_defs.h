@@ -16,30 +16,30 @@
 
 #include "wlWindow.h"
 
-struct wl_EventPrivateImpl {
+struct wl_EventPrivate {
     int eventCount = 0; // verify not reentrant
     GdkEvent *gdkEvent;
 };
 
-struct wl_IconImpl {
+struct wl_Icon {
     Gtk::Image *gtkImage;
 };
 
-struct wl_AcceleratorImpl {
+struct wl_Accelerator {
     wl_KeyEnum key;
     unsigned int modifiers;
 };
 
-struct wl_ActionImpl {
+struct wl_Action {
     int id;
     std::string label;
-    wl_Icon icon;
-    wl_Accelerator accel;
-    std::vector<wl_MenuItem> attachedItems; // for disabling multiple menu items at once, etc
+    wl_IconRef icon;
+    wl_AcceleratorRef accel;
+    std::vector<wl_MenuItemRef> attachedItems; // for disabling multiple menu items at once, etc
 };
 
-struct wl_TimerImpl {
-    wl_Window window;
+struct wl_Timer {
+    wl_WindowRef window;
     int timerID;
     sigc::connection conn;
     bool connected = false;
@@ -56,42 +56,42 @@ struct wl_TimerImpl {
         }
     }
 
-    virtual ~wl_TimerImpl() {
+    virtual ~wl_Timer() {
         disconnect();
     }
 };
 
 struct wl_MenuShell {
-    virtual wl_Window getAssociatedWindow() = 0;
+    virtual wl_WindowRef getAssociatedWindow() = 0;
     virtual Gtk::MenuShell &getShell() = 0;
 };
 
-struct wl_MenuItemImpl {
+struct wl_MenuItem {
     wl_MenuShell *parentShell;
     Gtk::MenuItem *gtkItem;
-    wl_Action action;
-    wl_Menu sub;
+    wl_ActionRef action;
+    wl_MenuRef sub;
 };
 
-struct wl_MenuBarImpl : wl_MenuShell {
-    wl_Window attachedTo = nullptr;
+struct wl_MenuBar : wl_MenuShell {
+    wl_WindowRef attachedTo = nullptr;
     Gtk::MenuBar gtkMenuBar;
 
     Gtk::MenuShell &getShell() override { return gtkMenuBar; }
 
-    wl_Window getAssociatedWindow() override {
+    wl_WindowRef getAssociatedWindow() override {
         return attachedTo;
     }
 };
 
-struct wl_MenuImpl : wl_MenuShell {
+struct wl_Menu : wl_MenuShell {
     Gtk::Menu gtkMenu;
-    wl_MenuItem parentItem = nullptr;
-    wl_Window contextFor = nullptr;
+    wl_MenuItemRef parentItem = nullptr;
+    wl_WindowRef contextFor = nullptr;
 
     Gtk::MenuShell &getShell() override { return gtkMenu; }
 
-    wl_Window getAssociatedWindow() override {
+    wl_WindowRef getAssociatedWindow() override {
         if (contextFor) {
             return contextFor;
         } else {
@@ -102,7 +102,7 @@ struct wl_MenuImpl : wl_MenuShell {
             }
         }
     }
-    void on_item_activate(wl_MenuItem item) {
+    void on_item_activate(wl_MenuItemRef item) {
         auto window = getAssociatedWindow();
         if (window) {
             window->execAction(item->action);
@@ -112,8 +112,8 @@ struct wl_MenuImpl : wl_MenuShell {
     }
 };
 
-struct wl_DragDataImpl {
-    wl_Window forWindow = nullptr;
+struct wl_DragData {
+    wl_WindowRef forWindow = nullptr;
     std::set<std::string> formats;
     bool dragActive = false;
 };
@@ -137,12 +137,12 @@ struct wl_FilesInternal : public wl_Files
     }
 };
 
-struct wl_DropDataImpl {
+struct wl_DropData {
     void *data = nullptr;
     size_t dataSize = 0;
     wl_FilesInternal *files = nullptr;
 
-    virtual ~wl_DropDataImpl() {
+    virtual ~wl_DropData() {
         if (data) free(data);
         delete files; // apparently OK to delete null ptrs!
     }
@@ -153,23 +153,23 @@ struct wl_DropDataImpl {
     virtual bool getFormat(const char *dropFormatMIME, const void **data, size_t *dataSize) = 0;
 };
 
-struct wl_RenderPayloadImpl {
+struct wl_RenderPayload {
     void *data = nullptr;
     size_t dataSize = 0;
 
-    ~wl_RenderPayloadImpl() {
+    ~wl_RenderPayload() {
         if (data != nullptr) {
             free(data);
         }
     }
 };
 
-struct wl_DropData_Drop : wl_DropDataImpl {
+struct wl_DropData_Drop : wl_DropData {
     const Glib::RefPtr<Gdk::DragContext> &dragContext;
-    wl_Window window;
+    wl_WindowRef window;
 
 // "public" ================================
-    wl_DropData_Drop(const Glib::RefPtr<Gdk::DragContext> &dragContext, wl_Window window)
+    wl_DropData_Drop(const Glib::RefPtr<Gdk::DragContext> &dragContext, wl_WindowRef window)
             : dragContext(dragContext),
               window(window) {}
 
@@ -190,7 +190,7 @@ struct wl_DropData_Drop : wl_DropDataImpl {
 };
 
 
-struct wl_DropData_Clip : wl_DropDataImpl {
+struct wl_DropData_Clip : wl_DropData {
 
 // "public" =============
     bool hasTarget(const char *target) override {

@@ -7,7 +7,7 @@ HINSTANCE hInstance = NULL; // set by DllMain
 const WCHAR *szWindowClass = L"OpenWLTopLevel";
 
 // globals
-std::map<int, wl_Action> actionMap;
+std::map<int, wl_ActionRef> actionMap;
 std::vector<ACCEL> acceleratorList;
 std::set<unsigned char> suppressedScanCodes;
 
@@ -26,7 +26,7 @@ ID2D1Factory1 *d2dFactory = nullptr;
 // client-supplied callback
 wl_EventCallback eventCallback = nullptr;
 
-void d2dCreateTarget(wl_Window wlw) {
+void d2dCreateTarget(wl_WindowRef wlw) {
 	ID2D1RenderTarget *oldTarget = wlw->d2dRenderTarget;
 	if (wlw->d2dRenderTarget) {
 		wlw->d2dRenderTarget->Release();

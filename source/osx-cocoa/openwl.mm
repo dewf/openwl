@@ -103,7 +103,7 @@ static void setProps(NSWindow *window, wl_WindowProperties *props) {
     [window setContentMaxSize:maxSize];
 }
 
-static wl_Window _createNormalWindow(int width, int height, const char *title, void *userData, wl_WindowProperties *props)
+static wl_WindowRef _createNormalWindow(int width, int height, const char *title, void *userData, wl_WindowProperties *props)
 {
     NSRect frame = NSMakeRect(300, 300, width, height);
     
@@ -148,10 +148,10 @@ static wl_Window _createNormalWindow(int width, int height, const char *title, v
     //    [nsWindow makeKeyAndOrderFront:NSApp];
     printf("nswindow is: %zX\n", (size_t)nsWindow);
     
-    return (wl_Window)ret;
+    return (wl_WindowRef)ret;
 }
 
-static wl_Window _createNSViewForPlugin(int width, int height, void *userData, wl_WindowProperties *props)
+static wl_WindowRef _createNSViewForPlugin(int width, int height, void *userData, wl_WindowProperties *props)
 {
     // create a dummy WLWindowObject with no actual NSWindow associated with it
     //   really just a holder for UserData
@@ -180,10 +180,10 @@ static wl_Window _createNSViewForPlugin(int width, int height, void *userData, w
     
     // TODO: need to control lifetime of dummy window properly (if the view gets destroyed, it needs to go, too)
     props->outParams.nsView = contentViewObj;
-    return (wl_Window)windowObj;
+    return (wl_WindowRef)windowObj;
 }
 
-OPENWL_API wl_Window CDECL wl_WindowCreate(int width, int height, const char *title, void *userData, struct wl_WindowProperties *props)
+OPENWL_API wl_WindowRef CDECL wl_WindowCreate(int width, int height, const char *title, void *userData, struct wl_WindowProperties *props)
 {
     if (props && (props->usedFields & wl_kWindowPropStyle) && (props->style == wl_kWindowStylePluginWindow))
     {
@@ -196,21 +196,21 @@ OPENWL_API wl_Window CDECL wl_WindowCreate(int width, int height, const char *ti
     }
 }
 
-OPENWL_API void CDECL wl_WindowDestroy(wl_Window window)
+OPENWL_API void CDECL wl_WindowDestroy(wl_WindowRef window)
 {
     WLWindowObject *obj = (WLWindowObject *)window;
     [obj.nsWindow close];
     // use orderOut instead? to set next key window?
 }
 
-OPENWL_API void CDECL wl_WindowShow(wl_Window window)
+OPENWL_API void CDECL wl_WindowShow(wl_WindowRef window)
 {
     WLWindowObject *obj = (WLWindowObject *)window;
     [obj.nsWindow makeKeyAndOrderFront:NSApp];
 //    [obj.nsWindow setIsVisible:YES];
 }
 
-OPENWL_API void CDECL wl_WindowShowRelative(wl_Window window, wl_Window relativeTo, int x, int y, int newWidth, int newHeight)
+OPENWL_API void CDECL wl_WindowShowRelative(wl_WindowRef window, wl_WindowRef relativeTo, int x, int y, int newWidth, int newHeight)
 {
     WLWindowObject *obj = (WLWindowObject *)window;
     WLWindowObject *relObj = (WLWindowObject *)relativeTo;
@@ -226,13 +226,13 @@ OPENWL_API void CDECL wl_WindowShowRelative(wl_Window window, wl_Window relative
     [obj.nsWindow setIsVisible:YES];
 }
 
-OPENWL_API void CDECL wl_WindowHide(wl_Window window)
+OPENWL_API void CDECL wl_WindowHide(wl_WindowRef window)
 {
     WLWindowObject *obj = (WLWindowObject *)window;
     [obj.nsWindow setIsVisible:NO];
 }
 
-OPENWL_API void CDECL wl_WindowInvalidate(wl_Window window, int x, int y, int width, int height)
+OPENWL_API void CDECL wl_WindowInvalidate(wl_WindowRef window, int x, int y, int width, int height)
 {
     WLWindowObject *windowObj = (WLWindowObject *)window;
     if (width > 0 && height > 0) {
@@ -242,7 +242,7 @@ OPENWL_API void CDECL wl_WindowInvalidate(wl_Window window, int x, int y, int wi
     }
 }
 
-OPENWL_API size_t CDECL wl_WindowGetOSHandle(wl_Window window)
+OPENWL_API size_t CDECL wl_WindowGetOSHandle(wl_WindowRef window)
 {
     WLWindowObject *windowObj = (WLWindowObject *)window;
     // you've already got it, buddy!
@@ -250,7 +250,7 @@ OPENWL_API size_t CDECL wl_WindowGetOSHandle(wl_Window window)
 }
 
 
-OPENWL_API void CDECL wl_MouseGrab(wl_Window window)
+OPENWL_API void CDECL wl_MouseGrab(wl_WindowRef window)
 {
     // noop, seems to be the default behavior on OSX
 }
@@ -277,7 +277,7 @@ static void sizeToFit(CGSize *size, int maxWidth, int maxHeight)
     }
 }
 
-OPENWL_API wl_Icon CDECL wl_IconLoadFromFile(const char *filename, int sizeToWidth)
+OPENWL_API wl_IconRef CDECL wl_IconLoadFromFile(const char *filename, int sizeToWidth)
 {
     auto fname = [NSString stringWithUTF8String:filename];
     auto bundle = [NSBundle mainBundle];
@@ -290,20 +290,20 @@ OPENWL_API wl_Icon CDECL wl_IconLoadFromFile(const char *filename, int sizeToWid
     auto scaled = resizeImage(image, newSize);
     [image release];
     
-    auto ret = new wl_IconImpl;
+    auto ret = new wl_Icon;
     ret->image = scaled;
     return ret;
 }
 
-OPENWL_API wl_Accelerator CDECL wl_AccelCreate(enum wl_KeyEnum key, unsigned int modifiers)
+OPENWL_API wl_AcceleratorRef CDECL wl_AccelCreate(enum wl_KeyEnum key, unsigned int modifiers)
 {
-    auto ret = new wl_AcceleratorImpl;
+    auto ret = new wl_Accelerator;
     ret->key = key;
     ret->modifiers = modifiers;
     return ret;
 }
 
-OPENWL_API wl_Action CDECL wl_ActionCreate(int id, const char *label, wl_Icon icon, wl_Accelerator accel)
+OPENWL_API wl_ActionRef CDECL wl_ActionCreate(int id, const char *label, wl_IconRef icon, wl_AcceleratorRef accel)
 {
     auto ret = [[WLActionObject alloc] init];
     ret._id = id;
@@ -312,17 +312,17 @@ OPENWL_API wl_Action CDECL wl_ActionCreate(int id, const char *label, wl_Icon ic
     ret.icon = icon;
     ret.accel = accel;
     
-    return (wl_Action)ret;
+    return (wl_ActionRef)ret;
 }
 
-OPENWL_API wl_Menu CDECL wl_MenuCreate()
+OPENWL_API wl_MenuRef CDECL wl_MenuCreate()
 {
-    auto ret = new wl_MenuImpl;
+    auto ret = new wl_Menu;
     ret->menu = [[NSMenu alloc] init];
     return ret;
 }
 
-OPENWL_API wl_MenuItem CDECL wl_MenuAddAction(wl_Menu menu, wl_Action action)
+OPENWL_API wl_MenuItemRef CDECL wl_MenuAddAction(wl_MenuRef menu, wl_ActionRef action)
 {
     WLActionObject *actionObj = (WLActionObject *)action;
 
@@ -353,12 +353,12 @@ OPENWL_API wl_MenuItem CDECL wl_MenuAddAction(wl_Menu menu, wl_Action action)
         [item setImage:actionObj.icon->image];
     }
     
-    auto ret = new wl_MenuItemImpl;
+    auto ret = new wl_MenuItem;
     ret->menuItem = item;
     return ret;
 }
 
-static wl_MenuItem addSubMenuCommon(NSMenu *parent, const char *label, NSMenu *child) {
+static wl_MenuItemRef addSubMenuCommon(NSMenu *parent, const char *label, NSMenu *child) {
     auto title = [[NSString stringWithUTF8String:label]
                   stringByReplacingOccurrencesOfString:@"&" withString:@""];
     auto item = [parent addItemWithTitle:title action:nil keyEquivalent:@""];
@@ -366,27 +366,27 @@ static wl_MenuItem addSubMenuCommon(NSMenu *parent, const char *label, NSMenu *c
     [child setTitle:title]; // apparently necessary ...
     [item setSubmenu:child];
     
-    auto ret = new wl_MenuItemImpl;
+    auto ret = new wl_MenuItem;
     ret->menuItem = item;
     return ret;
 }
 
-OPENWL_API wl_MenuItem CDECL wl_MenuAddSubmenu(wl_Menu menu, const char *label, wl_Menu sub)
+OPENWL_API wl_MenuItemRef CDECL wl_MenuAddSubmenu(wl_MenuRef menu, const char *label, wl_MenuRef sub)
 {
     return addSubMenuCommon(menu->menu, label, sub->menu);
 }
 
-OPENWL_API void CDECL wl_MenuAddSeparator(wl_Menu menu)
+OPENWL_API void CDECL wl_MenuAddSeparator(wl_MenuRef menu)
 {
     [menu->menu addItem:[NSMenuItem separatorItem]];
 }
 
-OPENWL_API wl_MenuItem CDECL wl_MenuBarAddMenu(wl_MenuBar menuBar, const char *label, wl_Menu menu)
+OPENWL_API wl_MenuItemRef CDECL wl_MenuBarAddMenu(wl_MenuBarRef menuBar, const char *label, wl_MenuRef menu)
 {
     return addSubMenuCommon(menuBar->menuBar, label, menu->menu);
 }
 
-OPENWL_API void CDECL wl_WindowShowContextMenu(wl_Window window, int x, int y, wl_Menu menu, struct wl_Event *fromEvent)
+OPENWL_API void CDECL wl_WindowShowContextMenu(wl_WindowRef window, int x, int y, wl_MenuRef menu, struct wl_Event *fromEvent)
 {
     WLWindowObject *windowObj = (WLWindowObject *)window;
     [NSMenu popUpContextMenu:menu->menu
@@ -395,17 +395,17 @@ OPENWL_API void CDECL wl_WindowShowContextMenu(wl_Window window, int x, int y, w
 }
 
 // Mac-specific menu stuff (sigh)
-OPENWL_API wl_MenuBar CDECL wl_MenuBarGetDefault()
+OPENWL_API wl_MenuBarRef CDECL wl_MenuBarGetDefault()
 {
-    auto ret = new wl_MenuBarImpl;
+    auto ret = new wl_MenuBar;
     ret->menuBar = rootMenu;
     return ret;
 }
 
-OPENWL_API wl_Menu CDECL wl_GetApplicationMenu()
+OPENWL_API wl_MenuRef CDECL wl_GetApplicationMenu()
 {
     if (appMenu) {
-        auto ret = new wl_MenuImpl;
+        auto ret = new wl_Menu;
         ret->menu = appMenu;
         return ret;
     } else {
@@ -415,7 +415,7 @@ OPENWL_API wl_Menu CDECL wl_GetApplicationMenu()
 
 /********* timer API ************/
 
-OPENWL_API wl_Timer CDECL wl_TimerCreate(wl_Window window, int timerID, unsigned int msTimeout)
+OPENWL_API wl_TimerRef CDECL wl_TimerCreate(wl_WindowRef window, int timerID, unsigned int msTimeout)
 {
     double interval = msTimeout / 1000.0;
     auto ret = [[WLTimerObject alloc] init];
@@ -424,10 +424,10 @@ OPENWL_API wl_Timer CDECL wl_TimerCreate(wl_Window window, int timerID, unsigned
     clock_get_time(systemClock, &ret->lastTime);
     
     ret.timer = [NSTimer scheduledTimerWithTimeInterval:interval target:ret selector:@selector(timerFired:) userInfo:nil repeats:YES];
-    return (wl_Timer)ret;
+    return (wl_TimerRef)ret;
 }
 
-OPENWL_API void CDECL wl_TimerDestroy(wl_Timer timer)
+OPENWL_API void CDECL wl_TimerDestroy(wl_TimerRef timer)
 {
     WLTimerObject *timerObj = (WLTimerObject *)timer;
     [timerObj stopTimer];
@@ -439,7 +439,7 @@ OPENWL_API void CDECL wl_TimerDestroy(wl_Timer timer)
 OPENWL_API const char *wl_kDragFormatUTF8 = "text/plain;charset=UTF-8";
 OPENWL_API const char *wl_kDragFormatFiles = "text/uri-list";
 
-OPENWL_API void wl_WindowEnableDrops(wl_Window window, bool enabled)
+OPENWL_API void wl_WindowEnableDrops(wl_WindowRef window, bool enabled)
 {
     WLWindowObject *windowObj = (WLWindowObject *)window;
     if (enabled) {
@@ -449,7 +449,7 @@ OPENWL_API void wl_WindowEnableDrops(wl_Window window, bool enabled)
     }
 }
 
-OPENWL_API bool CDECL wl_DropHasFormat(wl_DropData dropData, const char *dropFormatMIME)
+OPENWL_API bool CDECL wl_DropHasFormat(wl_DropDataRef dropData, const char *dropFormatMIME)
 {
 //    NSPasteboardTypeString,
 //    NSFilenamesPboardType, // deprecated in 10.13...
@@ -461,7 +461,7 @@ OPENWL_API bool CDECL wl_DropHasFormat(wl_DropData dropData, const char *dropFor
     return false;
 }
 
-OPENWL_API bool CDECL wl_DropGetFormat(wl_DropData dropData, const char *dropFormatMIME, const void **outData, size_t *outSize)
+OPENWL_API bool CDECL wl_DropGetFormat(wl_DropDataRef dropData, const char *dropFormatMIME, const void **outData, size_t *outSize)
 {
     auto cocoaDragFormat = (NSString *)wl_to_cocoa_dragFormat(dropFormatMIME);
 
@@ -484,7 +484,7 @@ OPENWL_API bool CDECL wl_DropGetFormat(wl_DropData dropData, const char *dropFor
     return false;
 }
 
-OPENWL_API bool CDECL wl_DropGetFiles(wl_DropData dropData, const struct wl_Files **outFiles)
+OPENWL_API bool CDECL wl_DropGetFiles(wl_DropDataRef dropData, const struct wl_Files **outFiles)
 {
     auto types = [dropData->pboard types];
     if ([types containsObject:NSFilenamesPboardType]) {
@@ -504,26 +504,26 @@ OPENWL_API bool CDECL wl_DropGetFiles(wl_DropData dropData, const struct wl_File
     return false;
 }
 
-OPENWL_API wl_DragData CDECL wl_DragDataCreate(wl_Window forWindow)
+OPENWL_API wl_DragDataRef CDECL wl_DragDataCreate(wl_WindowRef forWindow)
 {
-    auto ret = new wl_DragDataImpl;
+    auto ret = new wl_DragData;
     ret->forWindow = forWindow;
     ret->formats.clear();
     return ret;
 }
 
-OPENWL_API void CDECL wl_DragDataRelease(wl_DragData *dragData)
+OPENWL_API void CDECL wl_DragDataRelease(wl_DragDataRef *dragData)
 {
     delete *dragData;
     *dragData = nullptr;
 }
 
-OPENWL_API void CDECL wl_DragAddFormat(wl_DragData dragData, const char *dragFormatMIME)
+OPENWL_API void CDECL wl_DragAddFormat(wl_DragDataRef dragData, const char *dragFormatMIME)
 {
     dragData->formats.insert(dragFormatMIME);
 }
 
-OPENWL_API enum wl_DropEffect CDECL wl_DragExec(wl_DragData dragData, unsigned int dropActionsMask, struct wl_Event *fromEvent)
+OPENWL_API enum wl_DropEffect CDECL wl_DragExec(wl_DragDataRef dragData, unsigned int dropActionsMask, struct wl_Event *fromEvent)
 {
     WLContentView *contentView = ((WLWindowObject *)dragData->forWindow).contentViewObj;
     
@@ -573,26 +573,26 @@ OPENWL_API enum wl_DropEffect CDECL wl_DragExec(wl_DragData dragData, unsigned i
 }
 
 // rendering convenience
-OPENWL_API void CDECL wl_DragRenderUTF8(wl_RenderPayload payload, const char *text)
+OPENWL_API void CDECL wl_DragRenderUTF8(wl_RenderPayloadRef payload, const char *text)
 {
     payload->data = [NSString stringWithUTF8String:text];
 }
 
-OPENWL_API void CDECL wl_DragRenderFiles(wl_RenderPayload payload, const struct wl_Files *files)
+OPENWL_API void CDECL wl_DragRenderFiles(wl_RenderPayloadRef payload, const struct wl_Files *files)
 {
     // nothing yet
 }
 
 /********* clipboard API ****************/
 
-OPENWL_API wl_DropData CDECL wl_ClipboardGet()
+OPENWL_API wl_DropDataRef CDECL wl_ClipboardGet()
 {
-    auto ret = new wl_DropDataImpl;
+    auto ret = new wl_DropData;
     ret->pboard = [[NSPasteboard pasteboardWithName:NSGeneralPboard] retain];
     return ret;
 }
 
-OPENWL_API void CDECL wl_ClipboardSet(wl_DragData dragData)
+OPENWL_API void CDECL wl_ClipboardSet(wl_DragDataRef dragData)
 {
     auto pboard = [NSPasteboard pasteboardWithName:NSGeneralPboard];
     [pboard clearContents];
@@ -604,7 +604,7 @@ OPENWL_API void CDECL wl_ClipboardSet(wl_DragData dragData)
     [pboard writeObjects:[NSArray arrayWithObject:contentView]];
 }
 
-OPENWL_API void CDECL wl_ClipboardRelease(wl_DropData dropData)
+OPENWL_API void CDECL wl_ClipboardRelease(wl_DropDataRef dropData)
 {
     [dropData->pboard release];
     delete dropData;
@@ -618,7 +618,7 @@ OPENWL_API void CDECL wl_ClipboardFlush()
 
 /***** Misc Stuff ******/
 
-OPENWL_API void CDECL wl_ExecuteOnMainThread(wl_Window window, wl_VoidCallback callback, void *data)
+OPENWL_API void CDECL wl_ExecuteOnMainThread(wl_WindowRef window, wl_VoidCallback callback, void *data)
 {
     auto mte = [MainThreadExecutor withCallback:callback param:data];
     [mte performSelectorOnMainThread:@selector(executeCallback) withObject:nil waitUntilDone:YES];

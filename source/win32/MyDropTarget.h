@@ -6,13 +6,13 @@
 class MyDropTarget: public CDropTarget
 {
 private:
-    wl_Window mWindow;
-    wl_DropData mDropData;
+    wl_WindowRef mWindow;
+    wl_DropDataRef mDropData;
     void setEventFields(wl_Event &event, DWORD grfKeyState, POINTL pt, DWORD * pdwEffect);
     void updateEffect(wl_Event &event, DWORD *pdwEffect);
 
 public:
-    MyDropTarget(wl_Window window);
+    MyDropTarget(wl_WindowRef window);
     ~MyDropTarget();
 
     void commonQueryClient(wl_Event &event, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect);

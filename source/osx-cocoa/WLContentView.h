@@ -18,7 +18,7 @@
 }
 //@property (retain) NSTrackingArea *trackingArea;
 @property (assign) WLWindowObject *parentWindowObj;
-@property wl_DragData sourceData;
+@property wl_DragDataRef sourceData;
 @property NSDragOperation sourceMask;
 @property wl_DropEffect dragResult;
 - (id)init;

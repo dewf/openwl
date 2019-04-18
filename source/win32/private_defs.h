@@ -6,18 +6,18 @@
 #include <string>
 #include <vector>
 
-struct wl_EventPrivateImpl {
+struct wl_EventPrivate {
     UINT message;
     WPARAM wParam;
     LPARAM lParam;
-    wl_EventPrivateImpl(UINT message, WPARAM wParam, LPARAM lParam) :
+    wl_EventPrivate(UINT message, WPARAM wParam, LPARAM lParam) :
         message(message), wParam(wParam), lParam(lParam)
     {
         //
     }
 };
 
-struct wl_WindowImpl {
+struct wl_Window {
     HWND hwnd = NULL;
     wl_WindowProperties props;
     void *userData = nullptr; // for client callback on window events
@@ -37,17 +37,17 @@ struct wl_WindowImpl {
     ID2D1HwndRenderTarget *d2dRenderTarget = nullptr;
 
     // destructor
-    ~wl_WindowImpl() {
+    ~wl_Window() {
         if (d2dRenderTarget) {
             d2dRenderTarget->Release();
         }
     }
 };
-struct wl_IconImpl {
+struct wl_Icon {
     HBITMAP hbitmap;
 };
-struct wl_TimerImpl {
-    wl_Window window;
+struct wl_Timer {
+    wl_WindowRef window;
     int timerID;
     HANDLE timerQueue;
     HANDLE handle;
@@ -55,53 +55,53 @@ struct wl_TimerImpl {
     LARGE_INTEGER lastPerfCount; // to calculate time since last firing
 };
 
-struct wl_MenuBarImpl {
+struct wl_MenuBar {
     HMENU hmenu;
 };
-struct wl_MenuImpl {
+struct wl_Menu {
     HMENU hmenu;
 };
-struct wl_MenuItemImpl {
-    wl_Action action;
-    wl_Menu subMenu;
+struct wl_MenuItem {
+    wl_ActionRef action;
+    wl_MenuRef subMenu;
 };
 
 //static int nextActionID = 1001;
-struct wl_ActionImpl {
+struct wl_Action {
     int id = -1;
     std::string label = "(none)";
-    wl_Icon icon = nullptr;
-    wl_Accelerator accel = nullptr;
-    std::vector<wl_MenuItem> attachedItems; // to update any menu items when this label/icon/etc changes
+    wl_IconRef icon = nullptr;
+    wl_AcceleratorRef accel = nullptr;
+    std::vector<wl_MenuItemRef> attachedItems; // to update any menu items when this label/icon/etc changes
 };
 
-struct wl_AcceleratorImpl {
+struct wl_Accelerator {
     wl_KeyEnum key;
     unsigned int modifiers;
 };
 
-struct wl_RenderPayloadImpl {
+struct wl_RenderPayload {
     //char *text_utf8;
     void *data = nullptr;
     size_t size = 0;
-    ~wl_RenderPayloadImpl() {
+    ~wl_RenderPayload() {
         if (data != nullptr) {
             free(data);
         }
     }
 };
 
-struct wl_DragDataImpl {
+struct wl_DragData {
     //std::set<std::string> formats; // key is mime type
     MyDataObject *sendObject = 0;
-    wl_DragDataImpl(wl_Window window) {
+    wl_DragData(wl_WindowRef window) {
         sendObject = new MyDataObject(window);
         sendObject->AddRef();
     }
-    ~wl_DragDataImpl() {
+    ~wl_DragData() {
         printf("releasing sendobject ...\n");
         if (sendObject) sendObject->Release();
-        printf("== wl_DragData destructor ==\n");
+        printf("== wl_DragDataRef destructor ==\n");
     }
 };
 
@@ -123,7 +123,7 @@ struct wl_FilesInternal : public wl_Files
 	}
 };
 
-struct wl_DropDataImpl {
+struct wl_DropData {
     IDataObject *recvObject = 0;
 
 	const void *data = nullptr;
@@ -131,12 +131,12 @@ struct wl_DropDataImpl {
 	wl_FilesInternal *files = nullptr;
 
 // public methods =====================
-    wl_DropDataImpl(IDataObject *dataObject) {
+    wl_DropData(IDataObject *dataObject) {
         //formats.clear();
         recvObject = dataObject;
         recvObject->AddRef();
     }
-	~wl_DropDataImpl();
+	~wl_DropData();
 
 	bool hasFormat(const char *dragFormatMIME);
 	bool getFormat(const char *dropFormatMIME, const void **outData, size_t *outSize);

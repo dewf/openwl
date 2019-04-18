@@ -12,7 +12,7 @@
 #include <set>
 #include "globals.h"
 
-struct wl_WindowImpl : public Gtk::Window {
+struct wl_Window : public Gtk::Window {
 private:
     wl_WindowProperties props = {0}; // save these because they need to be reapplied when a menu is added
 
@@ -22,9 +22,9 @@ private:
     void *userData;
     //_wlEventPrivate _private;
     //wl_Event wl_Event;
-    std::set<wl_Timer> timers;
+    std::set<wl_TimerRef> timers;
 
-    wl_MenuBar attachedMenuBar = nullptr;
+    wl_MenuBarRef attachedMenuBar = nullptr;
     int menuHeight = -1;
 
     bool dragActive = false;
@@ -46,15 +46,15 @@ private:
 public:
     Gtk::DrawingArea *getDrawArea() { return &drawArea; }
 
-    void insertTimer(wl_Timer timer) {
+    void insertTimer(wl_TimerRef timer) {
         timers.insert(timer);
     }
-    void removeTimer(wl_Timer timer) {
+    void removeTimer(wl_TimerRef timer) {
         timers.erase(timer);
     }
 
-    wl_WindowImpl(void *userData, wl_WindowProperties *props);
-    virtual ~wl_WindowImpl();
+    wl_Window(void *userData, wl_WindowProperties *props);
+    virtual ~wl_Window();
 
     /**** callbacks ****/
     bool on_drawArea_expose(GdkEventExpose *gdkEvent);
@@ -79,7 +79,7 @@ public:
     bool on_drawArea_dragDrop(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint time);
     void on_drawArea_dragLeave(const Glib::RefPtr<Gdk::DragContext>& context, guint time);
     void on_drawArea_dragDataReceived(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& selection_data, guint info, guint time);
-    bool on_timer_timeout(wl_Timer timer);
+    bool on_timer_timeout(wl_TimerRef timer);
     bool on_delete(GdkEventAny *gdkEvent);
     void on_clipboard_get(Gtk::SelectionData& selectionData, guint info);
     void on_clipboard_clear();
@@ -87,13 +87,13 @@ public:
     /**** public API *****/
     void invalidate(int x, int y, int width, int height);
     void setFocus();
-    void setMenuBar(wl_MenuBar menuBar);
-    void execAction(wl_Action action);
+    void setMenuBar(wl_MenuBarRef menuBar);
+    void execAction(wl_ActionRef action);
 
     bool getDragActive();
     void getDropData(GdkDragContext *dragContext, GdkAtom formatAtom, void **data, size_t *size);
     void releaseDropData(void **dragData);
-    void setClipboard(wl_DragData dragData);
+    void setClipboard(wl_DragDataRef dragData);
 
     size_t getWindowHandle();
     void mouseGrab();

@@ -37,7 +37,7 @@ void MyDropTarget::updateEffect(wl_Event &event, DWORD *pdwEffect) {
     }
 }
 
-MyDropTarget::MyDropTarget(wl_Window window) : CDropTarget() {
+MyDropTarget::MyDropTarget(wl_WindowRef window) : CDropTarget() {
     mWindow = window;
 }
 MyDropTarget::~MyDropTarget() {
@@ -65,7 +65,7 @@ void MyDropTarget::commonQueryClient(wl_Event &event, DWORD grfKeyState, POINTL 
 HRESULT __stdcall MyDropTarget::DragEnter(IDataObject * pDataObject, DWORD grfKeyState, POINTL pt, DWORD * pdwEffect) {
     printf("hello from DragEnter!\n");
 
-    mDropData = new wl_DropDataImpl(pDataObject);
+    mDropData = new wl_DropData(pDataObject);
     //mDragData->items.clear();
     //mDragData->pDataObject = pDataObject;
 

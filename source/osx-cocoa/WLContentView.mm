@@ -94,7 +94,7 @@
         event.keyEvent.key = info->key;
         event.keyEvent.string = info->stringRep;
         event.keyEvent.location = info->location;
-        eventCallback((wl_Window)parentWindowObj, &event, parentWindowObj.userData);
+        eventCallback((wl_WindowRef)parentWindowObj, &event, parentWindowObj.userData);
         
         if (!event.handled) {
             [super flagsChanged:theEvent];
@@ -132,7 +132,7 @@
             event.keyEvent.key = info->key;
             event.keyEvent.string = info->stringRep;
             event.keyEvent.location = info->location;
-            eventCallback((wl_Window)parentWindowObj, &event, parentWindowObj.userData);
+            eventCallback((wl_WindowRef)parentWindowObj, &event, parentWindowObj.userData);
         }
         auto keyDown_handled = event.handled;
         
@@ -145,7 +145,7 @@
             event.keyEvent.eventType = wl_kKeyEventTypeChar;
             // .key, .modifiers, .location still set from earlier
             event.keyEvent.string = [theEvent.characters UTF8String];
-            eventCallback((wl_Window)parentWindowObj, &event, parentWindowObj.userData);
+            eventCallback((wl_WindowRef)parentWindowObj, &event, parentWindowObj.userData);
         }
         auto char_handled = event.handled;
         
@@ -176,7 +176,7 @@
         //        event.keyEvent.string = [theEvent.characters UTF8String];
         //        event.keyEvent.keysym = keyCodeToKeySym(theEvent.keyCode, theEvent.modifierFlags);
         //
-        //        eventCallback((wl_Window)parentWindowObj, &event, parentWindowObj.userData);
+        //        eventCallback((wl_WindowRef)parentWindowObj, &event, parentWindowObj.userData);
         //        if (!event.handled) {
         //            [super keyDown:theEvent];
         //        }
@@ -191,7 +191,7 @@
               whichButton:(wl_MouseButton)whichButton
                 fromEvent:(NSEvent *)theEvent
 {
-    wl_EventPrivateImpl priv;
+    wl_EventPrivate priv;
     priv.event = theEvent;
     wl_Event event;
     event._private = &priv;
@@ -205,7 +205,7 @@
     event.mouseEvent.y = point.y;
     
     event.mouseEvent.modifiers = cocoa_to_wl_modifiers_multi(theEvent.modifierFlags);
-    eventCallback((wl_Window)parentWindowObj, &event, parentWindowObj.userData);
+    eventCallback((wl_WindowRef)parentWindowObj, &event, parentWindowObj.userData);
     return event.handled;
 }
 
@@ -318,7 +318,7 @@
     //    CGContextScaleCTM (cgc, 1.0, -1.0);
     event.repaintEvent.platformContext = cgc;
     
-    eventCallback((wl_Window)parentWindowObj, &event, parentWindowObj.userData);
+    eventCallback((wl_WindowRef)parentWindowObj, &event, parentWindowObj.userData);
     // nothing to do if not handled (no super to forward to ...)
 }
 
@@ -353,7 +353,7 @@
         wl_kDropEffectNone))));
     printf("sending default: %d\n", defaultDragOperation);
     
-    auto data = new wl_DropDataImpl;
+    auto data = new wl_DropData;
     data->pboard = [sender draggingPasteboard]; // need to retain?
     
     // view-converted (y-inverted) location
@@ -369,7 +369,7 @@
     event.dropEvent.defaultModifierAction = defaultDragOperation;
     event.dropEvent.data = data;
     
-    eventCallback((wl_Window)parentWindowObj, &event, parentWindowObj.userData);
+    eventCallback((wl_WindowRef)parentWindowObj, &event, parentWindowObj.userData);
     
     delete data; // not needed anymore
     
@@ -430,10 +430,10 @@
     event.eventType = wl_kEventTypeDragRender;
     event.dragRenderEvent.dragFormat = cocoa_to_wl_dragFormat((CFStringRef)type);
     
-    auto payload = new wl_RenderPayloadImpl;
+    auto payload = new wl_RenderPayload;
     event.dragRenderEvent.payload = payload;
     
-    eventCallback((wl_Window)parentWindowObj, &event, parentWindowObj.userData);
+    eventCallback((wl_WindowRef)parentWindowObj, &event, parentWindowObj.userData);
     
     id ret = nil;
     if (event.handled) {

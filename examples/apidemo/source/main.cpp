@@ -12,30 +12,30 @@
 #define FILE_ACTION_1 1
 #define FILE_ACTION_2 2
 #define EXIT_ACTION 3
-wl_Action fileAction1;
-wl_Action fileAction2;
-wl_Action exitAction;
+wl_ActionRef fileAction1;
+wl_ActionRef fileAction2;
+wl_ActionRef exitAction;
 
 // edit menu
 #define COPY_ACTION 4
 #define PASTE_ACTION 5
-wl_Action copyAction;
-wl_Action pasteAction;
+wl_ActionRef copyAction;
+wl_ActionRef pasteAction;
 
 // help menu
 #define HELP_ACTION_1 6
-wl_Action helpAction1;
+wl_ActionRef helpAction1;
 
 // context menu
 #define CONTEXT_ACTION_1 7
 #define CONTEXT_ACTION_2 8
 #define CONTEXT_ACTION_3 9
 #define CONTEXT_ACTION_4 10
-wl_Action contextAction1;
-wl_Action contextAction2;
-wl_Action contextAction3;
-wl_Action contextAction4;
-wl_Menu contextMenu;
+wl_ActionRef contextAction1;
+wl_ActionRef contextAction2;
+wl_ActionRef contextAction3;
+wl_ActionRef contextAction4;
+wl_MenuRef contextMenu;
 
 int lastFrame = 0;
 int totalFrames = 0;
@@ -44,10 +44,10 @@ int width, height;
 
 #define FAST_TIMER 1
 #define SLOW_TIMER 2
-wl_Timer fastTimer, slowTimer;
+wl_TimerRef fastTimer, slowTimer;
 
-wl_Window mainWindow;
-wl_Window framelessWindow;
+wl_WindowRef mainWindow;
+wl_WindowRef framelessWindow;
 bool framelessWindowVisible = false;
 
 bool mouseDown = false;
@@ -64,7 +64,7 @@ inline bool strEqual(const char *a, const char *b) {
 	return !strcmp(a, b);
 }
 
-int CDECL eventCallback(wl_Window window, wl_Event *event, void *userData) {
+int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 	event->handled = true;
 	switch (event->eventType) {
 	case wl_kEventTypeWindowCloseRequest:

@@ -31,7 +31,7 @@ bool MyDataObject::renderFormat(FORMATETC *pFormatEtc, STGMEDIUM *pMedium) {
             auto dragFormat = kv.first;
             //
 
-			wl_RenderPayloadImpl payload; // used as render target
+			wl_RenderPayload payload; // used as render target
 
             wl_Event event;
             event._private = nullptr;
@@ -71,7 +71,7 @@ void MyDataObject::enumFormats(FORMATETC **formats, LONG *numFormats) {
     }
 }
 
-MyDataObject::MyDataObject(wl_Window window)
+MyDataObject::MyDataObject(wl_WindowRef window)
     : CDataObject()
 {
     mWindow = window;

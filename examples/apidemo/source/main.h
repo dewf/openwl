@@ -39,10 +39,10 @@ struct RandomBox {
 void platformDrawBox(RandomBox *box);
 
 bool platformProvidesDragFormat(const char *formatMIME);
-void platformRenderDragFormat(wl_RenderPayload payload, const char *formatMIME);
+void platformRenderDragFormat(wl_RenderPayloadRef payload, const char *formatMIME);
 
-bool platformCheckDropFormats(wl_DropData dropData);
-void platformHandleDrop(wl_DropData dropData);
+bool platformCheckDropFormats(wl_DropDataRef dropData);
+void platformHandleDrop(wl_DropDataRef dropData);
 
 typedef void(*threadFunc_t)(int threadID);
 void platformCreateThreads(threadFunc_t threadFunc, int count);

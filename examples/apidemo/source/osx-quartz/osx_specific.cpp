@@ -216,16 +216,16 @@ bool platformProvidesDragFormat(const char *formatMIME)
 {
     return false;
 }
-void platformRenderDragFormat(wl_RenderPayload payload, const char *formatMIME)
+void platformRenderDragFormat(wl_RenderPayloadRef payload, const char *formatMIME)
 {
     // nothing yet
 }
 
-bool platformCheckDropFormats(wl_DropData dropData)
+bool platformCheckDropFormats(wl_DropDataRef dropData)
 {
     return false;
 }
-void platformHandleDrop(wl_DropData dropData)
+void platformHandleDrop(wl_DropDataRef dropData)
 {
     // nothing yet
 }

@@ -25,7 +25,7 @@
     event.handled = false;
     event.eventType = wl_kEventTypeWindowCloseRequest;
     event.closeRequestEvent.cancelClose = false;
-    eventCallback((wl_Window)self, &event, userData);
+    eventCallback((wl_WindowRef)self, &event, userData);
     if (event.handled && event.closeRequestEvent.cancelClose) {
         return NO;
     } else {
@@ -38,7 +38,7 @@
     event.handled = false;
     event.eventType = wl_kEventTypeWindowDestroyed;
     event.destroyEvent.reserved = 0;
-    eventCallback((wl_Window)self, &event, userData);
+    eventCallback((wl_WindowRef)self, &event, userData);
     // doesn't matter if handled
 }
 
@@ -54,7 +54,7 @@
     event.resizeEvent.oldHeight = height;
     event.resizeEvent.newWidth = newWidth;
     event.resizeEvent.newHeight = newHeight;
-    eventCallback((wl_Window)self, &event, userData);
+    eventCallback((wl_WindowRef)self, &event, userData);
     // doesn't matter if handled
     
     width = newWidth;
@@ -70,8 +70,8 @@
     event.handled = false;
     event.eventType = wl_kEventTypeAction;
     event.actionEvent.id = actionObj._id;
-    event.actionEvent.action = (wl_Action)actionObj;
-    eventCallback((wl_Window)self, &event, userData);
+    event.actionEvent.action = (wl_ActionRef)actionObj;
+    eventCallback((wl_WindowRef)self, &event, userData);
 }
 
 - (NSPoint) pointToScreen: (NSPoint)p {

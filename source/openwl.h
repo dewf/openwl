@@ -31,8 +31,8 @@
 
 #include <stddef.h>
 
-#define WLHANDLE(x) struct wl_##x##Impl; typedef struct wl_##x##Impl* wl_##x
-// e.g. struct _wlWindow; typedef struct _wlWindow* wl_Window;
+#define WLHANDLE(x) struct wl_##x; typedef struct wl_##x* wl_##x##Ref
+// e.g. struct wl_Window; typedef struct wl_Window* wl_WindowRef;
 
 #ifndef __cplusplus
 #include <stdbool.h>
@@ -258,7 +258,7 @@ extern "C" {
 #endif
 
 	struct wl_ActionEvent {
-		wl_Action action;
+		wl_ActionRef action;
 		int id;
 	};
 	struct wl_CloseRequestEvent {
@@ -276,7 +276,7 @@ extern "C" {
 		int x, y, width, height; // affected area
 	};
 	struct wl_TimerEvent {
-		wl_Timer timer;
+		wl_TimerRef timer;
 		int timerID;
 		bool stopTimer;
 		double secondsSinceLast;
@@ -297,7 +297,7 @@ extern "C" {
 	};
 	struct wl_DropEvent {
 		enum wl_DropEventType eventType; // all have the same data (so no union below)
-		wl_DropData data;
+		wl_DropDataRef data;
 		unsigned int modifiers;
 		int x, y;
 		enum wl_DropEffect defaultModifierAction; // platform-specific suggestion based on modifier combination
@@ -305,7 +305,7 @@ extern "C" {
 	};
 	struct wl_DragRenderEvent {
 		const char *dragFormat; // requested format
-		wl_RenderPayload payload; // target for rendering methods
+		wl_RenderPayloadRef payload; // target for rendering methods
 	};
 	struct wl_ClipboardClearEvent {
 		int reserved;
@@ -318,7 +318,7 @@ extern "C" {
 #endif
 
 	struct wl_Event {
-		wl_EventPrivate _private;
+		wl_EventPrivateRef _private;
 		enum wl_EventType eventType;
 		bool handled;
 		union {
@@ -366,7 +366,7 @@ extern "C" {
         HWND nativeParent; // only used when style = pluginWindow - wl_kWindowPropParent must also be set in used fields
 #elif defined WL_PLATFORM_APPLE
         struct {
-            void *nsView; // wl_Window returned will be a dummy window, this is the good stuff
+            void *nsView; // wl_WindowRef returned will be a dummy window, this is the good stuff
                           // void* for now, because pulling Objective-C headers into this file (for NSView) causes problems
         } outParams;
 #endif
@@ -383,7 +383,7 @@ extern "C" {
 		int numFiles;
 	};
 
-	typedef int(CDECL *wl_EventCallback)(wl_Window window, struct wl_Event *event, void *userData); // akin to win32 wndproc, handles everything
+	typedef int(CDECL *wl_EventCallback)(wl_WindowRef window, struct wl_Event *event, void *userData); // akin to win32 wndproc, handles everything
 	typedef void (CDECL *wl_VoidCallback)(void *data);
 
 	OPENWL_API enum wl_Platform wl_GetPlatform();
@@ -407,41 +407,41 @@ extern "C" {
 	OPENWL_API void CDECL wl_Shutdown();
 
 	/* window api */
-	OPENWL_API wl_Window CDECL wl_WindowCreate(int width, int height, const char *title, void *userData, struct wl_WindowProperties *props);
-	OPENWL_API void CDECL wl_WindowDestroy(wl_Window window);
-	OPENWL_API void CDECL wl_WindowShow(wl_Window window);
-	OPENWL_API void CDECL wl_WindowShowRelative(wl_Window window, wl_Window relativeTo, int x, int y, int newWidth, int newHeight); // for pop-up windows
-	OPENWL_API void CDECL wl_WindowHide(wl_Window window);
-	OPENWL_API void CDECL wl_WindowInvalidate(wl_Window window, int x, int y, int width, int height);
-	OPENWL_API size_t CDECL wl_WindowGetOSHandle(wl_Window window);
+	OPENWL_API wl_WindowRef CDECL wl_WindowCreate(int width, int height, const char *title, void *userData, struct wl_WindowProperties *props);
+	OPENWL_API void CDECL wl_WindowDestroy(wl_WindowRef window);
+	OPENWL_API void CDECL wl_WindowShow(wl_WindowRef window);
+	OPENWL_API void CDECL wl_WindowShowRelative(wl_WindowRef window, wl_WindowRef relativeTo, int x, int y, int newWidth, int newHeight); // for pop-up windows
+	OPENWL_API void CDECL wl_WindowHide(wl_WindowRef window);
+	OPENWL_API void CDECL wl_WindowInvalidate(wl_WindowRef window, int x, int y, int width, int height);
+	OPENWL_API size_t CDECL wl_WindowGetOSHandle(wl_WindowRef window);
 
-	OPENWL_API void CDECL wl_WindowSetFocus(wl_Window window);
-	OPENWL_API void CDECL wl_MouseGrab(wl_Window window);
+	OPENWL_API void CDECL wl_WindowSetFocus(wl_WindowRef window);
+	OPENWL_API void CDECL wl_MouseGrab(wl_WindowRef window);
 	OPENWL_API void CDECL wl_MouseUngrab();
 
 	/* timer API */
-	OPENWL_API wl_Timer CDECL wl_TimerCreate(wl_Window window, int timerID, unsigned int msTimeout);
-	OPENWL_API void CDECL wl_TimerDestroy(wl_Timer timer);
+	OPENWL_API wl_TimerRef CDECL wl_TimerCreate(wl_WindowRef window, int timerID, unsigned int msTimeout);
+	OPENWL_API void CDECL wl_TimerDestroy(wl_TimerRef timer);
 
 	/* action API */
-	OPENWL_API wl_Icon CDECL wl_IconLoadFromFile(const char *filename, int sizeToWidth);
-	OPENWL_API wl_Accelerator CDECL wl_AccelCreate(enum wl_KeyEnum key, unsigned int modifiers);
-	OPENWL_API wl_Action CDECL wl_ActionCreate(int id, const char *label, wl_Icon icon, wl_Accelerator accel);
+	OPENWL_API wl_IconRef CDECL wl_IconLoadFromFile(const char *filename, int sizeToWidth);
+	OPENWL_API wl_AcceleratorRef CDECL wl_AccelCreate(enum wl_KeyEnum key, unsigned int modifiers);
+	OPENWL_API wl_ActionRef CDECL wl_ActionCreate(int id, const char *label, wl_IconRef icon, wl_AcceleratorRef accel);
 
 	/* menu API */
-	OPENWL_API wl_Menu CDECL wl_MenuCreate(); // for menu bars or standalone popups
-	OPENWL_API wl_MenuItem CDECL wl_MenuAddAction(wl_Menu menu, wl_Action action);
-	OPENWL_API wl_MenuItem CDECL wl_MenuAddSubmenu(wl_Menu menu, const char *label, wl_Menu sub);
-	OPENWL_API void CDECL wl_MenuAddSeparator(wl_Menu menu);
-	OPENWL_API wl_MenuItem CDECL wl_MenuBarAddMenu(wl_MenuBar menuBar, const char *label, wl_Menu menu);
-	OPENWL_API void CDECL wl_WindowShowContextMenu(wl_Window window, int x, int y, wl_Menu menu, struct wl_Event *fromEvent);
+	OPENWL_API wl_MenuRef CDECL wl_MenuCreate(); // for menu bars or standalone popups
+	OPENWL_API wl_MenuItemRef CDECL wl_MenuAddAction(wl_MenuRef menu, wl_ActionRef action);
+	OPENWL_API wl_MenuItemRef CDECL wl_MenuAddSubmenu(wl_MenuRef menu, const char *label, wl_MenuRef sub);
+	OPENWL_API void CDECL wl_MenuAddSeparator(wl_MenuRef menu);
+	OPENWL_API wl_MenuItemRef CDECL wl_MenuBarAddMenu(wl_MenuBarRef menuBar, const char *label, wl_MenuRef menu);
+	OPENWL_API void CDECL wl_WindowShowContextMenu(wl_WindowRef window, int x, int y, wl_MenuRef menu, struct wl_Event *fromEvent);
 #ifdef WL_PLATFORM_APPLE
 	// Mac-specific menu stuff (sigh)
-	OPENWL_API wl_MenuBar CDECL wl_MenuBarGetDefault();
-	OPENWL_API wl_Menu CDECL wl_GetApplicationMenu(); // special section of menu for Macs (prefs, quit, etc)
+	OPENWL_API wl_MenuBarRef CDECL wl_MenuBarGetDefault();
+	OPENWL_API wl_MenuRef CDECL wl_GetApplicationMenu(); // special section of menu for Macs (prefs, quit, etc)
 #else
-	OPENWL_API wl_MenuBar CDECL wl_MenuBarCreate();
-	OPENWL_API void CDECL wl_WindowSetMenuBar(wl_Window window, wl_MenuBar menuBar);
+	OPENWL_API wl_MenuBarRef CDECL wl_MenuBarCreate();
+	OPENWL_API void CDECL wl_WindowSetMenuBar(wl_WindowRef window, wl_MenuBarRef menuBar);
 #endif
 
 	/* DND API */
@@ -450,33 +450,33 @@ extern "C" {
 	// user can provide anything else with a custom mime type
 
 	// drag source methods
-	OPENWL_API wl_DragData CDECL wl_DragDataCreate(wl_Window forWindow);
-	OPENWL_API void CDECL wl_DragDataRelease(wl_DragData *dragData);
-	OPENWL_API void CDECL wl_DragAddFormat(wl_DragData dragData, const char *dragFormatMIME); // drag source: we're capable of generating this format
-	OPENWL_API enum wl_DropEffect CDECL wl_DragExec(wl_DragData dragData, unsigned int dropActionsMask, struct wl_Event *fromEvent); // modal / blocking
+	OPENWL_API wl_DragDataRef CDECL wl_DragDataCreate(wl_WindowRef forWindow);
+	OPENWL_API void CDECL wl_DragDataRelease(wl_DragDataRef *dragData);
+	OPENWL_API void CDECL wl_DragAddFormat(wl_DragDataRef dragData, const char *dragFormatMIME); // drag source: we're capable of generating this format
+	OPENWL_API enum wl_DropEffect CDECL wl_DragExec(wl_DragDataRef dragData, unsigned int dropActionsMask, struct wl_Event *fromEvent); // modal / blocking
 
 	// drop target methods
-	OPENWL_API bool CDECL wl_DropHasFormat(wl_DropData dropData, const char *dropFormatMIME); // drag target: testing for availability of this format
-	// wl_DropGetFormat merely gets a pointer to data that is owned by the wl_DropData - and it is only valid as long as the wl_DropData is (typically for the duration of the callback)
-	OPENWL_API bool CDECL wl_DropGetFormat(wl_DropData dropData, const char *dropFormatMIME, const void **data, size_t *dataSize);
-	// the wl_Files* is owned by the wl_DropData (points to internal wl_DropData structure) - onyl valid for life of dropData
-	OPENWL_API bool CDECL wl_DropGetFiles(wl_DropData dropData, const struct wl_Files **files);
+	OPENWL_API bool CDECL wl_DropHasFormat(wl_DropDataRef dropData, const char *dropFormatMIME); // drag target: testing for availability of this format
+	// wl_DropGetFormat merely gets a pointer to data that is owned by the wl_DropDataRef - and it is only valid as long as the wl_DropDataRef is (typically for the duration of the callback)
+	OPENWL_API bool CDECL wl_DropGetFormat(wl_DropDataRef dropData, const char *dropFormatMIME, const void **data, size_t *dataSize);
+	// the wl_Files* is owned by the wl_DropDataRef (points to internal wl_DropDataRef structure) - onyl valid for life of dropData
+	OPENWL_API bool CDECL wl_DropGetFiles(wl_DropDataRef dropData, const struct wl_Files **files);
 
 	// clip/drop data rendering
-	OPENWL_API void CDECL wl_DragRenderUTF8(wl_RenderPayload payload, const char *text);
-	OPENWL_API void CDECL wl_DragRenderFiles(wl_RenderPayload payload, const struct wl_Files *files);
-	OPENWL_API void CDECL wl_DragRenderFormat(wl_RenderPayload payload, const char *formatMIME, const void *data, size_t dataSize);
+	OPENWL_API void CDECL wl_DragRenderUTF8(wl_RenderPayloadRef payload, const char *text);
+	OPENWL_API void CDECL wl_DragRenderFiles(wl_RenderPayloadRef payload, const struct wl_Files *files);
+	OPENWL_API void CDECL wl_DragRenderFormat(wl_RenderPayloadRef payload, const char *formatMIME, const void *data, size_t dataSize);
 
-	OPENWL_API void wl_WindowEnableDrops(wl_Window window, bool enabled); // start/stop receiving drop events
+	OPENWL_API void wl_WindowEnableDrops(wl_WindowRef window, bool enabled); // start/stop receiving drop events
 
 	/* CLIPBOARD API */
-	OPENWL_API void CDECL wl_ClipboardSet(wl_DragData dragData);
-	OPENWL_API wl_DropData CDECL wl_ClipboardGet();
-	OPENWL_API void CDECL wl_ClipboardRelease(wl_DropData dropData);
+	OPENWL_API void CDECL wl_ClipboardSet(wl_DragDataRef dragData);
+	OPENWL_API wl_DropDataRef CDECL wl_ClipboardGet();
+	OPENWL_API void CDECL wl_ClipboardRelease(wl_DropDataRef dropData);
 	OPENWL_API void CDECL wl_ClipboardFlush();
 
 	/* MISC */
-	OPENWL_API void CDECL wl_ExecuteOnMainThread(wl_Window window, wl_VoidCallback callback, void *data);
+	OPENWL_API void CDECL wl_ExecuteOnMainThread(wl_WindowRef window, wl_VoidCallback callback, void *data);
 	OPENWL_API void CDECL wl_Sleep(unsigned int millis);
 	OPENWL_API size_t CDECL wl_SystemMillis();
 

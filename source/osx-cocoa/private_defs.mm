@@ -11,7 +11,7 @@
 
 #import "WLWindowObject.h"
 
-// wl_Action
+// wl_ActionRef
 @implementation WLActionObject
 @synthesize _id;
 @synthesize label;
@@ -20,7 +20,7 @@
 @end
 
 
-// wl_Timer
+// wl_TimerRef
 #define ONE_BILLION 1000000000
 inline double timespecDiff(mach_timespec_t newer, mach_timespec_t older) {
     if (newer.tv_nsec < older.tv_nsec) {
@@ -40,14 +40,14 @@ inline double timespecDiff(mach_timespec_t newer, mach_timespec_t older) {
     event.handled = false;
     event.eventType = wl_kEventTypeTimer;
     event.timerEvent.timerID = _id;
-    event.timerEvent.timer = (wl_Timer)self;
+    event.timerEvent.timer = (wl_TimerRef)self;
     event.timerEvent.stopTimer = false;
     
     mach_timespec_t now;
     clock_get_time(systemClock, &now);
     event.timerEvent.secondsSinceLast = timespecDiff(now, self->lastTime);
     
-    eventCallback((wl_Window)forWindow, &event, forWindow.userData);
+    eventCallback((wl_WindowRef)forWindow, &event, forWindow.userData);
     
     self->lastTime = now;
     
