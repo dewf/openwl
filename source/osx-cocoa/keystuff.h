@@ -18,17 +18,17 @@
 
 struct keymapInfo {
     int code;           // apple keycode
-    WLKeyEnum key;
+    wl_KeyEnum key;
     const char *stringRep;
     bool suppressCharEvent;
-    WLKeyLocation location;
+    wl_KeyLocation location;
 };
 
 extern keymapInfo fixedEntries[];
 extern keymapInfo variableEntries[];
 extern std::map<int, keymapInfo *> codeToKeyInfo; // fixed non-alphanumeric keys
 extern std::map<unichar, keymapInfo *> unicharToKeyInfo; // for non-fixed keys (foreign layouts etc)
-extern std::map<WLKeyEnum, keymapInfo *> reverseKeymap;
+extern std::map<wl_KeyEnum, keymapInfo *> reverseKeymap;
 
 void initKeyMap();
 

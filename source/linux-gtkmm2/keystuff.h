@@ -17,14 +17,14 @@
 struct keyInfo {
     guint lowerSym;
     guint upperSym;
-    WLKeyEnum key;
+    wl_KeyEnum key;
     const char *stringRep;
     bool suppressChar; // suppress generation of "char" keydown events (for things like Escape, Tab, etc)
-    WLKeyLocation location;
+    wl_KeyLocation location;
 };
 
 extern std::map<guint, keyInfo *> keyMap;
-extern std::map<WLKeyEnum, keyInfo *> reverseKeyMap;
+extern std::map<wl_KeyEnum, keyInfo *> reverseKeyMap;
 extern keyInfo keyData[];
 
 void initKeymap();

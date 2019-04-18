@@ -17,41 +17,41 @@
 #include <set>
 #include <string>
 
-struct _wlEventPrivate {
+struct wl_EventPrivate {
     NSEvent *event;
 };
 
-struct _wlAccelerator {
-    enum WLKeyEnum key;
+struct wl_Accelerator {
+    enum wl_KeyEnum key;
     unsigned int modifiers;
 };
 
-struct _wlIcon {
+struct wl_Icon {
     NSImage *image;
 };
 
-// wlAction
+// wl_ActionRef
 @interface WLActionObject : NSObject
 @property int _id;
 @property (copy) NSString *label;
-@property wlIcon icon;
-@property wlAccelerator accel;
+@property wl_IconRef icon;
+@property wl_AcceleratorRef accel;
 // maintain list of NSMenuItems that it's connected to, so that it can be updated?
 @end
 
-struct _wlMenuBar {
+struct wl_MenuBar {
     NSMenu *menuBar;
 };
 
-struct _wlMenu {
+struct wl_Menu {
     NSMenu *menu;
 };
 
-struct _wlMenuItem {
+struct wl_MenuItem {
     NSMenuItem *menuItem;
 };
 
-// wlTimer
+// wl_TimerRef
 // can't seem to properly subclass NSTimer (factory methods don't return (id), but instead (NSTimer), etc)
 // http://www.cocoabuilder.com/archive/cocoa/174162-creating-an-nstimer-subclass.html
 // so just inherit from NSObject, and pass this as userInfo * to an NSTimer
@@ -66,19 +66,19 @@ struct _wlMenuItem {
 @end
 
 // drag data: drag source / clipboard source
-struct _wlDragData {
-    wlWindow forWindow;
+struct wl_DragData {
+    wl_WindowRef forWindow;
     std::set<std::string> formats;
 };
 
 // drop data: for drag dest / clipboard paste
-struct _wlFilesInternal : public WLFiles
+struct wl_FilesInternal : public wl_Files
 {
-    _wlFilesInternal(int numFiles) {
+    wl_FilesInternal(int numFiles) {
         this->numFiles = numFiles;
         filenames = new const char *[numFiles];
     }
-    ~_wlFilesInternal() {
+    ~wl_FilesInternal() {
         for (int i=0; i< numFiles; i++) {
             free(const_cast<char *>(filenames[i])); // created w/ strdup
         }
@@ -86,20 +86,20 @@ struct _wlFilesInternal : public WLFiles
     }
 };
 
-struct _wlDropData {
+struct wl_DropData {
     NSPasteboard *pboard;
     
     void *data = nullptr;
     size_t dataSize = 0;
-    _wlFilesInternal *files = nullptr;
+    wl_FilesInternal *files = nullptr;
     
-    ~_wlDropData() {
+    ~wl_DropData() {
         if (data) free(data);
         if (files) delete files;
     }
 };
 
-struct _wlRenderPayload {
+struct wl_RenderPayload {
     id data; // NSData, NSString, etc etc ... PList types?
 };
 

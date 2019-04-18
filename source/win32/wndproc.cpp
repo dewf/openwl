@@ -13,29 +13,29 @@
 
 unsigned int getKeyModifiers() {
     unsigned int modifiers = 0;
-    modifiers |= (GetKeyState(VK_CONTROL) & 0x8000) ? WLModifier_Control : 0;
-    modifiers |= (GetKeyState(VK_MENU) & 0x8000) ? WLModifier_Alt : 0;
-    modifiers |= (GetKeyState(VK_SHIFT) & 0x8000) ? WLModifier_Shift : 0;
+    modifiers |= (GetKeyState(VK_CONTROL) & 0x8000) ? wl_kModifierControl : 0;
+    modifiers |= (GetKeyState(VK_MENU) & 0x8000) ? wl_kModifierAlt : 0;
+    modifiers |= (GetKeyState(VK_SHIFT) & 0x8000) ? wl_kModifierShift : 0;
     return modifiers;
 }
 
 unsigned int getMouseModifiers(WPARAM wParam) {
 	unsigned int modifiers = 0;
 	auto fwKeys = GET_KEYSTATE_WPARAM(wParam);
-	modifiers |= (fwKeys & MK_CONTROL) ? WLModifier_Control : 0;
-	modifiers |= (fwKeys & MK_SHIFT) ? WLModifier_Shift : 0;
-	modifiers |= (fwKeys & MK_ALT) ? WLModifier_Alt : 0;
+	modifiers |= (fwKeys & MK_CONTROL) ? wl_kModifierControl : 0;
+	modifiers |= (fwKeys & MK_SHIFT) ? wl_kModifierShift : 0;
+	modifiers |= (fwKeys & MK_ALT) ? wl_kModifierAlt : 0;
 	return modifiers;
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    wlWindow wlw = (wlWindow)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+    wl_WindowRef wlw = (wl_WindowRef)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
-    _wlEventPrivate eventPrivate(message, wParam, lParam);
-	WLEvent event = {};
+    wl_EventPrivate eventPrivate(message, wParam, lParam);
+	wl_Event event = {};
     event._private = &eventPrivate;
-    event.eventType = WLEventType_None;
+    event.eventType = wl_kEventTypeNone;
     event.handled = false;
 
     switch (message)
@@ -47,7 +47,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         auto found = actionMap.find(wmId);
         if (found != actionMap.end()) {
             auto action = found->second;
-            event.eventType = WLEventType_Action;
+            event.eventType = wl_kEventTypeAction;
             event.actionEvent.action = action; // aka value
             event.actionEvent.id = action->id;
             eventCallback(wlw, &event, wlw->userData);
@@ -71,7 +71,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             int newWidth = clientRect.right - clientRect.left;
             int newHeight = clientRect.bottom - clientRect.top;
 
-            event.eventType = WLEventType_WindowResized;
+            event.eventType = wl_kEventTypeWindowResized;
             event.resizeEvent.newWidth = newWidth;
             event.resizeEvent.newHeight = newHeight;
             event.resizeEvent.oldWidth = wlw->clientWidth; // hasn't updated yet
@@ -101,14 +101,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
-        event.eventType = WLEventType_WindowRepaint;
+        event.eventType = wl_kEventTypeWindowRepaint;
         event.repaintEvent.x = ps.rcPaint.left;
         event.repaintEvent.y = ps.rcPaint.top;
         event.repaintEvent.width = (ps.rcPaint.right - ps.rcPaint.left);
         event.repaintEvent.height = (ps.rcPaint.bottom - ps.rcPaint.top);
 
         if (useDirect2D) {
-            WLPlatformContextD2D platformContext;
+            wl_PlatformContextD2D platformContext;
             platformContext.factory = d2dFactory;
             platformContext.target = wlw->d2dRenderTarget;
             //platformContext.writeFactory = writeFactory;
@@ -135,7 +135,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     break;
 
     case WM_CLOSE:
-        event.eventType = WLEventType_WindowCloseRequest;
+        event.eventType = wl_kEventTypeWindowCloseRequest;
         event.closeRequestEvent.cancelClose = false;
         eventCallback(wlw, &event, wlw->userData);
         if (event.handled && event.closeRequestEvent.cancelClose) {
@@ -148,7 +148,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
 
     case WM_DESTROY:
-        event.eventType = WLEventType_WindowDestroyed;
+        event.eventType = wl_kEventTypeWindowDestroyed;
         event.destroyEvent.reserved = 0;
         eventCallback(wlw, &event, wlw->userData);
 
@@ -167,18 +167,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         if (wlw) {
             // min
-            if (wlw->props.usedFields & WLWindowProp_MinWidth) {
+            if (wlw->props.usedFields & wl_kWindowPropMinWidth) {
                 mmi->ptMinTrackSize.x = wlw->props.minWidth + wlw->extraWidth;
             }
-            if (wlw->props.usedFields & WLWindowProp_MinHeight) {
+            if (wlw->props.usedFields & wl_kWindowPropMinHeight) {
                 mmi->ptMinTrackSize.y = wlw->props.minHeight + wlw->extraHeight;
             }
 
             // max
-            if (wlw->props.usedFields & WLWindowProp_MaxWidth) {
+            if (wlw->props.usedFields & wl_kWindowPropMaxWidth) {
                 mmi->ptMaxTrackSize.x = wlw->props.maxWidth + wlw->extraWidth;
             }
-            if (wlw->props.usedFields & WLWindowProp_MaxHeight) {
+            if (wlw->props.usedFields & wl_kWindowPropMaxHeight) {
                 mmi->ptMaxTrackSize.y = wlw->props.maxHeight + wlw->extraHeight;
             }
         }
@@ -190,9 +190,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     case OPENWL_TIMER_MESSAGE:
     {
-        auto timer = (wlTimer)lParam;
+        auto timer = (wl_TimerRef)lParam;
 
-        event.eventType = WLEventType_Timer;
+        event.eventType = wl_kEventTypeTimer;
         event.timerEvent.timer = timer;
         event.timerEvent.timerID = timer->timerID;
         event.timerEvent.stopTimer = false;
@@ -229,9 +229,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     utf16_buffer[2] = 0;
                     auto utf8 = wstring_to_utf8(utf16_buffer);
 
-                    event.eventType = WLEventType_Key;
-                    event.keyEvent.eventType = WLKeyEventType_Char;
-                    event.keyEvent.key = WLKey_Unknown;
+                    event.eventType = wl_kEventTypeKey;
+                    event.keyEvent.eventType = wl_kKeyEventTypeChar;
+                    event.keyEvent.key = wl_kKeyUnknown;
                     event.keyEvent.modifiers = 0; // not used here
 
                     event.keyEvent.string = utf8.c_str();
@@ -245,9 +245,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 utf16_buffer[1] = 0;
                 auto utf8 = wstring_to_utf8(utf16_buffer);
 
-                event.eventType = WLEventType_Key;
-                event.keyEvent.eventType = WLKeyEventType_Char;
-                event.keyEvent.key = WLKey_Unknown;
+                event.eventType = wl_kEventTypeKey;
+                event.keyEvent.eventType = wl_kKeyEventTypeChar;
+                event.keyEvent.key = wl_kKeyUnknown;
                 event.keyEvent.modifiers = 0; // not used here
 
                 event.keyEvent.string = utf8.c_str();
@@ -268,21 +268,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         unsigned char scanCode = (lParam >> 16) & 0xFF;
         bool extended = ((lParam >> 24) & 0x1) ? true : false;
 
-        KeyInfo *value = keyMap[0]; // WLKey_Unknown
+        KeyInfo *value = keyMap[0]; // wl_kKeyUnknown
         auto found = keyMap.find(wParam); // wParam = win32 virtual key
         if (found != keyMap.end()) {
             value = found->second;
         }
-        if (value->key != WLKey_Unknown) {
-            event.eventType = WLEventType_Key;
-            event.keyEvent.eventType = (message == WM_KEYDOWN ? WLKeyEventType_Down : WLKeyEventType_Up);
+        if (value->key != wl_kKeyUnknown) {
+            event.eventType = wl_kEventTypeKey;
+            event.keyEvent.eventType = (message == WM_KEYDOWN ? wl_kKeyEventTypeDown : wl_kKeyEventTypeUp);
             event.keyEvent.key = value->key;
             event.keyEvent.modifiers = getKeyModifiers(); // should probably be tracking ctrl/alt/shift state as we go, instead of grabbing instantaneously here
             event.keyEvent.string = value->stringRep;
 
             // use scancode, extended value, etc to figure out location (left/right/numpad/etc)
             if (value->knownLocation >= 0) {
-                event.keyEvent.location = (WLKeyLocation)value->knownLocation;
+                event.keyEvent.location = (wl_KeyLocation)value->knownLocation;
             }
             else {
                 event.keyEvent.location = locationForKey(value->key, scanCode, extended);
@@ -315,30 +315,30 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_MBUTTONUP:
     case WM_RBUTTONDOWN:
     case WM_RBUTTONUP:
-        event.eventType = WLEventType_Mouse;
+        event.eventType = wl_kEventTypeMouse;
 
         switch (message) {
         case WM_LBUTTONDOWN:
         case WM_MBUTTONDOWN:
         case WM_RBUTTONDOWN:
-            event.mouseEvent.eventType = WLMouseEventType_MouseDown;
+            event.mouseEvent.eventType = wl_kMouseEventTypeMouseDown;
             break;
         default:
-            event.mouseEvent.eventType = WLMouseEventType_MouseUp;
+            event.mouseEvent.eventType = wl_kMouseEventTypeMouseUp;
         }
 
         switch (message) {
         case WM_LBUTTONDOWN:
         case WM_LBUTTONUP:
-            event.mouseEvent.button = WLMouseButton_Left;
+            event.mouseEvent.button = wl_kMouseButtonLeft;
             break;
         case WM_MBUTTONDOWN:
         case WM_MBUTTONUP:
-            event.mouseEvent.button = WLMouseButton_Middle;
+            event.mouseEvent.button = wl_kMouseButtonMiddle;
             break;
         case WM_RBUTTONDOWN:
         case WM_RBUTTONUP:
-            event.mouseEvent.button = WLMouseButton_Right;
+            event.mouseEvent.button = wl_kMouseButtonRight;
             break;
         }
         event.mouseEvent.x = GET_X_LPARAM(lParam);
@@ -351,14 +351,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
 
     case WM_MOUSEMOVE:
-		event.eventType = WLEventType_Mouse;
+		event.eventType = wl_kEventTypeMouse;
 		event.mouseEvent.x = GET_X_LPARAM(lParam);
 		event.mouseEvent.y = GET_Y_LPARAM(lParam);
 		//event.mouseEvent.modifiers = getMouseModifiers(wParam);
 
 		if (!wlw->mouseInWindow) {
 			// synthesize an "enter" event before the 1st move event sent
-			event.mouseEvent.eventType = WLMouseEventType_MouseEnter;
+			event.mouseEvent.eventType = wl_kMouseEventTypeMouseEnter;
 			eventCallback(wlw, &event, wlw->userData);
 
 			// indicate that we want a WM_MOUSELEAVE event to balance this
@@ -373,7 +373,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			event.handled = false; // reset for next dispatch below
 		}
 
-        event.mouseEvent.eventType = WLMouseEventType_MouseMove;
+        event.mouseEvent.eventType = wl_kMouseEventTypeMouseMove;
         // button, modifiers etc not relevant
 
         eventCallback(wlw, &event, wlw->userData);
@@ -383,8 +383,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
 
 	case WM_MOUSEWHEEL:
-		event.eventType = WLEventType_Mouse;
-		event.mouseEvent.eventType = WLMouseEventType_MouseWheel;
+		event.eventType = wl_kEventTypeMouse;
+		event.mouseEvent.eventType = wl_kMouseEventTypeMouseWheel;
 		event.mouseEvent.wheelDelta = GET_WHEEL_DELTA_WPARAM(wParam);
 		event.mouseEvent.x = GET_X_LPARAM(lParam);
 		event.mouseEvent.y = GET_Y_LPARAM(lParam);
@@ -397,8 +397,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_MOUSELEAVE:
-		event.eventType = WLEventType_Mouse;
-		event.mouseEvent.eventType = WLMouseEventType_MouseLeave;
+		event.eventType = wl_kEventTypeMouse;
+		event.mouseEvent.eventType = wl_kMouseEventTypeMouseLeave;
 		// no other values come with event
 
 		wlw->mouseInWindow = false;

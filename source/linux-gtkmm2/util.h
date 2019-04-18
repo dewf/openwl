@@ -13,12 +13,12 @@ unsigned int gdkToWlModifiers(unsigned int gdkState);
 
 unsigned int wlToGdkModifiers(unsigned int modifiers);
 
-WLMouseButton gdkToWlButton(uint button);
+wl_MouseButton gdkToWlButton(uint button);
 
-uint wlToGdkButton(WLMouseButton wlButton);
+uint wlToGdkButton(wl_MouseButton wlButton);
 
 // assumes only one is set
-WLDropEffect  gdkToWlDropEffectSingle(Gdk::DragAction dragAction);
+wl_DropEffect  gdkToWlDropEffectSingle(Gdk::DragAction dragAction);
 
 // create a mask (allow multiple settings -- annoying that they use an enum for this)
 unsigned int gdkToWlDropEffectMulti(Gdk::DragAction actions);

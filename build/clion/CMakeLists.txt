@@ -26,8 +26,8 @@ set(SOURCE_FILES
         "../../source/linux-gtkmm2/util.h"
         "../../source/linux-gtkmm2/private_defs.cpp"
         "../../source/linux-gtkmm2/private_defs.h"
-        "../../source/linux-gtkmm2/_wlWindow.cpp"
-        "../../source/linux-gtkmm2/_wlWindow.h"
+        "../../source/linux-gtkmm2/wlWindow.cpp"
+        "../../source/linux-gtkmm2/wlWindow.h"
         "../../source/linux-gtkmm2/keystuff.cpp"
         "../../source/linux-gtkmm2/keystuff.h")
 

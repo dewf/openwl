@@ -3,10 +3,10 @@
 #include "unicodestuff.h"
 
 static bool formatEtcFromDragFormat(const char *dragFormatMIME, FORMATETC *fmtetc) {
-	if (!strcmp(dragFormatMIME, kWLDragFormatUTF8)) {
+	if (!strcmp(dragFormatMIME, wl_kDragFormatUTF8)) {
 		*fmtetc = { CF_UNICODETEXT, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
 	}
-	else if (!strcmp(dragFormatMIME, kWLDragFormatFiles)) {
+	else if (!strcmp(dragFormatMIME, wl_kDragFormatFiles)) {
 		*fmtetc = { CF_HDROP, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
 	}
 	else {
@@ -16,27 +16,9 @@ static bool formatEtcFromDragFormat(const char *dragFormatMIME, FORMATETC *fmtet
 	return true;
 }
 
-struct _wlFilesInternal : public WLFiles
+wl_DropData::~wl_DropData()
 {
-	_wlFilesInternal(int numFiles)
-	{
-		this->numFiles = numFiles;
-		filenames = new const char *[numFiles];
-		for (int i = 0; i < numFiles; i++) {
-			filenames[i] = nullptr;
-		}
-	}
-	~_wlFilesInternal() {
-		for (int i = 0; i < numFiles; i++) {
-			free(const_cast<char *>(filenames[i])); // created with strdup
-		}
-		delete[] filenames;
-	}
-};
-
-_wlDropData::~_wlDropData()
-{
-	printf("wlDropData dtor\n");
+	printf("wl_DropDataRef dtor\n");
 
 	if (recvObject) recvObject->Release();
 	if (data) {
@@ -47,7 +29,7 @@ _wlDropData::~_wlDropData()
 	}
 }
 
-bool _wlDropData::hasFormat(const char *dragFormatMIME)
+bool wl_DropData::hasFormat(const char *dragFormatMIME)
 {
 	// testing for existence, without triggering a render (or whatever might be required on the other end)
 	FORMATETC fmtetc;
@@ -59,11 +41,11 @@ bool _wlDropData::hasFormat(const char *dragFormatMIME)
 	return false;
 }
 
-bool _wlDropData::getFormat(const char *dropFormatMIME, const void ** outData, size_t * outSize)
+bool wl_DropData::getFormat(const char *dropFormatMIME, const void ** outData, size_t * outSize)
 {
 	// force other end to generate data
-	if (!strcmp(dropFormatMIME, kWLDragFormatFiles)) {
-		printf("wlDropData::getFormat() - must use ::getFiles() for file drops\n");
+	if (!strcmp(dropFormatMIME, wl_kDragFormatFiles)) {
+		printf("wl_DropDataRef::getFormat() - must use ::getFiles() for file drops\n");
 		return false;
 	}
 
@@ -81,7 +63,7 @@ bool _wlDropData::getFormat(const char *dropFormatMIME, const void ** outData, s
 
 		void *tempData;
 		size_t tempSize;
-		if (!strcmp(dropFormatMIME, kWLDragFormatUTF8)) {
+		if (!strcmp(dropFormatMIME, wl_kDragFormatUTF8)) {
 			// special handling for strings
 			auto utf8 = wstring_to_utf8((wchar_t *)ptr);
 			tempSize = strlen(utf8.c_str()) + 1;
@@ -104,7 +86,7 @@ bool _wlDropData::getFormat(const char *dropFormatMIME, const void ** outData, s
 	return false;
 }
 
-bool _wlDropData::getFiles(const WLFiles **outFiles)
+bool wl_DropData::getFiles(const wl_Files **outFiles)
 {
 	FORMATETC fmtetc = { CF_HDROP, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
 	STGMEDIUM stgmed;
@@ -112,7 +94,7 @@ bool _wlDropData::getFiles(const WLFiles **outFiles)
 		HDROP dropfiles = (HDROP)GlobalLock(stgmed.hGlobal);
 
 		auto numFiles = DragQueryFile(dropfiles, -1, 0, 0);
-		files = new _wlFilesInternal(numFiles);
+		files = new wl_FilesInternal(numFiles);
 
 		for (int i = 0; i < files->numFiles; i++) {
 			auto numChars = DragQueryFile(dropfiles, i, nullptr, 0);
@@ -131,7 +113,7 @@ bool _wlDropData::getFiles(const WLFiles **outFiles)
 		GlobalUnlock(stgmed.hGlobal);
 		ReleaseStgMedium(&stgmed);
 
-		*outFiles = (const WLFiles *) files;
+		*outFiles = (const wl_Files *) files;
 
 		return true;
 	}

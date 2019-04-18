@@ -10,7 +10,7 @@
 
 #import <Foundation/Foundation.h>
 
-wlEventCallback eventCallback = NULL;
+wl_EventCallback eventCallback = NULL;
 NSAutoreleasePool *pool = nil;
 NSApplication *sharedApp = nil;
 WLAppDelegate *myDelegate = nil;

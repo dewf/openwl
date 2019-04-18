@@ -12,10 +12,10 @@
 
 // on-main-thread executor convenience object
 @interface MainThreadExecutor : NSObject {
-    wlVoidCallback callback;
+    wl_VoidCallback callback;
     void *param;
 }
-+ (MainThreadExecutor *) withCallback:(wlVoidCallback)cb param:(void *)p;
++ (MainThreadExecutor *) withCallback:(wl_VoidCallback)cb param:(void *)p;
 - (void) executeCallback;
 @end
 
