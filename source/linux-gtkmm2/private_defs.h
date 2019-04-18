@@ -16,21 +16,21 @@
 
 #include "_wlWindow.h"
 
-struct _wl_EventPrivate {
+struct wl_EventPrivateImpl {
     int eventCount = 0; // verify not reentrant
     GdkEvent *gdkEvent;
 };
 
-struct _wl_Icon {
+struct wl_IconImpl {
     Gtk::Image *gtkImage;
 };
 
-struct _wl_Accelerator {
+struct wl_AcceleratorImpl {
     wl_KeyEnum key;
     unsigned int modifiers;
 };
 
-struct _wl_Action {
+struct wl_ActionImpl {
     int id;
     std::string label;
     wl_Icon icon;
@@ -38,7 +38,7 @@ struct _wl_Action {
     std::vector<wl_MenuItem> attachedItems; // for disabling multiple menu items at once, etc
 };
 
-struct _wl_Timer {
+struct wl_TimerImpl {
     wl_Window window;
     int timerID;
     sigc::connection conn;
@@ -56,7 +56,7 @@ struct _wl_Timer {
         }
     }
 
-    virtual ~_wl_Timer() {
+    virtual ~wl_TimerImpl() {
         disconnect();
     }
 };
@@ -66,14 +66,14 @@ struct _wl_MenuShell {
     virtual Gtk::MenuShell &getShell() = 0;
 };
 
-struct _wl_MenuItem {
+struct wl_MenuItemImpl {
     _wl_MenuShell *parentShell;
     Gtk::MenuItem *gtkItem;
     wl_Action action;
     wl_Menu sub;
 };
 
-struct _wl_MenuBar : _wl_MenuShell {
+struct wl_MenuBarImpl : _wl_MenuShell {
     wl_Window attachedTo = nullptr;
     Gtk::MenuBar gtkMenuBar;
 
@@ -84,7 +84,7 @@ struct _wl_MenuBar : _wl_MenuShell {
     }
 };
 
-struct _wl_Menu : _wl_MenuShell {
+struct wl_MenuImpl : _wl_MenuShell {
     Gtk::Menu gtkMenu;
     wl_MenuItem parentItem = nullptr;
     wl_Window contextFor = nullptr;
@@ -112,7 +112,7 @@ struct _wl_Menu : _wl_MenuShell {
     }
 };
 
-struct _wl_DragData {
+struct wl_DragDataImpl {
     wl_Window forWindow = nullptr;
     std::set<std::string> formats;
     bool dragActive = false;
@@ -137,12 +137,12 @@ struct _wl_FilesInternal : public wl_Files
     }
 };
 
-struct _wl_DropData {
+struct wl_DropDataImpl {
     void *data = nullptr;
     size_t dataSize = 0;
     _wl_FilesInternal *files = nullptr;
 
-    virtual ~_wl_DropData() {
+    virtual ~wl_DropDataImpl() {
         if (data) free(data);
         delete files; // apparently OK to delete null ptrs!
     }
@@ -153,18 +153,18 @@ struct _wl_DropData {
     virtual bool getFormat(const char *dropFormatMIME, const void **data, size_t *dataSize) = 0;
 };
 
-struct _wl_RenderPayload {
+struct wl_RenderPayloadImpl {
     void *data = nullptr;
     size_t dataSize = 0;
 
-    ~_wl_RenderPayload() {
+    ~wl_RenderPayloadImpl() {
         if (data != nullptr) {
             free(data);
         }
     }
 };
 
-struct _wl_DropData_Drop : _wl_DropData {
+struct _wl_DropData_Drop : wl_DropDataImpl {
     const Glib::RefPtr<Gdk::DragContext> &dragContext;
     wl_Window window;
 
@@ -190,7 +190,7 @@ struct _wl_DropData_Drop : _wl_DropData {
 };
 
 
-struct _wl_DropData_Clip : _wl_DropData {
+struct _wl_DropData_Clip : wl_DropDataImpl {
 
 // "public" =============
     bool hasTarget(const char *target) override {

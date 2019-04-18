@@ -65,7 +65,7 @@ void MyDropTarget::commonQueryClient(wl_Event &event, DWORD grfKeyState, POINTL 
 HRESULT __stdcall MyDropTarget::DragEnter(IDataObject * pDataObject, DWORD grfKeyState, POINTL pt, DWORD * pdwEffect) {
     printf("hello from DragEnter!\n");
 
-    mDropData = new _wl_DropData(pDataObject);
+    mDropData = new wl_DropDataImpl(pDataObject);
     //mDragData->items.clear();
     //mDragData->pDataObject = pDataObject;
 

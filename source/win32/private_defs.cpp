@@ -16,25 +16,7 @@ static bool formatEtcFromDragFormat(const char *dragFormatMIME, FORMATETC *fmtet
 	return true;
 }
 
-struct _wl_FilesInternal : public wl_Files
-{
-	_wl_FilesInternal(int numFiles)
-	{
-		this->numFiles = numFiles;
-		filenames = new const char *[numFiles];
-		for (int i = 0; i < numFiles; i++) {
-			filenames[i] = nullptr;
-		}
-	}
-	~_wl_FilesInternal() {
-		for (int i = 0; i < numFiles; i++) {
-			free(const_cast<char *>(filenames[i])); // created with strdup
-		}
-		delete[] filenames;
-	}
-};
-
-_wl_DropData::~_wl_DropData()
+wl_DropDataImpl::~wl_DropDataImpl()
 {
 	printf("wl_DropData dtor\n");
 
@@ -47,7 +29,7 @@ _wl_DropData::~_wl_DropData()
 	}
 }
 
-bool _wl_DropData::hasFormat(const char *dragFormatMIME)
+bool wl_DropDataImpl::hasFormat(const char *dragFormatMIME)
 {
 	// testing for existence, without triggering a render (or whatever might be required on the other end)
 	FORMATETC fmtetc;
@@ -59,7 +41,7 @@ bool _wl_DropData::hasFormat(const char *dragFormatMIME)
 	return false;
 }
 
-bool _wl_DropData::getFormat(const char *dropFormatMIME, const void ** outData, size_t * outSize)
+bool wl_DropDataImpl::getFormat(const char *dropFormatMIME, const void ** outData, size_t * outSize)
 {
 	// force other end to generate data
 	if (!strcmp(dropFormatMIME, wl_kDragFormatFiles)) {
@@ -104,7 +86,7 @@ bool _wl_DropData::getFormat(const char *dropFormatMIME, const void ** outData, 
 	return false;
 }
 
-bool _wl_DropData::getFiles(const wl_Files **outFiles)
+bool wl_DropDataImpl::getFiles(const wl_Files **outFiles)
 {
 	FORMATETC fmtetc = { CF_HDROP, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
 	STGMEDIUM stgmed;
@@ -112,7 +94,7 @@ bool _wl_DropData::getFiles(const wl_Files **outFiles)
 		HDROP dropfiles = (HDROP)GlobalLock(stgmed.hGlobal);
 
 		auto numFiles = DragQueryFile(dropfiles, -1, 0, 0);
-		files = new _wl_FilesInternal(numFiles);
+		files = new wl_FilesInternal(numFiles);
 
 		for (int i = 0; i < files->numFiles; i++) {
 			auto numChars = DragQueryFile(dropfiles, i, nullptr, 0);

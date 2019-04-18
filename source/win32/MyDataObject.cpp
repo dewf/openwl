@@ -31,7 +31,7 @@ bool MyDataObject::renderFormat(FORMATETC *pFormatEtc, STGMEDIUM *pMedium) {
             auto dragFormat = kv.first;
             //
 
-			_wl_RenderPayload payload; // used as render target
+			wl_RenderPayloadImpl payload; // used as render target
 
             wl_Event event;
             event._private = nullptr;

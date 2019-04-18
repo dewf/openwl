@@ -191,7 +191,7 @@
               whichButton:(wl_MouseButton)whichButton
                 fromEvent:(NSEvent *)theEvent
 {
-    _wl_EventPrivate priv;
+    wl_EventPrivateImpl priv;
     priv.event = theEvent;
     wl_Event event;
     event._private = &priv;
@@ -353,7 +353,7 @@
         wl_kDropEffectNone))));
     printf("sending default: %d\n", defaultDragOperation);
     
-    auto data = new _wl_DropData;
+    auto data = new wl_DropDataImpl;
     data->pboard = [sender draggingPasteboard]; // need to retain?
     
     // view-converted (y-inverted) location
@@ -430,7 +430,7 @@
     event.eventType = wl_kEventTypeDragRender;
     event.dragRenderEvent.dragFormat = cocoa_to_wl_dragFormat((CFStringRef)type);
     
-    auto payload = new _wl_RenderPayload;
+    auto payload = new wl_RenderPayloadImpl;
     event.dragRenderEvent.payload = payload;
     
     eventCallback((wl_Window)parentWindowObj, &event, parentWindowObj.userData);

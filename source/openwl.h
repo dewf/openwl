@@ -31,7 +31,7 @@
 
 #include <stddef.h>
 
-#define WLHANDLE(x) struct _wl_##x; typedef struct _wl_##x* wl_##x
+#define WLHANDLE(x) struct wl_##x##Impl; typedef struct wl_##x##Impl* wl_##x
 // e.g. struct _wlWindow; typedef struct _wlWindow* wl_Window;
 
 #ifndef __cplusplus

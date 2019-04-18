@@ -32,7 +32,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     wl_Window wlw = (wl_Window)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
-    _wl_EventPrivate eventPrivate(message, wParam, lParam);
+    wl_EventPrivateImpl eventPrivate(message, wParam, lParam);
 	wl_Event event = {};
     event._private = &eventPrivate;
     event.eventType = wl_kEventTypeNone;

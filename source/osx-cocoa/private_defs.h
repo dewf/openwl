@@ -17,16 +17,16 @@
 #include <set>
 #include <string>
 
-struct _wl_EventPrivate {
+struct wl_EventPrivateImpl {
     NSEvent *event;
 };
 
-struct _wl_Accelerator {
+struct wl_AcceleratorImpl {
     enum wl_KeyEnum key;
     unsigned int modifiers;
 };
 
-struct _wl_Icon {
+struct wl_IconImpl {
     NSImage *image;
 };
 
@@ -39,15 +39,15 @@ struct _wl_Icon {
 // maintain list of NSMenuItems that it's connected to, so that it can be updated?
 @end
 
-struct _wl_MenuBar {
+struct wl_MenuBarImpl {
     NSMenu *menuBar;
 };
 
-struct _wl_Menu {
+struct wl_MenuImpl {
     NSMenu *menu;
 };
 
-struct _wl_MenuItem {
+struct wl_MenuItemImpl {
     NSMenuItem *menuItem;
 };
 
@@ -66,7 +66,7 @@ struct _wl_MenuItem {
 @end
 
 // drag data: drag source / clipboard source
-struct _wl_DragData {
+struct wl_DragDataImpl {
     wl_Window forWindow;
     std::set<std::string> formats;
 };
@@ -86,20 +86,20 @@ struct _wl_FilesInternal : public wl_Files
     }
 };
 
-struct _wl_DropData {
+struct wl_DropDataImpl {
     NSPasteboard *pboard;
     
     void *data = nullptr;
     size_t dataSize = 0;
     _wl_FilesInternal *files = nullptr;
     
-    ~_wl_DropData() {
+    ~wl_DropDataImpl() {
         if (data) free(data);
         if (files) delete files;
     }
 };
 
-struct _wl_RenderPayload {
+struct wl_RenderPayloadImpl {
     id data; // NSData, NSString, etc etc ... PList types?
 };
 

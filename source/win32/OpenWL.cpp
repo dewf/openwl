@@ -158,7 +158,7 @@ wl_Window wl_WindowCreate(int width, int height, const char *title, void *userDa
 
 	if (hWnd) {
 		// associate data
-		wl_Window wlw = new _wl_Window;
+		wl_Window wlw = new wl_WindowImpl;
 		wlw->hwnd = hWnd;
 		wlw->dwStyle = dwStyle;
         wlw->clientWidth = width;
@@ -277,7 +277,7 @@ OPENWL_API wl_Timer CDECL wl_TimerCreate(wl_Window window, int timerID, unsigned
 {
 	// requires a window because it has userdat and other stuff  ...
 	// which I guess we could put into a wl_Timer structure, but then we have multiple types of userdata ...
-	wl_Timer timer = new _wl_Timer;
+	wl_Timer timer = new wl_TimerImpl;
 	timer->timerID = timerID;
     QueryPerformanceCounter(&timer->lastPerfCount);
 	timer->window = window;
@@ -307,7 +307,7 @@ OPENWL_API void CDECL wl_TimerDestroy(wl_Timer timer)
 
 wl_Menu wl_MenuCreate()
 {
-	wl_Menu retMenu = new _wl_Menu;
+	wl_Menu retMenu = new wl_MenuImpl;
 	retMenu->hmenu = CreatePopupMenu();
 	return retMenu;
 }
@@ -316,8 +316,8 @@ wl_MenuItem wl_MenuAddSubmenu(wl_Menu menu, const char *label, wl_Menu sub)
 {
 	auto wideLabel = utf8_to_wstring(label);
 
-	wl_MenuItem retItem = new _wl_MenuItem;
-	memset(retItem, 0, sizeof(_wl_MenuItem));
+	wl_MenuItem retItem = new wl_MenuItemImpl;
+	memset(retItem, 0, sizeof(wl_MenuItemImpl));
 	AppendMenu(menu->hmenu, MF_STRING | MF_POPUP, (UINT_PTR)sub->hmenu, wideLabel.c_str());
 	retItem->subMenu = sub;
 	return retItem;
@@ -330,7 +330,7 @@ void wl_MenuAddSeparator(wl_Menu menu)
 
 wl_MenuBar wl_MenuBarCreate()
 {
-	wl_MenuBar retMenuBar = new _wl_MenuBar;
+	wl_MenuBar retMenuBar = new wl_MenuBarImpl;
 	retMenuBar->hmenu = CreateMenu();
 	return retMenuBar;
 }
@@ -340,7 +340,7 @@ wl_MenuItem wl_MenuBarAddMenu(wl_MenuBar menuBar, const char *label, wl_Menu men
 	auto wideLabel = utf8_to_wstring(label);
 
 	AppendMenu(menuBar->hmenu, MF_STRING | MF_POPUP, (UINT_PTR)menu->hmenu, wideLabel.c_str());
-	auto retMenuItem = new _wl_MenuItem;
+	auto retMenuItem = new wl_MenuItemImpl;
 	retMenuItem->action = nullptr;
 	retMenuItem->subMenu = menu;
 	return retMenuItem;
@@ -366,7 +366,7 @@ void wl_WindowSetMenuBar(wl_Window window, wl_MenuBar menuBar)
 
 OPENWL_API wl_Action CDECL wl_ActionCreate(int id, const char *label, wl_Icon icon, wl_Accelerator accel)
 {
-	wl_Action retAction = new _wl_Action;
+	wl_Action retAction = new wl_ActionImpl;
 	retAction->label = label;
 	printf("retAction label: %s (original %s)\n", retAction->label.c_str(), label);
 	retAction->id = id; // nextActionID++;
@@ -408,8 +408,8 @@ std::string accelToString(wl_Accelerator accel) {
 
 wl_MenuItem wl_MenuAddAction(wl_Menu menu, wl_Action action)
 {
-	wl_MenuItem retItem = new _wl_MenuItem;
-	memset(retItem, 0, sizeof(_wl_MenuItem));
+	wl_MenuItem retItem = new wl_MenuItemImpl;
+	memset(retItem, 0, sizeof(wl_MenuItemImpl));
 	
 	// alter label if accelerator present
 	std::string label = action->label;
@@ -441,7 +441,7 @@ wl_Icon wl_IconLoadFromFile(const char *filename, int sizeToWidth)
 {
     auto pngBitmap = loadPngAndResize(filename, sizeToWidth, sizeToWidth);
     if (pngBitmap) {
-        auto retIcon = new _wl_Icon;
+        auto retIcon = new wl_IconImpl;
         retIcon->hbitmap = pngBitmap;
         return retIcon;
     }
@@ -462,7 +462,7 @@ OPENWL_API void CDECL wl_WindowShowContextMenu(wl_Window window, int x, int y, w
 
 wl_Accelerator wl_AccelCreate(wl_KeyEnum key, unsigned int modifiers)
 {
-	auto retAccel = new _wl_Accelerator;
+	auto retAccel = new wl_AcceleratorImpl;
 	retAccel->key = key;
 	retAccel->modifiers = modifiers;
 	return retAccel;
@@ -483,7 +483,7 @@ OPENWL_API const char *wl_kDragFormatFiles = "application/vnd.openwl-files";
 
 OPENWL_API wl_DragData CDECL wl_DragDataCreate(wl_Window window)
 {
-	return new _wl_DragData(window);
+	return new wl_DragDataImpl(window);
 }
 
 OPENWL_API void CDECL wl_DragDataRelease(wl_DragData *dragData)
@@ -557,7 +557,7 @@ OPENWL_API wl_DropData CDECL wl_ClipboardGet()
 {
 	IDataObject *obj;
 	if (OleGetClipboard(&obj) == S_OK) {
-		return new _wl_DropData(obj);
+		return new wl_DropDataImpl(obj);
 	}
 	return nullptr;
 }
