@@ -491,7 +491,7 @@ OPENWL_API bool CDECL wl_DropGetFiles(wl_DropData dropData, const struct wl_File
         NSArray *pboard_files = [dropData->pboard propertyListForType:NSFilenamesPboardType];
         
         auto numFiles = (int)[pboard_files count];
-        dropData->files = new _wl_FilesInternal(numFiles);
+        dropData->files = new wl_FilesInternal(numFiles);
         for (int i=0; i< numFiles; i++) {
             const char *utf8 = [(NSString*)(pboard_files[i]) UTF8String];
             dropData->files->filenames[i] = strdup(utf8);

@@ -72,13 +72,13 @@ struct wl_DragDataImpl {
 };
 
 // drop data: for drag dest / clipboard paste
-struct _wl_FilesInternal : public wl_Files
+struct wl_FilesInternal : public wl_Files
 {
-    _wl_FilesInternal(int numFiles) {
+    wl_FilesInternal(int numFiles) {
         this->numFiles = numFiles;
         filenames = new const char *[numFiles];
     }
-    ~_wl_FilesInternal() {
+    ~wl_FilesInternal() {
         for (int i=0; i< numFiles; i++) {
             free(const_cast<char *>(filenames[i])); // created w/ strdup
         }
@@ -91,7 +91,7 @@ struct wl_DropDataImpl {
     
     void *data = nullptr;
     size_t dataSize = 0;
-    _wl_FilesInternal *files = nullptr;
+    wl_FilesInternal *files = nullptr;
     
     ~wl_DropDataImpl() {
         if (data) free(data);
