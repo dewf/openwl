@@ -138,17 +138,17 @@ bool platformProvidesDragFormat(const char *formatMIME)
 	return false;
 }
 
-void platformRenderDragFormat(wlRenderPayload payload, const char *formatMIME)
+void platformRenderDragFormat(wl_RenderPayloadRef payload, const char *formatMIME)
 {
 	// nothing yet
 }
 
-bool platformCheckDropFormats(wlDropData dropData)
+bool platformCheckDropFormats(wl_DropDataRef dropData)
 {
 	return false;
 }
 
-void platformHandleDrop(wlDropData dropData)
+void platformHandleDrop(wl_DropDataRef dropData)
 {
 	// nothing yet
 }

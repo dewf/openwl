@@ -9,7 +9,7 @@
 #import "MainThreadExecutor.h"
 
 @implementation MainThreadExecutor
-+ (MainThreadExecutor *) withCallback:(wlVoidCallback)cb param:(void *)p {
++ (MainThreadExecutor *) withCallback:(wl_VoidCallback)cb param:(void *)p {
     auto ret = [[MainThreadExecutor alloc] autorelease];
     ret->callback = cb;
     ret->param = p;

@@ -13,7 +13,7 @@
 #import <AppKit/AppKit.h>
 #import "WLAppDelegate.h"
 
-extern wlEventCallback eventCallback;
+extern wl_EventCallback eventCallback;
 extern NSAutoreleasePool *pool;
 extern NSApplication *sharedApp;
 extern WLAppDelegate *myDelegate;

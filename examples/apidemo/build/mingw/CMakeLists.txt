@@ -17,4 +17,10 @@ add_subdirectory("../../../../build/mingw/" "${CMAKE_CURRENT_BINARY_DIR}/openwl"
 
 add_link_options("LINKER:/subsystem:console")
 
-target_link_libraries(c_client "openwl" pthread gdiplus)
+add_custom_command(TARGET c_client POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_CURRENT_BINARY_DIR}/openwl/libopenwl.dll"
+        "${CMAKE_CURRENT_BINARY_DIR}")
+        #$<TARGET_FILE_DIR:MyTest>)
+
+target_link_libraries(c_client openwl pthread gdiplus)

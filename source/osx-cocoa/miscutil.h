@@ -12,15 +12,15 @@
 #include "../openwl.h"
 #import <Foundation/Foundation.h>
 
-enum WLKeyEnum;
+enum wl_KeyEnum;
 
 NSImage *resizeImage(NSImage *sourceImage, NSSize newSize);
-WLKeyEnum keyCodeToKeySym(unsigned short keyCode, NSUInteger cocoa_modifiers);
+wl_KeyEnum keyCodeToKeySym(unsigned short keyCode, NSUInteger cocoa_modifiers);
 
 // misc utility functions
 unsigned int cocoa_to_wl_modifiers_multi(NSUInteger flags);
 unsigned int cocoa_to_wl_dropEffect_multi(NSUInteger mask);
-WLDropEffect cocoa_to_wl_dropEffect_single(NSDragOperation operation);
+wl_DropEffect cocoa_to_wl_dropEffect_single(NSDragOperation operation);
 NSDragOperation wl_to_cocoa_dropEffect_single(unsigned int dropEffects);
 NSDragOperation wl_to_cocoa_dropEffect_multi(unsigned int dropEffects);
 CFStringRef wl_to_cocoa_dragFormat(const char *dragFormatMIME);

@@ -7,7 +7,7 @@ HINSTANCE hInstance = NULL; // set by DllMain
 const WCHAR *szWindowClass = L"OpenWLTopLevel";
 
 // globals
-std::map<int, wlAction> actionMap;
+std::map<int, wl_ActionRef> actionMap;
 std::vector<ACCEL> acceleratorList;
 std::set<unsigned char> suppressedScanCodes;
 
@@ -19,14 +19,14 @@ bool useDirect2D = false;
 ID2D1Factory1 *d2dFactory = nullptr;
 // IDWriteFactory *writeFactory = nullptr; // really no need for this in OpenWL
 
-// fwd decls for wlExecuteOnMainThread
+// fwd decls for wl_ExecuteOnMainThread
 //struct MainThreadExecItem;
 //void ExecuteMainItem(MainThreadExecItem *item);
 
 // client-supplied callback
-wlEventCallback eventCallback = nullptr;
+wl_EventCallback eventCallback = nullptr;
 
-void d2dCreateTarget(wlWindow wlw) {
+void d2dCreateTarget(wl_WindowRef wlw) {
 	ID2D1RenderTarget *oldTarget = wlw->d2dRenderTarget;
 	if (wlw->d2dRenderTarget) {
 		wlw->d2dRenderTarget->Release();
@@ -39,8 +39,8 @@ void d2dCreateTarget(wlWindow wlw) {
 	assert(hr == 0);
 
 	// event
-	WLEvent event;
-	event.eventType = WLEventType_D2DTargetRecreated;
+	wl_Event event;
+	event.eventType = wl_kEventTypeD2DTargetRecreated;
 	event.d2dTargetRecreatedEvent.newTarget = wlw->d2dRenderTarget;
 	event.d2dTargetRecreatedEvent.oldTarget = oldTarget;
 	event.handled = false;

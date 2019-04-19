@@ -6,20 +6,20 @@
 #include <string>
 #include <vector>
 
-struct _wlEventPrivate {
+struct wl_EventPrivate {
     UINT message;
     WPARAM wParam;
     LPARAM lParam;
-    _wlEventPrivate(UINT message, WPARAM wParam, LPARAM lParam) :
+    wl_EventPrivate(UINT message, WPARAM wParam, LPARAM lParam) :
         message(message), wParam(wParam), lParam(lParam)
     {
         //
     }
 };
 
-struct _wlWindow {
+struct wl_Window {
     HWND hwnd = NULL;
-    WLWindowProperties props;
+    wl_WindowProperties props;
     void *userData = nullptr; // for client callback on window events
     IDropTarget *dropTarget = nullptr; // for dnd
                                        // useful stuff to know for various API calls
@@ -37,17 +37,17 @@ struct _wlWindow {
     ID2D1HwndRenderTarget *d2dRenderTarget = nullptr;
 
     // destructor
-    ~_wlWindow() {
+    ~wl_Window() {
         if (d2dRenderTarget) {
             d2dRenderTarget->Release();
         }
     }
 };
-struct _wlIcon {
+struct wl_Icon {
     HBITMAP hbitmap;
 };
-struct _wlTimer {
-    wlWindow window;
+struct wl_Timer {
+    wl_WindowRef window;
     int timerID;
     HANDLE timerQueue;
     HANDLE handle;
@@ -55,74 +55,90 @@ struct _wlTimer {
     LARGE_INTEGER lastPerfCount; // to calculate time since last firing
 };
 
-struct _wlMenuBar {
+struct wl_MenuBar {
     HMENU hmenu;
 };
-struct _wlMenu {
+struct wl_Menu {
     HMENU hmenu;
 };
-struct _wlMenuItem {
-    wlAction action;
-    wlMenu subMenu;
+struct wl_MenuItem {
+    wl_ActionRef action;
+    wl_MenuRef subMenu;
 };
 
 //static int nextActionID = 1001;
-struct _wlAction {
+struct wl_Action {
     int id = -1;
     std::string label = "(none)";
-    wlIcon icon = nullptr;
-    wlAccelerator accel = nullptr;
-    std::vector<wlMenuItem> attachedItems; // to update any menu items when this label/icon/etc changes
+    wl_IconRef icon = nullptr;
+    wl_AcceleratorRef accel = nullptr;
+    std::vector<wl_MenuItemRef> attachedItems; // to update any menu items when this label/icon/etc changes
 };
 
-struct _wlAccelerator {
-    WLKeyEnum key;
+struct wl_Accelerator {
+    wl_KeyEnum key;
     unsigned int modifiers;
 };
 
-struct _wlRenderPayload {
+struct wl_RenderPayload {
     //char *text_utf8;
     void *data = nullptr;
     size_t size = 0;
-    ~_wlRenderPayload() {
+    ~wl_RenderPayload() {
         if (data != nullptr) {
             free(data);
         }
     }
 };
 
-struct _wlDragData {
+struct wl_DragData {
     //std::set<std::string> formats; // key is mime type
     MyDataObject *sendObject = 0;
-    _wlDragData(wlWindow window) {
+    wl_DragData(wl_WindowRef window) {
         sendObject = new MyDataObject(window);
         sendObject->AddRef();
     }
-    ~_wlDragData() {
+    ~wl_DragData() {
         printf("releasing sendobject ...\n");
         if (sendObject) sendObject->Release();
-        printf("== wlDragData destructor ==\n");
+        printf("== wl_DragDataRef destructor ==\n");
     }
 };
 
-struct _wlFilesInternal;
+struct wl_FilesInternal : public wl_Files
+{
+	wl_FilesInternal(int numFiles)
+	{
+		this->numFiles = numFiles;
+		filenames = new const char *[numFiles];
+		for (int i = 0; i < numFiles; i++) {
+			filenames[i] = nullptr;
+		}
+	}
+	~wl_FilesInternal() {
+		for (int i = 0; i < numFiles; i++) {
+			free(const_cast<char *>(filenames[i])); // created with strdup
+		}
+		delete[] filenames;
+	}
+};
 
-struct _wlDropData {
+struct wl_DropData {
     IDataObject *recvObject = 0;
 
 	const void *data = nullptr;
 	size_t dataSize = 0;
-	_wlFilesInternal *files = nullptr;
+	wl_FilesInternal *files = nullptr;
 
 // public methods =====================
-    _wlDropData(IDataObject *dataObject) {
+    wl_DropData(IDataObject *dataObject) {
         //formats.clear();
         recvObject = dataObject;
         recvObject->AddRef();
     }
-	~_wlDropData();
+	~wl_DropData();
 
 	bool hasFormat(const char *dragFormatMIME);
 	bool getFormat(const char *dropFormatMIME, const void **outData, size_t *outSize);
-	bool getFiles(const struct WLFiles **outFiles);
+	bool getFiles(const struct wl_Files **outFiles);
 };

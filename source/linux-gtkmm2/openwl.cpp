@@ -13,14 +13,14 @@
 #include "globals.h"
 #include "util.h"
 #include "private_defs.h"
-#include "_wlWindow.h"
+#include "wlWindow.h"
 #include "keystuff.h"
 
 /**************************/
 /** MAIN/APPLICATION API **/
 /**************************/
 
-OPENWL_API int CDECL wlInit(wlEventCallback callback, struct WLPlatformOptions *options) {
+OPENWL_API int CDECL wl_Init(wl_EventCallback callback, struct wl_PlatformOptions *options) {
     initKeymap();
 
     appMain = new Gtk::Main(nullptr, nullptr);
@@ -29,15 +29,15 @@ OPENWL_API int CDECL wlInit(wlEventCallback callback, struct WLPlatformOptions *
     gtkClipboard = Gtk::Clipboard::get();
 }
 
-OPENWL_API int CDECL wlRunloop() {
+OPENWL_API int CDECL wl_Runloop() {
     appMain->run();
 }
 
-OPENWL_API void CDECL wlExitRunloop() {
+OPENWL_API void CDECL wl_ExitRunloop() {
     appMain->quit();
 }
 
-OPENWL_API void CDECL wlShutdown() {
+OPENWL_API void CDECL wl_Shutdown() {
     delete appMain;
 }
 
@@ -46,9 +46,9 @@ OPENWL_API void CDECL wlShutdown() {
 /** WINDOW API **/
 /****************/
 
-OPENWL_API wlWindow CDECL
-wlWindowCreate(int width, int height, const char *title, void *userData, WLWindowProperties *props) {
-    auto window = new _wlWindow(userData, props);
+OPENWL_API wl_WindowRef CDECL
+wl_WindowCreate(int width, int height, const char *title, void *userData, wl_WindowProperties *props) {
+    auto window = new wl_Window(userData, props);
 
     if (title) {
         window->set_title(title);
@@ -61,17 +61,17 @@ wlWindowCreate(int width, int height, const char *title, void *userData, WLWindo
     return window;
 }
 
-OPENWL_API void CDECL wlWindowDestroy(wlWindow window)
+OPENWL_API void CDECL wl_WindowDestroy(wl_WindowRef window)
 {
     delete window;
 }
 
-OPENWL_API void CDECL wlWindowShow(wlWindow window)
+OPENWL_API void CDECL wl_WindowShow(wl_WindowRef window)
 {
     window->show_all();
 }
 
-OPENWL_API void CDECL wlWindowShowRelative(wlWindow window, wlWindow relativeTo, int x, int y, int newWidth, int newHeight)
+OPENWL_API void CDECL wl_WindowShowRelative(wl_WindowRef window, wl_WindowRef relativeTo, int x, int y, int newWidth, int newHeight)
 {
     int x2, y2;
     relativeTo->relativeToAbsolute(x, y, &x2, &y2);
@@ -82,32 +82,32 @@ OPENWL_API void CDECL wlWindowShowRelative(wlWindow window, wlWindow relativeTo,
     window->show_all();
 }
 
-OPENWL_API void CDECL wlWindowHide(wlWindow window)
+OPENWL_API void CDECL wl_WindowHide(wl_WindowRef window)
 {
     window->hide();
 }
 
-OPENWL_API void CDECL wlWindowInvalidate(wlWindow window, int x, int y, int width, int height)
+OPENWL_API void CDECL wl_WindowInvalidate(wl_WindowRef window, int x, int y, int width, int height)
 {
     window->invalidate(x, y, width, height);
 }
 
-OPENWL_API size_t CDECL wlWindowGetOSHandle(wlWindow window)
+OPENWL_API size_t CDECL wl_WindowGetOSHandle(wl_WindowRef window)
 {
     return window->getWindowHandle();
 }
 
-OPENWL_API void CDECL wlWindowSetFocus(wlWindow window)
+OPENWL_API void CDECL wl_WindowSetFocus(wl_WindowRef window)
 {
     window->setFocus();
 }
 
-OPENWL_API void CDECL wlMouseGrab(wlWindow window)
+OPENWL_API void CDECL wl_MouseGrab(wl_WindowRef window)
 {
     window->mouseGrab();
 }
 
-OPENWL_API void CDECL wlMouseUngrab()
+OPENWL_API void CDECL wl_MouseUngrab()
 {
     gdk_pointer_ungrab(GDK_CURRENT_TIME);
 }
@@ -116,14 +116,14 @@ OPENWL_API void CDECL wlMouseUngrab()
 /** TIMER API **/
 /***************/
 
-OPENWL_API wlTimer CDECL wlTimerCreate(wlWindow window, int timerID, unsigned int msTimeout)
+OPENWL_API wl_TimerRef CDECL wl_TimerCreate(wl_WindowRef window, int timerID, unsigned int msTimeout)
 {
-    auto timer = new _wlTimer;
+    auto timer = new wl_Timer;
     timer->window = window;
     timer->timerID = timerID;
     clock_gettime(CLOCK_MONOTONIC, &timer->lastTime);
 
-    auto slot = sigc::bind(sigc::mem_fun(*window, &_wlWindow::on_timer_timeout), timer);
+    auto slot = sigc::bind(sigc::mem_fun(*window, &wl_Window::on_timer_timeout), timer);
     timer->conn = Glib::signal_timeout().connect(slot, msTimeout);
 
     timer->connected = true;
@@ -133,7 +133,7 @@ OPENWL_API wlTimer CDECL wlTimerCreate(wlWindow window, int timerID, unsigned in
     return timer;
 }
 
-OPENWL_API void CDECL wlTimerDestroy(wlTimer timer)
+OPENWL_API void CDECL wl_TimerDestroy(wl_TimerRef timer)
 {
     delete timer;
     printf("deleted timer %p - %d\n", timer, timer->timerID);
@@ -163,7 +163,7 @@ static void sizeToFit(int *width, int *height, int maxWidth, int maxHeight)
 }
 
 
-OPENWL_API wlIcon CDECL wlIconLoadFromFile(const char *filename, int sizeToWidth)
+OPENWL_API wl_IconRef CDECL wl_IconLoadFromFile(const char *filename, int sizeToWidth)
 {
     auto pixbuf = Gdk::Pixbuf::create_from_file(filename);
     if (sizeToWidth > 0) {
@@ -174,22 +174,22 @@ OPENWL_API wlIcon CDECL wlIconLoadFromFile(const char *filename, int sizeToWidth
         // no need to delete pixbuf before reassignment, it's reference-counted
         pixbuf = scaled;
     }
-    auto ret = new _wlIcon;
+    auto ret = new wl_Icon;
     ret->gtkImage = new Gtk::Image(pixbuf);
     return ret;
 }
 
-OPENWL_API wlAccelerator CDECL wlAccelCreate(WLKeyEnum key, unsigned int modifiers)
+OPENWL_API wl_AcceleratorRef CDECL wl_AccelCreate(wl_KeyEnum key, unsigned int modifiers)
 {
-    auto ret = new _wlAccelerator;
+    auto ret = new wl_Accelerator;
     ret->key = key;
     ret->modifiers = modifiers;
     return ret;
 }
 
-OPENWL_API wlAction CDECL wlActionCreate(int id, const char *label, wlIcon icon, wlAccelerator accel)
+OPENWL_API wl_ActionRef CDECL wl_ActionCreate(int id, const char *label, wl_IconRef icon, wl_AcceleratorRef accel)
 {
-    auto ret = new _wlAction;
+    auto ret = new wl_Action;
     ret->id = id;
     ret->label = label;
     ret->icon = icon;
@@ -204,17 +204,17 @@ OPENWL_API wlAction CDECL wlActionCreate(int id, const char *label, wlIcon icon,
 
 
 
-OPENWL_API wlMenu CDECL wlMenuCreate()
+OPENWL_API wl_MenuRef CDECL wl_MenuCreate()
 {
-    return new _wlMenu;
+    return new wl_Menu;
 }
 
-OPENWL_API wlMenuItem CDECL wlMenuAddAction(wlMenu menu, wlAction action)
+OPENWL_API wl_MenuItemRef CDECL wl_MenuAddAction(wl_MenuRef menu, wl_ActionRef action)
 {
     std::string label_copy = action->label;
     replace_all(label_copy, "&", "_"); // menu mnemonics are prefixed with underscores, not &
 
-    auto ret = new _wlMenuItem;
+    auto ret = new wl_MenuItem;
     if (action->icon) {
         ret->gtkItem = new Gtk::ImageMenuItem(*action->icon->gtkImage, label_copy, true);
     } else {
@@ -229,7 +229,7 @@ OPENWL_API wlMenuItem CDECL wlMenuAddAction(wlMenu menu, wlAction action)
 //    auto slot = sigc::bind(sigc::mem_fun(*window, &_wlWindow::on_timer_timeout), timer);
 //    timer->conn = Glib::signal_timeout().connect(slot, msTimeout);
 
-    auto slot = sigc::bind(sigc::mem_fun(*menu, &_wlMenu::on_item_activate), ret);
+    auto slot = sigc::bind(sigc::mem_fun(*menu, &wl_Menu::on_item_activate), ret);
     ret->gtkItem->signal_activate().connect(slot);
 
     // add accelerator if any
@@ -245,7 +245,7 @@ OPENWL_API wlMenuItem CDECL wlMenuAddAction(wlMenu menu, wlAction action)
 
 }
 
-static wlMenuItem addSubmenuCommon(_wlMenuShell *shell, const char *label, wlMenu sub)
+static wl_MenuItemRef addSubmenuCommon(wl_MenuShell *shell, const char *label, wl_MenuRef sub)
 {
     std::string label_copy = label;
     replace_all(label_copy, "&", "_");
@@ -254,7 +254,7 @@ static wlMenuItem addSubmenuCommon(_wlMenuShell *shell, const char *label, wlMen
     item->set_submenu(sub->gtkMenu);
     shell->getShell().append(*item);
 
-    auto ret = new _wlMenuItem;
+    auto ret = new wl_MenuItem;
     ret->parentShell = shell;
     ret->gtkItem = item;
     ret->action = nullptr;
@@ -265,36 +265,36 @@ static wlMenuItem addSubmenuCommon(_wlMenuShell *shell, const char *label, wlMen
     return ret;
 }
 
-OPENWL_API wlMenuItem CDECL wlMenuAddSubmenu(wlMenu menu, const char *label, wlMenu sub)
+OPENWL_API wl_MenuItemRef CDECL wl_MenuAddSubmenu(wl_MenuRef menu, const char *label, wl_MenuRef sub)
 {
     return addSubmenuCommon(menu, label, sub);
 }
 
-OPENWL_API void CDECL wlMenuAddSeparator(wlMenu menu)
+OPENWL_API void CDECL wl_MenuAddSeparator(wl_MenuRef menu)
 {
     auto sep = new Gtk::SeparatorMenuItem();
     menu->gtkMenu.append(*sep);
 }
 
 
-OPENWL_API wlMenuBar CDECL wlMenuBarCreate()
+OPENWL_API wl_MenuBarRef CDECL wl_MenuBarCreate()
 {
-    auto ret = new _wlMenuBar;
+    auto ret = new wl_MenuBar;
     ret->attachedTo = nullptr;
     return ret;
 }
 
-OPENWL_API wlMenuItem CDECL wlMenuBarAddMenu(wlMenuBar menuBar, const char *label, wlMenu menu)
+OPENWL_API wl_MenuItemRef CDECL wl_MenuBarAddMenu(wl_MenuBarRef menuBar, const char *label, wl_MenuRef menu)
 {
     return addSubmenuCommon(menuBar, label, menu);
 }
 
-OPENWL_API void CDECL wlWindowSetMenuBar(wlWindow window, wlMenuBar menuBar)
+OPENWL_API void CDECL wl_WindowSetMenuBar(wl_WindowRef window, wl_MenuBarRef menuBar)
 {
     window->setMenuBar(menuBar);
 }
 
-OPENWL_API void CDECL wlWindowShowContextMenu(wlWindow window, int x, int y, wlMenu menu, WLEvent *fromEvent)
+OPENWL_API void CDECL wl_WindowShowContextMenu(wl_WindowRef window, int x, int y, wl_MenuRef menu, wl_Event *fromEvent)
 {
     menu->contextFor = window;
     if (fromEvent
@@ -313,52 +313,52 @@ OPENWL_API void CDECL wlWindowShowContextMenu(wlWindow window, int x, int y, wlM
 /*** DnD / CLIPBOARD API ***/
 /***************************/
 
-OPENWL_API const char *kWLDragFormatUTF8 = "text/plain"; //charset=utf-8";
-OPENWL_API const char *kWLDragFormatFiles = "text/uri-list";
+OPENWL_API const char *wl_kDragFormatUTF8 = "text/plain"; //charset=utf-8";
+OPENWL_API const char *wl_kDragFormatFiles = "text/uri-list";
 
-OPENWL_API wlDragData CDECL wlDragDataCreate(wlWindow forWindow)
+OPENWL_API wl_DragDataRef CDECL wl_DragDataCreate(wl_WindowRef forWindow)
 {
-    auto ret = new _wlDragData;
+    auto ret = new wl_DragData;
     ret->forWindow = forWindow;
     return ret;
 }
 
-OPENWL_API void CDECL wlDragDataRelease(wlDragData *dragData)
+OPENWL_API void CDECL wl_DragDataRelease(wl_DragDataRef *dragData)
 {
     delete *dragData;
     *dragData = nullptr;
 }
 
-OPENWL_API void CDECL wlDragAddFormat(wlDragData dragData, const char *dragFormatMIME)
+OPENWL_API void CDECL wl_DragAddFormat(wl_DragDataRef dragData, const char *dragFormatMIME)
 {
     dragData->formats.insert(dragFormatMIME);
 }
 
 // drop target stuff
-OPENWL_API bool CDECL wlDropHasFormat(wlDropData dropData, const char *dropFormatMIME)
+OPENWL_API bool CDECL wl_DropHasFormat(wl_DropDataRef dropData, const char *dropFormatMIME)
 {
     auto result = dropData->hasTarget(dropFormatMIME);
     printf("drophasformat: %s\n", result ? "true" : "false");
     return result;
 }
 
-OPENWL_API bool CDECL wlDropGetFormat(wlDropData dropData, const char *dropFormatMIME, const void **data, size_t *dataSize)
+OPENWL_API bool CDECL wl_DropGetFormat(wl_DropDataRef dropData, const char *dropFormatMIME, const void **data, size_t *dataSize)
 {
     return dropData->getFormat(dropFormatMIME, data, dataSize);
 }
 
-OPENWL_API void CDECL wlClipboardRelease(wlDropData dropData)
+OPENWL_API void CDECL wl_ClipboardRelease(wl_DropDataRef dropData)
 {
     delete dropData;
 }
 
 
-OPENWL_API bool CDECL wlDropGetFiles(wlDropData dropData, const struct WLFiles **files)
+OPENWL_API bool CDECL wl_DropGetFiles(wl_DropDataRef dropData, const struct wl_Files **files)
 {
     return dropData->getFiles(files);
 }
 
-OPENWL_API void CDECL wlDragRenderUTF8(wlRenderPayload payload, const char *text)
+OPENWL_API void CDECL wl_DragRenderUTF8(wl_RenderPayloadRef payload, const char *text)
 {
     auto size = strlen(text) + 1;
     payload->data = malloc(size);
@@ -366,19 +366,19 @@ OPENWL_API void CDECL wlDragRenderUTF8(wlRenderPayload payload, const char *text
     payload->dataSize = size;
 }
 
-OPENWL_API void CDECL wlDragRenderFiles(wlRenderPayload payload, const struct WLFiles *files)
+OPENWL_API void CDECL wl_DragRenderFiles(wl_RenderPayloadRef payload, const struct wl_Files *files)
 {
     // ??
 }
 
-OPENWL_API void CDECL wlDragRenderFormat(wlRenderPayload payload, const char *formatMIME, const void *data, size_t dataSize)
+OPENWL_API void CDECL wl_DragRenderFormat(wl_RenderPayloadRef payload, const char *formatMIME, const void *data, size_t dataSize)
 {
     payload->data = malloc(dataSize);
     memcpy(payload->data, data, dataSize);
     payload->dataSize = (size_t)dataSize;
 }
 
-OPENWL_API WLDropEffect CDECL wlDragExec(wlDragData dragData, unsigned int dropActionsMask, WLEvent *fromEvent)
+OPENWL_API wl_DropEffect CDECL wl_DragExec(wl_DragDataRef dragData, unsigned int dropActionsMask, wl_Event *fromEvent)
 {
     auto count = dragData->formats.size();
     auto entries = new GtkTargetEntry[count];
@@ -399,7 +399,7 @@ OPENWL_API WLDropEffect CDECL wlDragExec(wlDragData dragData, unsigned int dropA
     auto allowedActions = (GdkDragAction)wlToGdkDropEffectMulti(dropActionsMask);
 
     auto dragContext =
-            gtk_drag_begin(GTK_WIDGET(drawArea->gobj()), list, allowedActions, wlToGdkButton(WLMouseButton_Left), fromEvent->_private->gdkEvent);
+            gtk_drag_begin(GTK_WIDGET(drawArea->gobj()), list, allowedActions, wlToGdkButton(wl_kMouseButtonLeft), fromEvent->_private->gdkEvent);
     printf("drag begun...\n");
 
     // enter modal loop here, wait for drag result
@@ -415,7 +415,7 @@ OPENWL_API WLDropEffect CDECL wlDragExec(wlDragData dragData, unsigned int dropA
     return result;
 }
 
-OPENWL_API void wlWindowEnableDrops(wlWindow window, bool enabled)
+OPENWL_API void wl_WindowEnableDrops(wl_WindowRef window, bool enabled)
 {
     auto drawArea = window->getDrawArea();
     if (enabled) {
@@ -430,17 +430,17 @@ OPENWL_API void wlWindowEnableDrops(wlWindow window, bool enabled)
 /*** CLIPBOARD API ***/
 /*********************/
 
-OPENWL_API void CDECL wlClipboardSet(wlDragData dragData)
+OPENWL_API void CDECL wl_ClipboardSet(wl_DragDataRef dragData)
 {
     dragData->forWindow->setClipboard(dragData);
 }
 
-OPENWL_API wlDropData CDECL wlClipboardGet()
+OPENWL_API wl_DropDataRef CDECL wl_ClipboardGet()
 {
-    return new _wlDropData_Clip();
+    return new wl_DropData_Clip();
 }
 
-OPENWL_API void CDECL wlClipboardFlush()
+OPENWL_API void CDECL wl_ClipboardFlush()
 {
     gtkClipboard->store();
 }
@@ -453,7 +453,7 @@ OPENWL_API void CDECL wlClipboardFlush()
 #include <condition_variable>
 
 struct IdleData {
-    wlVoidCallback callback;
+    wl_VoidCallback callback;
     void *data;
     std::condition_variable& execCond;
 };
@@ -469,7 +469,7 @@ static gboolean idleFunc(gpointer user_data) {
     return G_SOURCE_REMOVE; // one shot
 }
 
-OPENWL_API void CDECL wlExecuteOnMainThread(wlWindow window, wlVoidCallback callback, void *data)
+OPENWL_API void CDECL wl_ExecuteOnMainThread(wl_WindowRef window, wl_VoidCallback callback, void *data)
 {
     std::unique_lock<std::mutex> lock(execMutex);
     std::condition_variable cond;
@@ -480,7 +480,7 @@ OPENWL_API void CDECL wlExecuteOnMainThread(wlWindow window, wlVoidCallback call
     cond.wait(lock);
 }
 
-OPENWL_API void CDECL wlSleep(unsigned int millis)
+OPENWL_API void CDECL wl_Sleep(unsigned int millis)
 {
     timespec ts;
     ts.tv_sec = 0;
@@ -488,7 +488,7 @@ OPENWL_API void CDECL wlSleep(unsigned int millis)
     nanosleep(&ts, NULL);
 }
 
-OPENWL_API size_t CDECL wlSystemMillis()
+OPENWL_API size_t CDECL wl_SystemMillis()
 {
     auto usec = g_get_monotonic_time();
     return (size_t)(usec / 1000);
