@@ -83,7 +83,7 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 		}
 		break;
 	case wl_kEventTypeAction:
-		printf("action %zx chosen\n", (size_t)event->actionEvent.action);
+		printf("action %p chosen\n", (void *)event->actionEvent.action);
 		if (event->actionEvent.action == exitAction) {
 			wl_WindowDestroy(window); // app will close when destroy message received (see above)
 		}
