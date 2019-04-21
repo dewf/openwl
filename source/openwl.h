@@ -6,9 +6,7 @@
 #elif defined __linux__
 #   define WL_PLATFORM_LINUX
 #elif defined __APPLE__ // could also use TargetConditionals.h ?
-#   define WL_PLATFORM_APPLE
-#elif defined __HAIKU__
-#   define WL_PLATFORM_HAIKU
+#   define WL_PLATFORM_MACOS
 #endif
 
 #ifdef WL_PLATFORM_WINDOWS
@@ -20,11 +18,11 @@
 #   else
 #       define OPENWL_API __declspec(dllimport)
 #   endif
-#elif defined WL_PLATFORM_APPLE
+#elif defined WL_PLATFORM_MACOS
 #   define OPENWL_API __attribute__((visibility("default")))
 #   define CDECL
 //#   include <AppKit/AppKit.h>
-#elif defined WL_PLATFORM_LINUX || defined WL_PLATFORM_HAIKU
+#elif defined WL_PLATFORM_LINUX
 #   define OPENWL_API __attribute__((visibility("default")))
 #   define CDECL
 #endif
@@ -364,7 +362,7 @@ extern "C" {
         // stuff related to the AttachToNative mode (at this time, for audio plugin GUIs)
 #ifdef WL_PLATFORM_WINDOWS
         HWND nativeParent; // only used when style = pluginWindow - wl_kWindowPropParent must also be set in used fields
-#elif defined WL_PLATFORM_APPLE
+#elif defined WL_PLATFORM_MACOS
         struct {
             void *nsView; // wl_WindowRef returned will be a dummy window, this is the good stuff
                           // void* for now, because pulling Objective-C headers into this file (for NSView) causes problems
@@ -395,7 +393,7 @@ extern "C" {
 		struct {
 			ID2D1Factory *factory; // filled by wl_Init()
 		} outParams;
-#elif defined WL_PLATFORM_APPLE
+#elif defined WL_PLATFORM_MACOS
         bool pluginSlaveMode; // special wl_Init() mode, for when there's an existing runloop and we're only creating NSViews
 #else
         int reserved;
@@ -435,7 +433,7 @@ extern "C" {
 	OPENWL_API void CDECL wl_MenuAddSeparator(wl_MenuRef menu);
 	OPENWL_API wl_MenuItemRef CDECL wl_MenuBarAddMenu(wl_MenuBarRef menuBar, const char *label, wl_MenuRef menu);
 	OPENWL_API void CDECL wl_WindowShowContextMenu(wl_WindowRef window, int x, int y, wl_MenuRef menu, struct wl_Event *fromEvent);
-#ifdef WL_PLATFORM_APPLE
+#ifdef WL_PLATFORM_MACOS
 	// Mac-specific menu stuff (sigh)
 	OPENWL_API wl_MenuBarRef CDECL wl_MenuBarGetDefault();
 	OPENWL_API wl_MenuRef CDECL wl_GetApplicationMenu(); // special section of menu for Macs (prefs, quit, etc)

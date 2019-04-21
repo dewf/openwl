@@ -353,7 +353,7 @@ void createMenu() {
 
 	createActions();
 
-#ifdef WL_PLATFORM_APPLE
+#ifdef WL_PLATFORM_MACOS
 	auto menuBar = wl_MenuBarGetDefault();
 	auto appMenu = wl_GetApplicationMenu();
 #else
@@ -367,7 +367,7 @@ void createMenu() {
 	wl_MenuAddAction(fileSubMenu, fileAction2);
 	wl_MenuAddSubmenu(fileMenu, "Su&bmenu", fileSubMenu);
 
-#ifdef WL_PLATFORM_APPLE
+#ifdef WL_PLATFORM_MACOS
 	// app menu gets exit action on Apple platforms
 	wl_MenuAddAction(appMenu, exitAction);
 #else
@@ -403,7 +403,7 @@ void createMenu() {
 	wl_MenuBarAddMenu(menuBar, "&Help", helpMenu);
 
 	/* end */
-#ifdef WL_PLATFORM_APPLE
+#ifdef WL_PLATFORM_MACOS
 	// nothing to do
 #else
 	wl_WindowSetMenuBar(mainWindow, menuBar);
