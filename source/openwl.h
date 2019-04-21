@@ -15,7 +15,7 @@
 #	include <Windows.h>
 #   include <d2d1_1.h>
 #   include <dwrite.h>
-#   if defined __MINGW32__ || defined __MINGW64__
+#   ifdef WL_COMPILER_MINGW
 #       define OPENWL_API __attribute__((visibility("default")))
 #       define CDECL
 #   else

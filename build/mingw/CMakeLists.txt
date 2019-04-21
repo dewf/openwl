@@ -8,7 +8,7 @@ add_definitions(${GCC_VISIBILITY_FLAGS})
 
 add_compile_definitions(UNICODE)
 add_compile_definitions(_UNICODE)
-add_compile_definitions(WL_COMPILER_MINGW) # for anything not importing openwl.h directly
+add_compile_definitions(WL_COMPILER_MINGW)
 
 set(SOURCE_FILES
         ../../source/win32/dragdrop/dataobject.cpp
