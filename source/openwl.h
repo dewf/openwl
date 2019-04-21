@@ -13,10 +13,15 @@
 #	include <Windows.h>
 #   include <d2d1_1.h>
 #   include <dwrite.h>
-#   ifdef OPENWL_EXPORTS
-#       define OPENWL_API __declspec(dllexport)
+#   ifdef WL_COMPILER_MINGW
+#       define OPENWL_API __attribute__((visibility("default")))
+#       define CDECL
 #   else
-#       define OPENWL_API __declspec(dllimport)
+#       ifdef OPENWL_EXPORTS
+#           define OPENWL_API __declspec(dllexport)
+#       else
+#           define OPENWL_API __declspec(dllimport)
+#       endif
 #   endif
 #elif defined WL_PLATFORM_MACOS
 #   define OPENWL_API __attribute__((visibility("default")))
