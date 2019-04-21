@@ -34,7 +34,7 @@ void platformInit() {
 }
 
 static void drawTextRect(Gdiplus::Graphics &g, Gdiplus::Font &font, const WCHAR *text, int x, int y, int width, int height, bool textOnly = false) {
-	RectF rect(x, y, width, height);
+	RectF rect((float)x, (float)y, (float)width, (float)height);
 
 	if (!textOnly) {
 		Pen pen(Color::Black, 2.0);
@@ -80,7 +80,7 @@ void platformDraw(void *platformContext) {
 	drawTextRect(graphics, font, L"Drop Target", DROP_TARGET_X, DROP_TARGET_Y, DROP_TARGET_W, DROP_TARGET_H);
 	drawTextRect(graphics, font, L"Hover Here", HOVER_HERE_X, HOVER_HERE_Y, HOVER_HERE_W, HOVER_HERE_H);
 
-	RectF frameRect(width - 260, height - 50, 260, 50);
+	RectF frameRect((float)(width - 260), (float)(height - 50), (float)260, (float)50);
 	RectF exts;
 	graphics.MeasureString(L"FRAME 999 (999)", -1, &font, frameRect, &exts);
 	auto tx = frameRect.X + (frameRect.Width - exts.Width) / 2;
@@ -114,7 +114,7 @@ void platformDrawFrameless(void *platformContext)
 	graphics.FillRectangle(&brush, rect);
 
 	Gdiplus::Font font(L"Arial", 20.0);
-	drawTextRect(graphics, font, L"HELLO!", rect.X, rect.Y, rect.Width, rect.Height, true);
+	drawTextRect(graphics, font, L"HELLO!", (int)rect.X, (int)rect.Y, (int)rect.Width, (int)rect.Height, true);
 
 	// =============
 	target.DrawImage(&offScreenBuffer, Rect(0, 0, POPUP_WIDTH, POPUP_HEIGHT));
