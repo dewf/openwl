@@ -1,4 +1,4 @@
-[![Gitter](https://badges.gitter.im/GUImakers/OpenWL-DL.svg)](https://gitter.im/GUImakers/OpenWL-DL?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Build status](https://ci.appveyor.com/api/projects/status/79ewbavd4sstfg1f/branch/master?svg=true)](https://ci.appveyor.com/project/dewf/openwl/branch/master)
 
 # OpenWL
 **The Open Windowing Library**
@@ -15,3 +15,5 @@ It's meant to be a foundation for new GUIs, in any language that can interface w
 See `examples/apidemo/source/main.cpp` for a demonstration of the API.
 
 More soon!
+
+[![Gitter](https://badges.gitter.im/GUImakers/OpenWL-DL.svg)](https://gitter.im/GUImakers/OpenWL-DL?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
