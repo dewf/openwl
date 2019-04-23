@@ -16,7 +16,7 @@
 		6535D2F02197F38B0089047B /* osx_specific.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6535D2EF2197F38B0089047B /* osx_specific.cpp */; };
 		6535D2FE219823360089047B /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6535D2FD219823360089047B /* CoreText.framework */; };
 		6535D300219824450089047B /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6535D2FF219824450089047B /* CoreFoundation.framework */; };
-		65521D2D226EA81E00250DAD /* OpenWL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65521D2A226EA81600250DAD /* OpenWL.framework */; };
+		65C3B3B9226EB49600BE05C6 /* OpenWL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65C3B3B6226EB49000BE05C6 /* OpenWL.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -27,16 +27,16 @@
 			remoteGlobalIDString = 6535D2C52197EEE00089047B;
 			remoteInfo = apidemo;
 		};
-		65521D29226EA81600250DAD /* PBXContainerItemProxy */ = {
+		65C3B3B5226EB49000BE05C6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 65521D24226EA81600250DAD /* OpenWL.xcodeproj */;
+			containerPortal = 65C3B3B0226EB49000BE05C6 /* OpenWL.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 657F9C31226EA66B0027F6A5;
 			remoteInfo = OpenWL;
 		};
-		65521D2B226EA81600250DAD /* PBXContainerItemProxy */ = {
+		65C3B3B7226EB49000BE05C6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 65521D24226EA81600250DAD /* OpenWL.xcodeproj */;
+			containerPortal = 65C3B3B0226EB49000BE05C6 /* OpenWL.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 657F9C3C226EA66B0027F6A5;
 			remoteInfo = OpenWLTests;
@@ -59,7 +59,7 @@
 		6535D2EF2197F38B0089047B /* osx_specific.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = osx_specific.cpp; sourceTree = "<group>"; };
 		6535D2FD219823360089047B /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
 		6535D2FF219824450089047B /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
-		65521D24226EA81600250DAD /* OpenWL.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = OpenWL.xcodeproj; path = "../../../../../build/xcode/6.2 (mavericks 10.8)/OpenWL.xcodeproj"; sourceTree = "<group>"; };
+		65C3B3B0226EB49000BE05C6 /* OpenWL.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = OpenWL.xcodeproj; path = "../../../../../build/xcode/6.2 (mavericks 10.9)/OpenWL.xcodeproj"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,7 +67,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				65521D2D226EA81E00250DAD /* OpenWL.framework in Frameworks */,
+				65C3B3B9226EB49600BE05C6 /* OpenWL.framework in Frameworks */,
 				6535D300219824450089047B /* CoreFoundation.framework in Frameworks */,
 				6535D2FE219823360089047B /* CoreText.framework in Frameworks */,
 			);
@@ -86,7 +86,7 @@
 		6535D2BD2197EEE00089047B = {
 			isa = PBXGroup;
 			children = (
-				65521D24226EA81600250DAD /* OpenWL.xcodeproj */,
+				65C3B3B0226EB49000BE05C6 /* OpenWL.xcodeproj */,
 				6517D47321983C73003B0F2F /* _icons */,
 				6535D2FF219824450089047B /* CoreFoundation.framework */,
 				6535D2FD219823360089047B /* CoreText.framework */,
@@ -170,11 +170,11 @@
 			path = "osx-quartz";
 			sourceTree = "<group>";
 		};
-		65521D25226EA81600250DAD /* Products */ = {
+		65C3B3B1226EB49000BE05C6 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				65521D2A226EA81600250DAD /* OpenWL.framework */,
-				65521D2C226EA81600250DAD /* OpenWLTests.xctest */,
+				65C3B3B6226EB49000BE05C6 /* OpenWL.framework */,
+				65C3B3B8226EB49000BE05C6 /* OpenWLTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -248,8 +248,8 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 65521D25226EA81600250DAD /* Products */;
-					ProjectRef = 65521D24226EA81600250DAD /* OpenWL.xcodeproj */;
+					ProductGroup = 65C3B3B1226EB49000BE05C6 /* Products */;
+					ProjectRef = 65C3B3B0226EB49000BE05C6 /* OpenWL.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -261,18 +261,18 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		65521D2A226EA81600250DAD /* OpenWL.framework */ = {
+		65C3B3B6226EB49000BE05C6 /* OpenWL.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
 			path = OpenWL.framework;
-			remoteRef = 65521D29226EA81600250DAD /* PBXContainerItemProxy */;
+			remoteRef = 65C3B3B5226EB49000BE05C6 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		65521D2C226EA81600250DAD /* OpenWLTests.xctest */ = {
+		65C3B3B8226EB49000BE05C6 /* OpenWLTests.xctest */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.cfbundle;
 			path = OpenWLTests.xctest;
-			remoteRef = 65521D2B226EA81600250DAD /* PBXContainerItemProxy */;
+			remoteRef = 65C3B3B7226EB49000BE05C6 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
