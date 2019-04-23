@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		6517D47421983C73003B0F2F /* _icons in Resources */ = {isa = PBXBuildFile; fileRef = 6517D47321983C73003B0F2F /* _icons */; };
-		6517D47521983CCF003B0F2F /* libopenwl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 6517D47021983C62003B0F2F /* libopenwl.dylib */; };
 		6535D2CD2197EEE00089047B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6535D2CC2197EEE00089047B /* AppDelegate.m */; };
 		6535D2D12197EEE00089047B /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6535D2D02197EEE00089047B /* Images.xcassets */; };
 		6535D2D42197EEE00089047B /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6535D2D22197EEE00089047B /* MainMenu.xib */; };
@@ -17,29 +16,30 @@
 		6535D2F02197F38B0089047B /* osx_specific.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6535D2EF2197F38B0089047B /* osx_specific.cpp */; };
 		6535D2FE219823360089047B /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6535D2FD219823360089047B /* CoreText.framework */; };
 		6535D300219824450089047B /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6535D2FF219824450089047B /* CoreFoundation.framework */; };
+		65521D2D226EA81E00250DAD /* OpenWL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65521D2A226EA81600250DAD /* OpenWL.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		6517D46F21983C62003B0F2F /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6535D2F12197F5C20089047B /* openwl.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 659DCE2E2197E15F00FB3D1D;
-			remoteInfo = openwl;
-		};
-		6517D47121983C62003B0F2F /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6535D2F12197F5C20089047B /* openwl.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 659DCE392197E15F00FB3D1D;
-			remoteInfo = openwlTests;
-		};
 		6535D2DA2197EEE00089047B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6535D2BE2197EEE00089047B /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 6535D2C52197EEE00089047B;
 			remoteInfo = apidemo;
+		};
+		65521D29226EA81600250DAD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 65521D24226EA81600250DAD /* OpenWL.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 657F9C31226EA66B0027F6A5;
+			remoteInfo = OpenWL;
+		};
+		65521D2B226EA81600250DAD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 65521D24226EA81600250DAD /* OpenWL.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 657F9C3C226EA66B0027F6A5;
+			remoteInfo = OpenWLTests;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -57,9 +57,9 @@
 		6535D2EA2197F2540089047B /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		6535D2EB2197F2540089047B /* main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = main.h; sourceTree = "<group>"; };
 		6535D2EF2197F38B0089047B /* osx_specific.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = osx_specific.cpp; sourceTree = "<group>"; };
-		6535D2F12197F5C20089047B /* openwl.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = openwl.xcodeproj; path = "../../../../../build/xcode/6.2 (mavericks 10.9)/openwl.xcodeproj"; sourceTree = "<group>"; };
 		6535D2FD219823360089047B /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
 		6535D2FF219824450089047B /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		65521D24226EA81600250DAD /* OpenWL.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = OpenWL.xcodeproj; path = "../../../../../build/xcode/6.2 (mavericks 10.8)/OpenWL.xcodeproj"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,7 +67,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6517D47521983CCF003B0F2F /* libopenwl.dylib in Frameworks */,
+				65521D2D226EA81E00250DAD /* OpenWL.framework in Frameworks */,
 				6535D300219824450089047B /* CoreFoundation.framework in Frameworks */,
 				6535D2FE219823360089047B /* CoreText.framework in Frameworks */,
 			);
@@ -83,22 +83,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		6517D46B21983C62003B0F2F /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				6517D47021983C62003B0F2F /* libopenwl.dylib */,
-				6517D47221983C62003B0F2F /* openwlTests.xctest */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		6535D2BD2197EEE00089047B = {
 			isa = PBXGroup;
 			children = (
+				65521D24226EA81600250DAD /* OpenWL.xcodeproj */,
 				6517D47321983C73003B0F2F /* _icons */,
 				6535D2FF219824450089047B /* CoreFoundation.framework */,
 				6535D2FD219823360089047B /* CoreText.framework */,
-				6535D2F12197F5C20089047B /* openwl.xcodeproj */,
 				6535D2C82197EEE00089047B /* apidemo */,
 				6535D2DC2197EEE00089047B /* apidemoTests */,
 				6535D2C72197EEE00089047B /* Products */,
@@ -179,6 +170,15 @@
 			path = "osx-quartz";
 			sourceTree = "<group>";
 		};
+		65521D25226EA81600250DAD /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				65521D2A226EA81600250DAD /* OpenWL.framework */,
+				65521D2C226EA81600250DAD /* OpenWLTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -248,8 +248,8 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 6517D46B21983C62003B0F2F /* Products */;
-					ProjectRef = 6535D2F12197F5C20089047B /* openwl.xcodeproj */;
+					ProductGroup = 65521D25226EA81600250DAD /* Products */;
+					ProjectRef = 65521D24226EA81600250DAD /* OpenWL.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -261,18 +261,18 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		6517D47021983C62003B0F2F /* libopenwl.dylib */ = {
+		65521D2A226EA81600250DAD /* OpenWL.framework */ = {
 			isa = PBXReferenceProxy;
-			fileType = "compiled.mach-o.dylib";
-			path = libopenwl.dylib;
-			remoteRef = 6517D46F21983C62003B0F2F /* PBXContainerItemProxy */;
+			fileType = wrapper.framework;
+			path = OpenWL.framework;
+			remoteRef = 65521D29226EA81600250DAD /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		6517D47221983C62003B0F2F /* openwlTests.xctest */ = {
+		65521D2C226EA81600250DAD /* OpenWLTests.xctest */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.cfbundle;
-			path = openwlTests.xctest;
-			remoteRef = 6517D47121983C62003B0F2F /* PBXContainerItemProxy */;
+			path = OpenWLTests.xctest;
+			remoteRef = 65521D2B226EA81600250DAD /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
