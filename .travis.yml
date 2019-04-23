@@ -1,0 +1,35 @@
+os: osx
+osx_image: xcode9.2
+language: objective-c
+
+env:
+  global:
+    - BUILDPATH="./DerivedData"
+    - PROJECTPATH="build/xcode/9.2 (sierra 10.12)/OpenWL.xcodeproj"
+
+script:
+  - set -o pipefail && xcodebuild -project "$PROJECTPATH" -scheme "OpenWL-Release" -derivedDataPath "$BUILDPATH" -destination 'platform=macOS' clean build test | xcpretty
+
+# xcode_project: build/xcode/9.2 (sierra 10.12)/OpenWL.xcodeproj
+# xcode_scheme: OpenWL
+# xcode_destination: platform=macOS
+
+# after_success:
+#   - ls -lR "$BUILDPATH"
+
+before_deploy:
+  - mkdir dmg_contents
+  - cp -R "$BUILDPATH/Build/Products/Release/OpenWL.framework" dmg_contents/
+  - hdiutil create OpenWL.dmg -srcfolder dmg_contents/ -ov
+  - python ci/travis/gen_bintray.py $TRAVIS_BUILD_NUMBER
+  - cat bintray.json
+
+deploy:
+  provider: bintray
+  file: bintray.json
+  user: dewf
+  key:
+    secure: s+F+tmTeW98nNjD07b6Vx8wK4ZufCQax/zB80oHPDFrTnQcf5VIT3mx4bezNQ5rR8jTEbL/mpyISlqbkZYRL27Td/4NuoKuTgUrJ4jB9pXrhonXRDk0JqufjZ/4qisEJT7jgSnPODjIgrA0HFsWc18iF75znmqWSisIwmYUo+jpiHLAzjZES6/KYmo8K9/X5ypTj24pIyhek/Gl+OtdR9bZfObB9bpO7O2QF9yCJytz//wk7eH8tHn9XXw3sxMrxOg9ddiuPy/rTsW//sqTdkyMLXje/3vjMo8GMiRurhi2ao3RY7fHWBPDgwPT0K59Xx/HY5cOuH9CSRfL3kCgVE/GSUmdd6M1YTfDhqmmPJ3RdEjWJxdhUgCK4BveU4xwuQL855KhHpxCUp3duGRpaaIY9gOQWgwU2SUVlaS0QGj1eHnPfak5E94RO5pBaliHSB/vlKdRuQVUsznRQ5IQ1zetAGQmmNlllqhZJbQIr33TGBdMPt+XKRfeePDImVeUbPpXnLVCQUjdxZOS38pnmtWceT4bMR7gzBQEC8UYIL0ypIxNSXe2iFuwWRfuwT5XJXsU1BRTSGo6Dte9QUKTMygDLG6qOEAtyv09UHOVc4oo0WiR4dEeJyp7/jvCIM26dlhxVhs1c/jfZsIQ2xqjSg/9ZI2R4ZyNAmFpZHyTWrlE=
+  on: travis_testing
+  skip_cleanup: true
+

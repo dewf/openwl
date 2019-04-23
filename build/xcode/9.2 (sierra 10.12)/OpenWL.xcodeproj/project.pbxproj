@@ -26,7 +26,19 @@
 		6560E026226E9F270026362F /* globals.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6560E015226E9F270026362F /* globals.mm */; };
 		6560E027226E9F270026362F /* MainThreadExecutor.h in Headers */ = {isa = PBXBuildFile; fileRef = 6560E016226E9F270026362F /* MainThreadExecutor.h */; };
 		6560E02C226E9FB50026362F /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6560E02B226E9FB50026362F /* AppKit.framework */; };
+		6566427E226F033900BF029E /* OpenWLTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6566427D226F033900BF029E /* OpenWLTests.m */; };
+		65664280226F033900BF029E /* OpenWL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65C56BC1226E9E97005D362A /* OpenWL.framework */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		65664281226F033900BF029E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 65C56BB8226E9E96005D362A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 65C56BC0226E9E97005D362A;
+			remoteInfo = OpenWL;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		6560E004226E9F1C0026362F /* openwl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = openwl.h; path = ../../../../source/openwl.h; sourceTree = "<group>"; };
@@ -49,11 +61,22 @@
 		6560E016226E9F270026362F /* MainThreadExecutor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MainThreadExecutor.h; path = "../../../../source/osx-cocoa/MainThreadExecutor.h"; sourceTree = "<group>"; };
 		6560E029226E9F940026362F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		6560E02B226E9FB50026362F /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		6566427B226F033900BF029E /* OpenWLTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OpenWLTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		6566427D226F033900BF029E /* OpenWLTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OpenWLTests.m; sourceTree = "<group>"; };
+		6566427F226F033900BF029E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		65C56BC1226E9E97005D362A /* OpenWL.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OpenWL.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		65C56BC5226E9E97005D362A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		65664278226F033900BF029E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65664280226F033900BF029E /* OpenWL.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		65C56BBD226E9E97005D362A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -106,10 +129,20 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		6566427C226F033900BF029E /* OpenWLTests */ = {
+			isa = PBXGroup;
+			children = (
+				6566427D226F033900BF029E /* OpenWLTests.m */,
+				6566427F226F033900BF029E /* Info.plist */,
+			);
+			path = OpenWLTests;
+			sourceTree = "<group>";
+		};
 		65C56BB7226E9E96005D362A = {
 			isa = PBXGroup;
 			children = (
 				65C56BC3226E9E97005D362A /* OpenWL */,
+				6566427C226F033900BF029E /* OpenWLTests */,
 				65C56BC2226E9E97005D362A /* Products */,
 				6560E028226E9F940026362F /* Frameworks */,
 			);
@@ -119,6 +152,7 @@
 			isa = PBXGroup;
 			children = (
 				65C56BC1226E9E97005D362A /* OpenWL.framework */,
+				6566427B226F033900BF029E /* OpenWLTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -155,6 +189,24 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		6566427A226F033900BF029E /* OpenWLTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 65664285226F033900BF029E /* Build configuration list for PBXNativeTarget "OpenWLTests" */;
+			buildPhases = (
+				65664277226F033900BF029E /* Sources */,
+				65664278226F033900BF029E /* Frameworks */,
+				65664279226F033900BF029E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				65664282226F033900BF029E /* PBXTargetDependency */,
+			);
+			name = OpenWLTests;
+			productName = OpenWLTests;
+			productReference = 6566427B226F033900BF029E /* OpenWLTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		65C56BC0226E9E97005D362A /* OpenWL */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 65C56BC9226E9E97005D362A /* Build configuration list for PBXNativeTarget "OpenWL" */;
@@ -182,6 +234,10 @@
 				LastUpgradeCheck = 0920;
 				ORGANIZATIONNAME = "Daniel G";
 				TargetAttributes = {
+					6566427A226F033900BF029E = {
+						CreatedOnToolsVersion = 9.2;
+						ProvisioningStyle = Automatic;
+					};
 					65C56BC0226E9E97005D362A = {
 						CreatedOnToolsVersion = 9.2;
 						ProvisioningStyle = Automatic;
@@ -201,11 +257,19 @@
 			projectRoot = "";
 			targets = (
 				65C56BC0226E9E97005D362A /* OpenWL */,
+				6566427A226F033900BF029E /* OpenWLTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		65664279226F033900BF029E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		65C56BBF226E9E97005D362A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -216,6 +280,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		65664277226F033900BF029E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6566427E226F033900BF029E /* OpenWLTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		65C56BBC226E9E97005D362A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -234,7 +306,39 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		65664282226F033900BF029E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 65C56BC0226E9E97005D362A /* OpenWL */;
+			targetProxy = 65664281226F033900BF029E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		65664283226F033900BF029E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = OpenWLTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = org.whatever.OpenWLTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		65664284226F033900BF029E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = OpenWLTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = org.whatever.OpenWLTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		65C56BC7226E9E97005D362A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -393,6 +497,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		65664285226F033900BF029E /* Build configuration list for PBXNativeTarget "OpenWLTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				65664283226F033900BF029E /* Debug */,
+				65664284226F033900BF029E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		65C56BBB226E9E96005D362A /* Build configuration list for PBXProject "OpenWL" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

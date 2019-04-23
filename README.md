@@ -1,4 +1,4 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/79ewbavd4sstfg1f/branch/master?svg=true)](https://ci.appveyor.com/project/dewf/openwl/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/79ewbavd4sstfg1f/branch/master?svg=true)](https://ci.appveyor.com/project/dewf/openwl/branch/master) [![Build status](https://travis-ci.org/dewf/openwl.svg?branch=master)](https://travis-ci.org/dewf/openwl)
 
 # OpenWL
 **The Open Windowing Library**
