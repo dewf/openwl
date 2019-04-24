@@ -8,8 +8,9 @@ platform:
   - x86
   - x64
 
-# environment:
-#     ARTIFACT_NAME: OpenWL-%APPVEYOR_BUILD_ID%-Windows-%PLATFORM%-%CONFIGURATION%
+environment:
+  BINTRAY_API_KEY:
+    secure: tvgn22L0dgoUk0G7K/DLqZtal1R86eDVAA1bwGygnxmiIT+SGCbTvgdWGZ/2kt5u
 
 for:
 -
@@ -62,25 +63,30 @@ after_build:
       else (
       set ARTIFACT_NAME=OpenWL-%APPVEYOR_BUILD_ID%-Windows-%PLATFORM%-%CONFIGURATION%)
   - echo "[%ARTIFACT_NAME%]"
-  - 7z a "%ARTIFACT_NAME%.zip" .\%BINARY_ROOT%\%CONFIGURATION%\openwl.lib .\%BINARY_ROOT%\%CONFIGURATION%\*.dll
+  - 7z a %ARTIFACT_NAME%.zip .\source\openwl.h .\%BINARY_ROOT%\%CONFIGURATION%\openwl.lib .\%BINARY_ROOT%\%CONFIGURATION%\*.dll
 
 artifacts:
   - path: '%ARTIFACT_NAME%.zip'
     name: '%ARTIFACT_NAME%'
 
-deploy:
-  - provider: BinTray
-    username: dewf
-    api_key:
-      secure: tvgn22L0dgoUk0G7K/DLqZtal1R86eDVAA1bwGygnxmiIT+SGCbTvgdWGZ/2kt5u
-    subject: dewf
-    repo: TeamGUI
-    package: OpenWL
-    version: '%APPVEYOR_REPO_TAG_NAME%'
-    publish: true
-    override: true
-    on:
-      APPVEYOR_REPO_TAG: true
+deploy_script:
+  - if %APPVEYOR_REPO_TAG% == true (
+      curl -T %ARTIFACT_NAME%.zip -udewf:%BINTRAY_API_KEY% https://api.bintray.com/content/dewf/TeamGUI/OpenWL/%APPVEYOR_REPO_TAG_NAME%/OpenWL/%APPVEYOR_REPO_TAG_NAME%/%ARTIFACT_NAME%.zip &
+      curl -X POST -udewf:%BINTRAY_API_KEY% https://api.bintray.com/content/dewf/TeamGUI/OpenWL/%APPVEYOR_REPO_TAG_NAME%/publish)
+
+# deploy:
+#   - provider: BinTray
+#     username: dewf
+#     api_key:
+#       secure: tvgn22L0dgoUk0G7K/DLqZtal1R86eDVAA1bwGygnxmiIT+SGCbTvgdWGZ/2kt5u
+#     subject: dewf
+#     repo: TeamGUI
+#     package: OpenWL
+#     version: '%APPVEYOR_REPO_TAG_NAME%'
+#     publish: true
+#     override: true
+#     on:
+#       APPVEYOR_REPO_TAG: true
 
 # on_finish:
 #   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
