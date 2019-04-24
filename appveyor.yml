@@ -8,6 +8,9 @@ platform:
   - x86
   - x64
 
+# environment:
+#     ARTIFACT_NAME: OpenWL-%APPVEYOR_BUILD_ID%-Windows-%PLATFORM%-%CONFIGURATION%
+
 for:
 -
   matrix:
@@ -17,7 +20,6 @@ for:
   environment:
     VCPKG_LIBS_FNAME: vcpkg-x86-boost-icu
     VCPKG_LIBS_URL: https://dl.dropbox.com/s/b90kkd0dru8hbif/vcpkg-x86-boost-icu.7z?dl=0
-    ARTIFACT_NAME: OpenWL-Windows-x86-%CONFIGURATION%
     BINARY_ROOT: build\msvc\2017
 
 -
@@ -28,7 +30,6 @@ for:
   environment:
     VCPKG_LIBS_FNAME: vcpkg-x64-boost-icu
     VCPKG_LIBS_URL: https://dl.dropbox.com/s/5exezlmunyuo0re/vcpkg-x64-boost-icu.7z?dl=0
-    ARTIFACT_NAME: OpenWL-Windows-x64-%CONFIGURATION%
     BINARY_ROOT: build\msvc\2017\x64
 
 matrix:
@@ -56,11 +57,30 @@ build:
 
 after_build:
   - cd %APPVEYOR_BUILD_FOLDER%
-  - 7z a %ARTIFACT_NAME%.zip .\%BINARY_ROOT%\%CONFIGURATION%\openwl.lib .\%BINARY_ROOT%\%CONFIGURATION%\*.dll
+  - if %APPVEYOR_REPO_TAG% == true (
+      set ARTIFACT_NAME=OpenWL-%APPVEYOR_REPO_TAG_NAME%-Windows-%PLATFORM%-%CONFIGURATION%) 
+      else (
+      set ARTIFACT_NAME=OpenWL-%APPVEYOR_BUILD_ID%-Windows-%PLATFORM%-%CONFIGURATION%)
+  - echo "[%ARTIFACT_NAME%]"
+  - 7z a "%ARTIFACT_NAME%.zip" .\%BINARY_ROOT%\%CONFIGURATION%\openwl.lib .\%BINARY_ROOT%\%CONFIGURATION%\*.dll
 
 artifacts:
   - path: '%ARTIFACT_NAME%.zip'
     name: '%ARTIFACT_NAME%'
+
+deploy:
+  - provider: BinTray
+    username: dewf
+    api_key:
+      secure: tvgn22L0dgoUk0G7K/DLqZtal1R86eDVAA1bwGygnxmiIT+SGCbTvgdWGZ/2kt5u
+    subject: dewf
+    repo: TeamGUI
+    package: OpenWL
+    version: '%APPVEYOR_REPO_TAG_NAME%'
+    publish: true
+    override: true
+    on:
+      APPVEYOR_REPO_TAG: true
 
 # on_finish:
 #   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
