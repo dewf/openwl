@@ -1,7 +1,8 @@
 version: 0.1.{build}
+skip_branch_with_pr: true  # don't launch jobs twice for working on my own branches
 image: Visual Studio 2017
 configuration:
-  - Debug
+  # - Debug
   - Release
 platform:
   - x86
