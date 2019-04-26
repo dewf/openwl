@@ -1,5 +1,4 @@
 version: 0.1.{build}
-skip_branch_with_pr: true  # don't launch jobs twice for working on my own branches
 image: Visual Studio 2017
 configuration:
   # - Debug
@@ -7,6 +6,11 @@ configuration:
 platform:
   - x86
   - x64
+
+# only run CI on master + pull requests (not other branches, which would duplicate the build during local PRs)
+branches:
+  only:
+    - master
 
 environment:
   BINTRAY_API_KEY:
@@ -75,18 +79,14 @@ deploy_script:
       curl -X POST -udewf:%BINTRAY_API_KEY% https://api.bintray.com/content/dewf/TeamGUI/OpenWL/%APPVEYOR_REPO_TAG_NAME%/publish)
 
 # deploy:
-#   - provider: BinTray
-#     username: dewf
-#     api_key:
-#       secure: tvgn22L0dgoUk0G7K/DLqZtal1R86eDVAA1bwGygnxmiIT+SGCbTvgdWGZ/2kt5u
-#     subject: dewf
-#     repo: TeamGUI
-#     package: OpenWL
-#     version: '%APPVEYOR_REPO_TAG_NAME%'
-#     publish: true
-#     override: true
-#     on:
-#       APPVEYOR_REPO_TAG: true
+#   provider: GitHub
+#   release: OpenWL-$(APPVEYOR_REPO_TAG_NAME)
+#   description: Open Windowing Library $(APPVEYOR_REPO_TAG_NAME)
+#   auth_token:
+#     secure: L2Dp9+JWE/yIj+yrgpiRFo2lEleDxrmdS2kzzy0H4h6jiq8nR9WQG9KkI6rzqlmA
+#   draft: true
+#   on:
+#     APPVEYOR_REPO_TAG: true
 
 # on_finish:
 #   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
