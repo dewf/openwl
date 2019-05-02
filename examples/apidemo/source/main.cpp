@@ -1,4 +1,4 @@
-﻿#include <stdio.h>
+#include <stdio.h>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
@@ -8,29 +8,36 @@
 
 #include "main.h"
 
+enum IDsEnum {
+    // action IDs
+    ID_FileAction1,
+    ID_FileAction2,
+    ID_ExitAction,
+    ID_CopyAction,
+    ID_PasteAction,
+    ID_HelpAction,
+    ID_ContextAction1,
+    ID_ContextAction2,
+    ID_ContextAction3,
+    ID_ContextAction4,
+    // timer IDs
+    ID_FastTimer,
+    ID_SlowTimer
+};
+
 // file menu
-#define FILE_ACTION_1 1
-#define FILE_ACTION_2 2
-#define EXIT_ACTION 3
 wl_ActionRef fileAction1;
 wl_ActionRef fileAction2;
 wl_ActionRef exitAction;
 
 // edit menu
-#define COPY_ACTION 4
-#define PASTE_ACTION 5
 wl_ActionRef copyAction;
 wl_ActionRef pasteAction;
 
 // help menu
-#define HELP_ACTION_1 6
 wl_ActionRef helpAction1;
 
 // context menu
-#define CONTEXT_ACTION_1 7
-#define CONTEXT_ACTION_2 8
-#define CONTEXT_ACTION_3 9
-#define CONTEXT_ACTION_4 10
 wl_ActionRef contextAction1;
 wl_ActionRef contextAction2;
 wl_ActionRef contextAction3;
@@ -42,8 +49,6 @@ int totalFrames = 0;
 
 int width, height;
 
-#define FAST_TIMER 1
-#define SLOW_TIMER 2
 wl_TimerRef fastTimer, slowTimer;
 
 wl_WindowRef mainWindow;
@@ -323,27 +328,27 @@ void createActions() {
 	//auto icon1 = wl_IconLoadFromFile("_icons/horse.png", 16);
 	//auto icon2 = wl_IconLoadFromFile("_icons/laptop.png", 16);
 
-	fileAction1 = wl_ActionCreate(FILE_ACTION_1, "Something", icon1, 0);
+	fileAction1 = wl_ActionCreate(ID_FileAction1, "Something", icon1, 0);
 
 	// user uppercase key enums here because that's required for win32 virtual key codes,
 	//  and doesn't require any special handling when generating labels (toupper etc)
 	auto fa2Accel = wl_AccelCreate(wl_kKeyK, wl_kModifierAlt);
-	fileAction2 = wl_ActionCreate(FILE_ACTION_2, "SubMenuItem", 0, fa2Accel);
+	fileAction2 = wl_ActionCreate(ID_FileAction2, "SubMenuItem", 0, fa2Accel);
 
 	auto exitAccel = wl_AccelCreate(wl_kKeyQ, wl_kModifierControl);
-	exitAction = wl_ActionCreate(EXIT_ACTION, "Quit c-client", 0, exitAccel);
+	exitAction = wl_ActionCreate(ID_ExitAction, "Quit c-client", 0, exitAccel);
 
 	auto copyAccel = wl_AccelCreate(wl_kKeyC, wl_kModifierControl);
-	copyAction = wl_ActionCreate(COPY_ACTION, "Copy", 0, copyAccel);
+	copyAction = wl_ActionCreate(ID_CopyAction, "Copy", 0, copyAccel);
 
 	auto pasteAccel = wl_AccelCreate(wl_kKeyV, wl_kModifierControl);
-	pasteAction = wl_ActionCreate(PASTE_ACTION, "Paste", 0, pasteAccel);
+	pasteAction = wl_ActionCreate(ID_PasteAction, "Paste", 0, pasteAccel);
 
-	helpAction1 = wl_ActionCreate(HELP_ACTION_1, "Placeholder", icon2, 0);
-	contextAction1 = wl_ActionCreate(CONTEXT_ACTION_1, "Context 01", 0, 0);
-	contextAction2 = wl_ActionCreate(CONTEXT_ACTION_2, "Context 02", 0, 0);
+	helpAction1 = wl_ActionCreate(ID_HelpAction, "Placeholder", icon2, 0);
+	contextAction1 = wl_ActionCreate(ID_ContextAction1, "Context 01", 0, 0);
+	contextAction2 = wl_ActionCreate(ID_ContextAction2, "Context 02", 0, 0);
 	auto c3Accel = wl_AccelCreate(wl_kKeyN, wl_kModifierShift);
-	contextAction3 = wl_ActionCreate(CONTEXT_ACTION_3, "Context 03", 0, c3Accel);
+	contextAction3 = wl_ActionCreate(ID_ContextAction3, "Context 03", 0, c3Accel);
 
 	//auto c4Accel = wl_AccelCreate(wl_kKeyOEM_4, wl_kModifierControl);
 	//contextAction4 = wl_ActionCreate(CONTEXT_ACTION_4, "Context WAT", 0, c4Accel);
@@ -477,8 +482,8 @@ int main(int argc, const char * argv[]) {
 
 	platformInit();
 
-	fastTimer = wl_TimerCreate(mainWindow, FAST_TIMER, 16); // ~60fps
-	slowTimer = wl_TimerCreate(mainWindow, SLOW_TIMER, 1000);
+	fastTimer = wl_TimerCreate(mainWindow, ID_FastTimer, 16); // ~60fps
+	slowTimer = wl_TimerCreate(mainWindow, ID_SlowTimer, 1000);
 
 	wl_WindowEnableDrops(mainWindow, true);
 
