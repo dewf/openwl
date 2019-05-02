@@ -214,6 +214,7 @@
 				65C56BBC226E9E97005D362A /* Sources */,
 				65C56BBD226E9E97005D362A /* Frameworks */,
 				65C56BBE226E9E97005D362A /* Headers */,
+				6596BC69227AB6FB001FBB2F /* ShellScript */,
 				65C56BBF226E9E97005D362A /* Resources */,
 			);
 			buildRules = (
@@ -278,6 +279,22 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		6596BC69227AB6FB001FBB2F /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "# Update the CFBundleShortVersionString in the generated Info.plist using the most recent Git tag.\n# as blogged about by Benedikt Meurer @ https://tinyurl.com/y5y9h6sf (originally by Joachim Bondo)\n\n# Get the current release description from Git.\nGIT_RELEASE_VERSION=`git describe --tags`\n\n# Set the CFBundleShortVersionString in the generated Info.plist (stripping off the leading \"v\").\ndefaults write \"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH%.*}\" \"CFBundleShortVersionString\" \"${GIT_RELEASE_VERSION#*v}\"";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		65664277226F033900BF029E /* Sources */ = {
