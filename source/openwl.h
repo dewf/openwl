@@ -26,11 +26,11 @@
 #elif defined WL_PLATFORM_MACOS
 #   define OPENWL_API __attribute__((visibility("default")))
 #   define CDECL
-//#   include <AppKit/AppKit.h>
+#   include <CoreGraphics/CoreGraphics.h> // for CGContextRef
 #elif defined WL_PLATFORM_LINUX
 #   define OPENWL_API __attribute__((visibility("default")))
 #   define CDECL
-#   include <cairo/cairo.h>
+#   include <cairo/cairo.h> // for cairo_t
 #endif
 
 #include <stddef.h>
@@ -267,7 +267,7 @@ extern "C" {
 			} gdi;
 		};
 #elif defined WL_PLATFORM_MACOS
-        void *contextRef;        // should be CGContextRef type, but having issues with including the header for that
+        CGContextRef context;
 #elif defined WL_PLATFORM_LINUX
         cairo_t *cr;
 #else
