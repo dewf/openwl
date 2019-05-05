@@ -28,8 +28,8 @@ extern int width, height;
 extern int lastFrame, totalFrames;
 
 void platformInit();
-void platformDraw(void *platformContext);
-void platformDrawFrameless(void *platformContext);
+void platformDraw(wl_PlatformContext *platformContext);
+void platformDrawFrameless(wl_PlatformContext *platformContext);
 
 #define BOXWIDTH 40
 struct RandomBox {

@@ -30,6 +30,7 @@
 #elif defined WL_PLATFORM_LINUX
 #   define OPENWL_API __attribute__((visibility("default")))
 #   define CDECL
+#   include <cairo/cairo.h>
 #endif
 
 #include <stddef.h>
@@ -252,13 +253,27 @@ extern "C" {
 		wl_kDropEffectLink = 1 << 2,
 		wl_kDropEffectOther = 1 << 3 // ask / private / etc
 	};
-
+    
+    // used in the repaint event - placed here to declutter the wl_RepaintEvent struct a bit
+    struct wl_PlatformContext {
 #ifdef WL_PLATFORM_WINDOWS
-	struct wl_PlatformContextD2D { // special case for the platformContext void*
-		ID2D1Factory *factory;
-		ID2D1RenderTarget *target;
-	};
+		union {
+			struct {
+				ID2D1Factory *factory;
+				ID2D1RenderTarget *target;
+			} d2d;
+			struct {
+				HDC hdc;
+			} gdi;
+		};
+#elif defined WL_PLATFORM_MACOS
+        void *contextRef;        // should be CGContextRef type, but having issues with including the header for that
+#elif defined WL_PLATFORM_LINUX
+        cairo_t *cr;
+#else
+        int reserved;
 #endif
+    };
 
 	struct wl_ActionEvent {
 		wl_ActionRef action;
@@ -275,7 +290,7 @@ extern "C" {
 		int newWidth, newHeight;
 	};
 	struct wl_RepaintEvent {
-		void *platformContext; // HDC, CGContextRef, cairo_t, wl_PlatformContextD2D *, etc
+        wl_PlatformContext platformContext;
 		int x, y, width, height; // affected area
 	};
 	struct wl_TimerEvent {

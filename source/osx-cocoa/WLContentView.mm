@@ -316,7 +316,7 @@
     //    // invert xform (using isFlipped instead)
     //    CGContextTranslateCTM (cgc, 0.0, size.height);
     //    CGContextScaleCTM (cgc, 1.0, -1.0);
-    event.repaintEvent.platformContext = cgc;
+    event.repaintEvent.platformContext.contextRef = cgc;
     
     eventCallback((wl_WindowRef)parentWindowObj, &event, parentWindowObj.userData);
     // nothing to do if not handled (no super to forward to ...)

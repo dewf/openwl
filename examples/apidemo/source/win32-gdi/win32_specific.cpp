@@ -52,9 +52,8 @@ static void drawTextRect(Gdiplus::Graphics &g, Gdiplus::Font &font, const WCHAR 
 	g.DrawString(text, -1, &font, PointF(tx, ty), &black);
 }
 
-void platformDraw(void *platformContext) {
-	auto hdc = (HDC)platformContext;
-	Gdiplus::Graphics target(hdc);
+void platformDraw(wl_PlatformContext *platformContext) {
+	Gdiplus::Graphics target(platformContext->gdi.hdc);
 
 	// double buffer ...
 	Gdiplus::Bitmap offScreenBuffer(width, height, &target);
@@ -96,10 +95,9 @@ void platformDraw(void *platformContext) {
 	target.DrawImage(&offScreenBuffer, Rect(0, 0, width, height));
 }
 
-void platformDrawFrameless(void *platformContext)
+void platformDrawFrameless(wl_PlatformContext *platformContext)
 {
-	auto hdc = (HDC)platformContext;
-	Gdiplus::Graphics target(hdc);
+	Gdiplus::Graphics target(platformContext->gdi.hdc);
 
 	// double buffer ...
 	Gdiplus::Bitmap offScreenBuffer(POPUP_WIDTH, POPUP_HEIGHT, &target);

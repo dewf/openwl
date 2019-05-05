@@ -108,11 +108,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         event.repaintEvent.height = (ps.rcPaint.bottom - ps.rcPaint.top);
 
         if (useDirect2D) {
-            wl_PlatformContextD2D platformContext;
-            platformContext.factory = d2dFactory;
-            platformContext.target = wlw->d2dRenderTarget;
-            //platformContext.writeFactory = writeFactory;
-            event.repaintEvent.platformContext = &platformContext;
+			event.repaintEvent.platformContext.d2d.factory = d2dFactory;
+			event.repaintEvent.platformContext.d2d.target = wlw->d2dRenderTarget;
 
             wlw->d2dRenderTarget->BeginDraw();
             eventCallback(wlw, &event, wlw->userData);
@@ -122,7 +119,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
         }
         else {
-            event.repaintEvent.platformContext = hdc;
+            event.repaintEvent.platformContext.gdi.hdc = hdc;
             eventCallback(wlw, &event, wlw->userData);
         }
 

@@ -169,7 +169,7 @@ bool wl_Window::on_drawArea_expose(GdkEventExpose *gdkEvent) {
     auto event = &ef.wlEvent;
     event->eventType = wl_kEventTypeWindowRepaint;
     auto context = drawArea.get_window()->create_cairo_context();
-    event->repaintEvent.platformContext = context->cobj(); // cairo_t *
+    event->repaintEvent.platformContext.cr = context->cobj(); // cairo_t *
     event->repaintEvent.x = gdkEvent->area.x;
     event->repaintEvent.y = gdkEvent->area.y;
     event->repaintEvent.width = gdkEvent->area.width;

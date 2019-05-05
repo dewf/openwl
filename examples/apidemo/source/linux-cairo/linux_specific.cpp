@@ -46,8 +46,8 @@ static void drawTextRect(cairo_t *cr, const char *text, int x, int y, int w, int
 	cairo_show_text(cr, text);
 }
 
-void platformDraw(void *platformContext) {
-    auto cr = (cairo_t *)platformContext;
+void platformDraw(wl_PlatformContext *platformContext) {
+    auto cr = platformContext->cr;
 
 	cairo_set_source_surface(cr, imageSurface, 0, 0);
 	cairo_paint(cr);
@@ -87,9 +87,9 @@ void platformDraw(void *platformContext) {
 	//    cairo_surface_flush(cairo_get_target(cr));
 }
 
-void platformDrawFrameless(void *platformContext)
+void platformDrawFrameless(wl_PlatformContext *platformContext)
 {
-	auto cr = (cairo_t *)platformContext;
+    auto cr = platformContext->cr;
 
 	cairo_set_source_rgb(cr, 1, 1, 1);
 	cairo_rectangle(cr, 0, 0, POPUP_WIDTH, POPUP_HEIGHT);

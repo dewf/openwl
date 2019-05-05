@@ -121,10 +121,10 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 
 	case wl_kEventTypeWindowRepaint:
 		if (window == mainWindow) {
-			platformDraw(event->repaintEvent.platformContext);
+			platformDraw(&event->repaintEvent.platformContext);
 		}
 		else if (window == framelessWindow) {
-			platformDrawFrameless(event->repaintEvent.platformContext);
+			platformDrawFrameless(&event->repaintEvent.platformContext);
 		}
 		break;
 
