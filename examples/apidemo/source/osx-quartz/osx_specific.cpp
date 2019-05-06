@@ -104,7 +104,7 @@ static void drawTextRect(CGContextRef context, CTLineRef line, int x, int y, int
 }
 
 void platformDraw(wl_PlatformContext *platformContext) {
-    auto context = (CGContextRef)platformContext->contextRef;
+    auto context = (CGContextRef)platformContext->context;
     
     CGContextSaveGState(context);
     
@@ -151,7 +151,7 @@ void platformDraw(wl_PlatformContext *platformContext) {
 
 void platformDrawFrameless(wl_PlatformContext *platformContext)
 {
-    auto context = (CGContextRef)platformContext->contextRef;
+    auto context = (CGContextRef)platformContext->context;
     CGContextSaveGState(context);
     // ====
     CGContextSetRGBFillColor(context, 1, 1, 1, 1);

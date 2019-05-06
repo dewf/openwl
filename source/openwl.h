@@ -290,7 +290,7 @@ extern "C" {
 		int newWidth, newHeight;
 	};
 	struct wl_RepaintEvent {
-        wl_PlatformContext platformContext;
+        struct wl_PlatformContext platformContext;
 		int x, y, width, height; // affected area
 	};
 	struct wl_TimerEvent {
