@@ -206,6 +206,11 @@ OPENWL_API void CDECL wl_WindowDestroy(wl_WindowRef window)
 OPENWL_API void CDECL wl_WindowShow(wl_WindowRef window)
 {
     WLWindowObject *obj = (WLWindowObject *)window;
+    
+    // synthesize a resize event here, so that -- like other platforms, I think? --
+    //   we can rely on handling that event to determine our window size before drawing
+    [[NSNotificationCenter defaultCenter] postNotificationName:NSWindowDidResizeNotification object:obj.nsWindow];
+
     [obj.nsWindow makeKeyAndOrderFront:NSApp];
 //    [obj.nsWindow setIsVisible:YES];
 }
