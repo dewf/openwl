@@ -566,15 +566,18 @@ OPENWL_API enum wl_DropEffect CDECL wl_DragExec(wl_DragDataRef dragData, unsigne
     [item release];
     [image release];
     
-    // created a nested runloop, which will exit when the drag operation completes
-    // we're just matching the behavior of other platforms, where a DragExec is blocking
-    printf("going into subloop...\n");
-    auto subloop = [[NSRunLoop alloc] init];
-    [subloop run];
-    printf("exited subloop ..\n");
+    // old nested runloop no longer works, but this seems to (in 10.12 anyway)
+    [[NSRunLoop currentRunLoop] runMode:NSEventTrackingRunLoopMode beforeDate:[NSDate distantFuture]];
+    
+//    // created a nested runloop, which will exit when the drag operation completes
+//    // we're just matching the behavior of other platforms, where a DragExec is blocking
+//    printf("going into subloop...\n");
+//    auto subloop = [[NSRunLoop alloc] init];
+//    [subloop run];
+//    printf("exited subloop ..\n");
     
     printf("returning from dragexec!\n");
-    return wl_kDropEffectNone;
+    return contentView.dragResult;
 }
 
 // rendering convenience
