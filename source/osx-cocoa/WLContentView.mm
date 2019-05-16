@@ -346,9 +346,9 @@
     //   the raw source mask, or applies its own masking based on modifier keys before we get this,
     //   so just pick a first reasonable default
     auto defaultDragOperation =
-    ((allowedEffectMask & wl_kDropEffectCopy) ? wl_kDropEffectCopy :
-     ((allowedEffectMask & wl_kDropEffectLink) ? wl_kDropEffectLink :
-      ((allowedEffectMask & wl_kDropEffectMove) ? wl_kDropEffectMove :
+    ((allowedEffectMask & wl_kDropEffectMove) ? wl_kDropEffectMove :
+     ((allowedEffectMask & wl_kDropEffectCopy) ? wl_kDropEffectCopy :
+      ((allowedEffectMask & wl_kDropEffectLink) ? wl_kDropEffectLink :
        ((allowedEffectMask & wl_kDropEffectOther) ? wl_kDropEffectOther :
         wl_kDropEffectNone))));
     printf("sending default: %d\n", defaultDragOperation);
