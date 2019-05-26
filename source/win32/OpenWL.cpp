@@ -148,10 +148,12 @@ wl_WindowRef wl_WindowCreate(int width, int height, const char *title, void *use
 			width, height, props->nativeParent, nullptr, hInstance, nullptr);
 	}
 	else {
-		// normal top-level window
+		// normal top-level window (or frameless)
 		calcChromeExtra(&extraWidth, &extraHeight, dwStyle, FALSE); // FALSE = no menu for now ... will recalc when the time comes
 
-		hWnd = CreateWindowW(szWindowClass, wideTitle.c_str(), dwStyle,
+		auto exStyle = (dwStyle & WS_POPUP) ? WS_EX_TOOLWINDOW : 0; // no taskbar button plz
+
+		hWnd = CreateWindowExW(exStyle, szWindowClass, wideTitle.c_str(), dwStyle,
 			CW_USEDEFAULT, CW_USEDEFAULT,
 			width + extraWidth, height + extraHeight, nullptr, nullptr, hInstance, nullptr);
 	}
