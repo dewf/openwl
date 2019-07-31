@@ -401,16 +401,6 @@
     return YES;
 }
 
-// drag source protocol methods
-- (void)draggedImage:(NSImage *)image endedAt:(NSPoint)screenPoint operation:(NSDragOperation)operation {
-    // this has been moved to draggingSession:endedAtPoint:operation:
-    printf("ignoring draggedImage:endedAt:operation:\n");
-//    // delete / move etc
-//    self.dragResult = cocoa_to_wl_dropEffect_single(operation);
-//    printf("drag ended (operation %ld) -- exiting nested runloop...\n", operation);
-//    CFRunLoopStop([[NSRunLoop currentRunLoop] getCFRunLoop]);
-}
-
 - (NSArray *)writableTypesForPasteboard:(NSPasteboard *)pasteboard {
     printf("writableTypesForPasteboard\n");
     auto ret = [NSMutableArray array];

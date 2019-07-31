@@ -35,7 +35,8 @@ OPENWL_API int CDECL wl_Init(wl_EventCallback callback, struct wl_PlatformOption
     
     eventCallback = callback;
     
-    if (!options->pluginSlaveMode) {
+    bool slaveMode = (options && options->pluginSlaveMode);
+    if (!slaveMode) {
         // when creating UIs for plugins (eg. AudioUnits),
         //   we can't do any of this stuff or it breaks the host program
 
