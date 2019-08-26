@@ -104,12 +104,55 @@ OPENWL_API void CDECL wl_WindowSetFocus(wl_WindowRef window)
 
 OPENWL_API void CDECL wl_MouseGrab(wl_WindowRef window)
 {
-    window->mouseGrab();
+    // automatic grabs seem to be in effect, and what's more,
+    //  if we do this manually, they stop working (eg when dragging outside the window)
+//    window->mouseGrab();
 }
 
 OPENWL_API void CDECL wl_MouseUngrab()
 {
-    gdk_pointer_ungrab(GDK_CURRENT_TIME);
+    // see comment above re: automatic grabs
+//    gdk_pointer_ungrab(GDK_CURRENT_TIME);
+}
+
+/**************/
+/* CURSOR API */
+/**************/
+
+OPENWL_API wl_CursorRef CDECL wl_CursorCreate(wl_CursorStyle style)
+{
+    // does it exist in the map already?
+    auto found = cursorMap.find(style);
+    if (found != cursorMap.end()) {
+        return found->second;
+    } else {
+        // create anew
+        GdkCursorType gdkType;
+        switch (style) {
+            case wl_kCursorStyleDefault:
+                gdkType = GDK_ARROW;
+                break;
+            case wl_kCursorStyleResizeLeftRight:
+                gdkType = GDK_SB_H_DOUBLE_ARROW;
+                break;
+            case wl_kCursorStyleResizeUpDown:
+                gdkType = GDK_SB_V_DOUBLE_ARROW;
+                break;
+            default:
+                printf("wl_CursorCreate: unknown style %d\n", style);
+                return nullptr;
+        }
+        auto ret = new wl_Cursor;
+        ret->gdkCursor = gdk_cursor_new(gdkType);
+        // store in map
+        cursorMap[style] = ret;
+        return ret;
+    }
+}
+
+OPENWL_API void CDECL wl_WindowSetCursor(wl_WindowRef window, wl_CursorRef cursor)
+{
+    window->setCursor(cursor);
 }
 
 /***************/

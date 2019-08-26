@@ -47,7 +47,7 @@ void registerWindowClass() {
 	wcex.cbWndExtra = 0;
 	wcex.hInstance = hInstance;
 	wcex.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+	wcex.hCursor = NULL; // LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground = NULL; // (HBRUSH)(COLOR_WINDOW + 1);
 	wcex.lpszMenuName = NULL; // MAKEINTRESOURCEW(IDR_MENU1);
 	wcex.lpszClassName = szWindowClass;
@@ -83,6 +83,10 @@ OPENWL_API int CDECL wl_Init(wl_EventCallback callback, struct wl_PlatformOption
 
     QueryPerformanceFrequency(&perfCounterTicksPerSecond);
     printf("perf counter freq: %lld\n", perfCounterTicksPerSecond.QuadPart);
+
+	// any "module" inits here ====
+
+	private_defs_init();
 
 	return 0;
 }
@@ -707,3 +711,56 @@ OPENWL_API void CDECL wl_MouseUngrab()
 	ReleaseCapture();
 }
 
+OPENWL_API wl_CursorRef CDECL wl_CursorCreate(wl_CursorStyle style)
+{
+	auto found = cursorMap.find(style);
+	if (found != cursorMap.end()) {
+		return found->second;
+	}
+	else {
+		LPWSTR name;
+		switch (style) {
+		case wl_kCursorStyleDefault:
+			name = IDC_ARROW;
+			break;
+		case wl_kCursorStyleResizeLeftRight:
+			name = IDC_SIZEWE;
+			break;
+		case wl_kCursorStyleResizeUpDown:
+			name = IDC_SIZENS;
+			break;
+		}
+		auto ret = new wl_Cursor();
+		ret->handle = (HCURSOR)LoadImage(NULL, name, IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_SHARED);
+		cursorMap[style] = ret; // save for future reference
+		return ret;
+	}
+}
+
+OPENWL_API void CDECL wl_WindowSetCursor(wl_WindowRef window, wl_CursorRef cursor)
+{
+	if (window->mouseInWindow) { // only makes sense to set when it's inside - gets reset when it leaves/re-enters anyway
+		if (window->cursor != cursor) { // only set on change
+			if (cursor) {
+				// actually set
+				SetCursor(cursor->handle);
+				window->cursor = cursor;
+			}
+			else {
+				// clear
+				SetCursor(defaultCursor);
+				window->cursor = nullptr;
+			}
+		}
+	}
+}
+
+//OPENWL_API void CDECL wl_WindowClearCursor(wl_WindowRef window)
+//{
+//	if (window->mouseInWindow) { // (see comment in SetCursor above)
+//		if (window->cursor) { // only clear when not already cleared
+//			SetCursor(defaultCursor);
+//			window->cursor = nullptr;
+//		}
+//	}
+//}

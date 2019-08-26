@@ -11,6 +11,11 @@
 
 #import "WLWindowObject.h"
 
+
+std::map<wl_CursorStyle, wl_CursorRef> cursorMap;
+
+
+
 // wl_ActionRef
 @implementation WLActionObject
 @synthesize _id;
@@ -60,3 +65,4 @@ inline double timespecDiff(mach_timespec_t newer, mach_timespec_t older) {
     [timer invalidate];
 }
 @end
+

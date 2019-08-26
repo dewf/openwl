@@ -98,6 +98,8 @@ public:
     size_t getWindowHandle();
     void mouseGrab();
 
+    void setCursor(wl_CursorRef cursor);
+
     void relativeToAbsolute(int x, int y, int *absX, int *absY);
 };
 

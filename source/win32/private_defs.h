@@ -33,6 +33,9 @@ struct wl_Window {
 
 	bool mouseInWindow = false;
 
+	wl_CursorRef cursor = nullptr;
+	//HCURSOR externalCursorHandle = NULL; // to restore upon mouse leave
+
     // for D2D only
     ID2D1HwndRenderTarget *d2dRenderTarget = nullptr;
 
@@ -43,9 +46,17 @@ struct wl_Window {
         }
     }
 };
+
+struct wl_Cursor {
+	HCURSOR handle;
+};
+extern std::map<wl_CursorStyle, wl_CursorRef> cursorMap;
+extern HCURSOR defaultCursor; // system arrow
+
 struct wl_Icon {
     HBITMAP hbitmap;
 };
+
 struct wl_Timer {
     wl_WindowRef window;
     int timerID;
@@ -142,3 +153,8 @@ struct wl_DropData {
 	bool getFormat(const char *dropFormatMIME, const void **outData, size_t *outSize);
 	bool getFiles(const struct wl_Files **outFiles);
 };
+
+
+
+// call from wl_Init
+void private_defs_init();

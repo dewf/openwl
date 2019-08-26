@@ -1,6 +1,7 @@
 #include "private_defs.h"
 
 #include "unicodestuff.h"
+#include <map>
 
 static bool formatEtcFromDragFormat(const char *dragFormatMIME, FORMATETC *fmtetc) {
 	if (!strcmp(dragFormatMIME, wl_kDragFormatUTF8)) {
@@ -118,4 +119,13 @@ bool wl_DropData::getFiles(const wl_Files **outFiles)
 		return true;
 	}
 	return false;
+}
+
+// loaded cursors map
+std::map<wl_CursorStyle, wl_CursorRef> cursorMap;
+HCURSOR defaultCursor = NULL;
+
+void private_defs_init()
+{
+	defaultCursor = LoadCursor(NULL, IDC_ARROW); // deprecated?
 }

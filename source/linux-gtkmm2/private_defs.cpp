@@ -6,6 +6,9 @@
 
 #include <cstring>
 
+std::map<wl_CursorStyle, wl_CursorRef> cursorMap;
+
+
 // ugly but can't be arsed to deal with the boost/std regex docs
 std::vector<std::string> split_items(char *uri_chars, size_t dataSize) {
     char *last_start = uri_chars;
@@ -73,3 +76,6 @@ bool wl_DropData::getFiles(const struct wl_Files **outFiles)
 
     return true; // ?? where to check if it succeeded or not ?
 }
+
+
+

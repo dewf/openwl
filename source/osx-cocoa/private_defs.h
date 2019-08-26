@@ -16,6 +16,7 @@
 
 #include <set>
 #include <string>
+#include <map>
 
 struct wl_EventPrivate {
     NSEvent *event;
@@ -29,6 +30,11 @@ struct wl_Accelerator {
 struct wl_Icon {
     NSImage *image;
 };
+
+struct wl_Cursor {
+    NSCursor *nsCursor;
+};
+extern std::map<wl_CursorStyle, wl_CursorRef> cursorMap;
 
 // wl_ActionRef
 @interface WLActionObject : NSObject

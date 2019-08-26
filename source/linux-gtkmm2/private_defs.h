@@ -12,6 +12,7 @@
 #include <gtkmm/menubar.h>
 #include <gtkmm/menu.h>
 #include <set>
+#include <map>
 #include "globals.h"
 
 #include "wlWindow.h"
@@ -20,6 +21,11 @@ struct wl_EventPrivate {
     int eventCount = 0; // verify not reentrant
     GdkEvent *gdkEvent;
 };
+
+struct wl_Cursor {
+    GdkCursor *gdkCursor;
+};
+extern std::map<wl_CursorStyle, wl_CursorRef> cursorMap; // re-use loaded cursors
 
 struct wl_Icon {
     Gtk::Image *gtkImage;

@@ -297,6 +297,9 @@ bool wl_Window::on_drawArea_mouseMotion(GdkEventMotion *gdkEvent) {
 }
 
 bool wl_Window::on_drawArea_enterNotify(GdkEventCrossing *gdkEvent) {
+    // always reset the cursor, should never be what it was upon leaving
+    setCursor(nullptr);
+
     EventFrame ef((GdkEvent *)gdkEvent);
     auto event = &ef.wlEvent;
     event->eventType = wl_kEventTypeMouse;
@@ -582,7 +585,10 @@ size_t wl_Window::getWindowHandle()
 void wl_Window::mouseGrab()
 {
     Glib::RefPtr<Gdk::Window> gdkWindow = get_window();
-    gdkWindow->pointer_grab(true, Gdk::BUTTON_MOTION_MASK, GDK_CURRENT_TIME);
+    auto status = gdkWindow->pointer_grab(true, Gdk::BUTTON_MOTION_MASK, GDK_CURRENT_TIME); //BUTTON_MOTION_MASK
+    if (status != GrabSuccess) {
+        printf("error starting mouse grab\n");
+    }
 //    gdk_pointer_grab((GdkWindow *)gobj(), true, GDK_BUTTON_MOTION_MASK, nullptr, nullptr, GDK_CURRENT_TIME);
 }
 
@@ -597,5 +603,14 @@ void wl_Window::relativeToAbsolute(int x, int y, int *absX, int *absY)
     }
     *absX = originX + x;
     *absY = originY + y;
+}
+
+void wl_Window::setCursor(wl_CursorRef cursor) {
+    auto gdkWindow = get_window()->gobj();
+    if (cursor) {
+        gdk_window_set_cursor(gdkWindow, cursor->gdkCursor);
+    } else {
+        gdk_window_set_cursor(gdkWindow, nullptr);
+    }
 }
 

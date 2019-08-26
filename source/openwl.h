@@ -47,6 +47,7 @@ extern "C" {
 #endif
 
 	WLHANDLE(Window);
+	WLHANDLE(Cursor);
 	WLHANDLE(Timer);
 	WLHANDLE(MenuBar);
 	WLHANDLE(Menu);
@@ -209,7 +210,6 @@ extern "C" {
 		wl_kMouseEventTypeMouseMove,
 		wl_kMouseEventTypeMouseEnter,
 		wl_kMouseEventTypeMouseLeave,
-		wl_kMouseEventTypeMouseClick, // down then up within a certain spatial / time range
 		wl_kMouseEventTypeMouseWheel
 	};
 
@@ -252,6 +252,12 @@ extern "C" {
 		wl_kDropEffectMove = 1 << 1,
 		wl_kDropEffectLink = 1 << 2,
 		wl_kDropEffectOther = 1 << 3 // ask / private / etc
+	};
+
+	enum wl_CursorStyle {
+		wl_kCursorStyleDefault,
+		wl_kCursorStyleResizeLeftRight,
+		wl_kCursorStyleResizeUpDown
 	};
     
     // used in the repaint event - placed here to declutter the wl_RepaintEvent struct a bit
@@ -436,6 +442,10 @@ extern "C" {
 	OPENWL_API void CDECL wl_WindowSetFocus(wl_WindowRef window);
 	OPENWL_API void CDECL wl_MouseGrab(wl_WindowRef window);
 	OPENWL_API void CDECL wl_MouseUngrab();
+
+	/* cursor api */
+	OPENWL_API wl_CursorRef CDECL wl_CursorCreate(wl_CursorStyle style);
+	OPENWL_API void CDECL wl_WindowSetCursor(wl_WindowRef window, wl_CursorRef cursor); // null to clear
 
 	/* timer API */
 	OPENWL_API wl_TimerRef CDECL wl_TimerCreate(wl_WindowRef window, int timerID, unsigned int msTimeout);

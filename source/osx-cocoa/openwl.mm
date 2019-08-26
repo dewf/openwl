@@ -266,6 +266,45 @@ OPENWL_API void CDECL wl_MouseUngrab()
     // noop
 }
 
+/* cursor api */
+OPENWL_API wl_CursorRef CDECL wl_CursorCreate(wl_CursorStyle style)
+{
+    auto found = cursorMap.find(style);
+    if (found != cursorMap.end()) {
+        return found->second;
+    } else {
+        // create anew
+        NSCursor *cursor;
+        switch (style) {
+            case wl_kCursorStyleDefault:
+                cursor = [NSCursor arrowCursor];
+                break;
+            case wl_kCursorStyleResizeLeftRight:
+                cursor = [NSCursor resizeLeftRightCursor];
+                break;
+            case wl_kCursorStyleResizeUpDown:
+                cursor = [NSCursor resizeUpDownCursor];
+                break;
+            default:
+                printf("wl_CursorCreate: unknown cursor type\n");
+                return nullptr;
+        }
+        auto ret = new wl_Cursor;
+        ret->nsCursor = [cursor retain];
+        // save for later
+        cursorMap[style] = ret;
+        // bye
+        return ret;
+    }
+}
+
+OPENWL_API void CDECL wl_WindowSetCursor(wl_WindowRef window, wl_CursorRef cursor)
+{
+    WLWindowObject *windowObj = (WLWindowObject *)window;
+    NSCursor *nsCursor = cursor ? cursor->nsCursor : Nil;
+    [windowObj.contentViewObj setCursor:nsCursor];
+}
+
 static void sizeToFit(CGSize *size, int maxWidth, int maxHeight)
 {
     double sourceAspect = size->width / size->height; // already floating point

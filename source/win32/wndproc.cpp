@@ -368,6 +368,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			wlw->mouseInWindow = true;
 			event.handled = false; // reset for next dispatch below
+
+			// we must set a cursor since our windowclass isn't allowed to have a default
+			//    (a default prevents ad-hoc cursors entirely)
+			// this prevents random/indeterminate cursors coming in from outside
+			SetCursor(defaultCursor);
+			wlw->cursor = nullptr;
 		}
 
         event.mouseEvent.eventType = wl_kMouseEventTypeMouseMove;
@@ -383,8 +389,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		event.eventType = wl_kEventTypeMouse;
 		event.mouseEvent.eventType = wl_kMouseEventTypeMouseWheel;
 		event.mouseEvent.wheelDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-		event.mouseEvent.x = GET_X_LPARAM(lParam);
-		event.mouseEvent.y = GET_Y_LPARAM(lParam);
+		// x,y are screen coords, convert to window space
+		POINT p;
+		p.x = GET_X_LPARAM(lParam);
+		p.y = GET_Y_LPARAM(lParam);
+		ScreenToClient(hWnd, &p);
+		event.mouseEvent.x = p.x;
+		event.mouseEvent.y = p.y;
 		event.mouseEvent.modifiers = getMouseModifiers(wParam);
 
 		eventCallback(wlw, &event, wlw->userData);
@@ -404,6 +415,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (!event.handled) {
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
+
+		// experimentally determined:
+		//   don't bother resetting the cursor on its way out:
+		//   1) windows seems to always handle it,
+		//   2) if we have any overlapping (popup etc) windows of our own,
+		//      because of the different timing of the event queues,
+		//      there is no guarantee the "leave" event of one window will be processed
+		//      before the (synthesized) "enter" of another --
+		//      which was causing the explicitly set mouse pointer to be overridden incorrectly
+		//      by the sometimes-late "leave" event
 		break;
 
     case WM_MainThreadExecMsg:

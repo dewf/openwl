@@ -25,6 +25,11 @@
 - (id)init {
     self = [super init];
     if (self) {
+        // for SPEEEEED
+        [self setWantsLayer:YES];
+        [self.layer setDrawsAsynchronously:YES];
+        //=======================================
+        
         keyDownSet = [NSMutableSet set];
         
         auto options =
@@ -40,6 +45,11 @@
         trackingArea = [[[NSTrackingArea alloc]
                          initWithRect:self.bounds options:options owner:self userInfo:nil] autorelease];
         [self addTrackingArea:trackingArea];
+        
+        // current cursor, if any
+        cursor = Nil;
+        containsCursor = false;
+        
     }
     return self;
 }
@@ -264,7 +274,7 @@
 }
 
 - (void)mouseEntered:(NSEvent *)theEvent {
-    //    printf("mouse entered\n");
+    containsCursor = true;
     if (![self mouseButtonCommon:wl_kMouseEventTypeMouseEnter
                      whichButton:wl_kMouseButtonNone
                        fromEvent:theEvent]) {
@@ -273,7 +283,10 @@
 }
 
 - (void)mouseExited:(NSEvent *)theEvent {
-    //    printf("mouse exited\n");
+    // clear whatever cursor we might have set, otherwise it continues on out the window
+    [self setCursor:Nil];
+    containsCursor = false;
+    
     if (![self mouseButtonCommon:wl_kMouseEventTypeMouseLeave
                      whichButton:wl_kMouseButtonNone
                        fromEvent:theEvent]) {
@@ -469,6 +482,24 @@
     self.dragResult = cocoa_to_wl_dropEffect_single(operation);
     printf("drag ended (operation %ld) -- exiting nested runloop...\n", operation);
     CFRunLoopStop([[NSRunLoop currentRunLoop] getCFRunLoop]);
+}
+
+// cursor stuff
+// should use a proper obj-c property write thing but whatever :D
+- (void)setCursor:(NSCursor *)cursor
+{
+    // no need to retain or anything, they're all held by the cursorMap for reuse
+    if (self->cursor != cursor) {
+        self->cursor = cursor;
+        if (self->containsCursor) { // don't bother setting if we're not currently in the window
+            if (cursor) {
+                [cursor set];
+            } else {
+                // default / clear
+                [[NSCursor arrowCursor] set];
+            }
+        }
+    }
 }
 
 @end

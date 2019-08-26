@@ -15,6 +15,8 @@
 @interface WLContentView : NSView <NSDraggingSource, NSPasteboardWriting> {
     NSMutableSet *keyDownSet;
     NSTrackingArea *trackingArea;
+    NSCursor *cursor;
+    bool containsCursor;
 }
 //@property (retain) NSTrackingArea *trackingArea;
 @property (assign) WLWindowObject *parentWindowObj;
@@ -25,4 +27,5 @@
 - (void)drawRect:(NSRect)dirtyRect;
 - (void)enableDrops;
 - (void)disableDrops;
+- (void)setCursor:(NSCursor *)cursor;
 @end
