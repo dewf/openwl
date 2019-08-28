@@ -354,6 +354,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		//event.mouseEvent.modifiers = getMouseModifiers(wParam);
 
 		if (!wlw->mouseInWindow) {
+			// we must set a cursor since our WNDCLASS isn't allowed to have a default
+			//    (a class default prevents ad-hoc cursors entirely)
+			// (otherwise we'll get random junk coming in from outside)
+			// note this also MUST happen before sending the synthetic enter event,
+			//  because said event might very well set the mouse cursor, and we'd just be negating it
+			SetCursor(defaultCursor);
+			wlw->cursor = nullptr;
+
+			// set the mouse-in-window flag now because some API calls (eg wl_WindowSetCursor) called by event handlers may require it ASAP
+			wlw->mouseInWindow = true;
+
 			// synthesize an "enter" event before the 1st move event sent
 			event.mouseEvent.eventType = wl_kMouseEventTypeMouseEnter;
 			eventCallback(wlw, &event, wlw->userData);
@@ -366,14 +377,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			tme.dwHoverTime = HOVER_DEFAULT;
 			TrackMouseEvent(&tme);
 
-			wlw->mouseInWindow = true;
 			event.handled = false; // reset for next dispatch below
-
-			// we must set a cursor since our windowclass isn't allowed to have a default
-			//    (a default prevents ad-hoc cursors entirely)
-			// this prevents random/indeterminate cursors coming in from outside
-			SetCursor(defaultCursor);
-			wlw->cursor = nullptr;
 		}
 
         event.mouseEvent.eventType = wl_kMouseEventTypeMouseMove;

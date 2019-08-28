@@ -757,13 +757,3 @@ OPENWL_API void CDECL wl_WindowSetCursor(wl_WindowRef window, wl_CursorRef curso
 		}
 	}
 }
-
-//OPENWL_API void CDECL wl_WindowClearCursor(wl_WindowRef window)
-//{
-//	if (window->mouseInWindow) { // (see comment in SetCursor above)
-//		if (window->cursor) { // only clear when not already cleared
-//			SetCursor(defaultCursor);
-//			window->cursor = nullptr;
-//		}
-//	}
-//}
