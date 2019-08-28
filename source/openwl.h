@@ -257,7 +257,8 @@ extern "C" {
 	enum wl_CursorStyle {
 		wl_kCursorStyleDefault,
 		wl_kCursorStyleResizeLeftRight,
-		wl_kCursorStyleResizeUpDown
+		wl_kCursorStyleResizeUpDown,
+		wl_kCursorStyleIBeamCursor,
 	};
     
     // used in the repaint event - placed here to declutter the wl_RepaintEvent struct a bit

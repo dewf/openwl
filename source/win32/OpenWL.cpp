@@ -729,6 +729,9 @@ OPENWL_API wl_CursorRef CDECL wl_CursorCreate(wl_CursorStyle style)
 		case wl_kCursorStyleResizeUpDown:
 			name = IDC_SIZENS;
 			break;
+		case wl_kCursorStyleIBeamCursor:
+			name = IDC_IBEAM;
+			break;
 		}
 		auto ret = new wl_Cursor();
 		ret->handle = (HCURSOR)LoadImage(NULL, name, IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_SHARED);
