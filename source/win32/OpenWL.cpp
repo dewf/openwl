@@ -729,7 +729,7 @@ OPENWL_API wl_CursorRef CDECL wl_CursorCreate(wl_CursorStyle style)
 		case wl_kCursorStyleResizeUpDown:
 			name = IDC_SIZENS;
 			break;
-		case wl_kCursorStyleIBeamCursor:
+		case wl_kCursorStyleIBeam:
 			name = IDC_IBEAM;
 			break;
 		}
