@@ -71,18 +71,21 @@ wl_Window::wl_Window(void *userData, wl_WindowProperties *props)
           userData(userData)
 {
 
+    wl_WindowProperties effProps {}; // effective properties
     if (props) {
-        this->props = *props; // save props for later reapplication (when/if menubar added)
-        setGeometryHints(this, props, 0);
-    } else {
-        // why is there a fixed min size if we didn't ask for that? (KDE Neon)
-        wl_WindowProperties p2 {};
-        p2.minWidth = 20;
-        p2.minHeight = 20;
-        p2.usedFields = wl_kWindowPropMinWidth | wl_kWindowPropMinHeight;
-        this->props = p2; // copy for later (see note in other branch above)
-        setGeometryHints(this, &p2, 0);
+        effProps = *props; // assign from outside if we've got 'em
     }
+    // force-set min sizes if not provided, otherwise some WMs apparently invent their own (KDE)
+    if (!(effProps.usedFields & wl_kWindowPropMinWidth)) {
+        effProps.usedFields |= wl_kWindowPropMinWidth;
+        effProps.minWidth = 20;
+    }
+    if (!(effProps.usedFields & wl_kWindowPropMinHeight)) {
+        effProps.usedFields |= wl_kWindowPropMinHeight;
+        effProps.minHeight = 20;
+    }
+    this->props = effProps; // save props for later reapplication (when/if menubar added)
+    setGeometryHints(this, &effProps, 0);
 
     // GTK stuff below
     signal_delete_event().connect(sigc::mem_fun1(*this, &wl_Window::on_delete));
