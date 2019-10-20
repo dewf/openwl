@@ -221,6 +221,12 @@ extern "C" {
 		wl_kMouseButtonOther
 	};
 
+	enum wl_MouseWheelAxis {
+		wl_kMouseWheelAxisNone,
+		wl_kMouseWheelAxisVertical,
+		wl_kMouseWheelAxisHorizontal
+	};
+
 	enum wl_KeyEventType {
 		wl_kKeyEventTypeUp,
 		wl_kKeyEventTypeDown,
@@ -310,6 +316,7 @@ extern "C" {
 		enum wl_MouseEventType eventType;
 		int x, y;
 		int wheelDelta;
+		enum wl_MouseWheelAxis wheelAxis;
 		enum wl_MouseButton button;
 		unsigned int modifiers;
 	};

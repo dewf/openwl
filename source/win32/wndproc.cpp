@@ -390,8 +390,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
 
 	case WM_MOUSEWHEEL:
+	case WM_MOUSEHWHEEL: // handle horizontal wheel as well
 		event.eventType = wl_kEventTypeMouse;
 		event.mouseEvent.eventType = wl_kMouseEventTypeMouseWheel;
+		event.mouseEvent.wheelAxis = (message == WM_MOUSEWHEEL) ? wl_kMouseWheelAxisVertical : wl_kMouseWheelAxisHorizontal;
 		event.mouseEvent.wheelDelta = GET_WHEEL_DELTA_WPARAM(wParam);
 		// x,y are screen coords, convert to window space
 		POINT p;

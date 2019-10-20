@@ -241,7 +241,9 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 			printf("<== mouse left window\n");
 		}
 		else if (event->mouseEvent.eventType == wl_kMouseEventTypeMouseWheel) {
-			printf("[mouse wheel: delta %d @ %d,%d]\n", event->mouseEvent.wheelDelta, event->mouseEvent.x, event->mouseEvent.y);
+			printf("[mouse wheel: %s delta %d @ %d,%d]\n", 
+				(event->mouseEvent.wheelAxis == wl_kMouseWheelAxisHorizontal) ? "HORIZ" : "VERT",
+				event->mouseEvent.wheelDelta, event->mouseEvent.x, event->mouseEvent.y);
 		}
 
 		break;

@@ -214,6 +214,22 @@
     event.mouseEvent.x = point.x;
     event.mouseEvent.y = point.y;
     
+    if (mouseEventType == wl_kMouseEventTypeMouseWheel) {
+        // for now take the delta with the largest magnitude and use that as the axis
+        // not sure if we'll ever support simultaneous horiz + vert panning ...
+        // note: this doesn't handle inertial scrolling, need to read this:
+        // https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/EventOverview/HandlingTouchEvents/HandlingTouchEvents.html
+        if (fabs(theEvent.scrollingDeltaX) > fabs(theEvent.scrollingDeltaY)) {
+            // horizontal
+            event.mouseEvent.wheelAxis = wl_kMouseWheelAxisHorizontal;
+            event.mouseEvent.wheelDelta = 120.0 * theEvent.scrollingDeltaX;
+        } else {
+            // vertical
+            event.mouseEvent.wheelAxis = wl_kMouseWheelAxisVertical;
+            event.mouseEvent.wheelDelta = 120.0 * theEvent.scrollingDeltaY;
+        }
+    }
+    
     event.mouseEvent.modifiers = cocoa_to_wl_modifiers_multi(theEvent.modifierFlags);
     eventCallback((wl_WindowRef)parentWindowObj, &event, parentWindowObj.userData);
     return event.handled;
@@ -309,6 +325,14 @@
                      whichButton:wl_kMouseButtonNone
                        fromEvent:theEvent]) {
         [super mouseDragged:theEvent];
+    }
+}
+
+- (void)scrollWheel:(NSEvent *)theEvent {
+    if (![self mouseButtonCommon:wl_kMouseEventTypeMouseWheel
+                     whichButton:wl_kMouseButtonNone
+                       fromEvent:theEvent]) {
+        [super scrollWheel:theEvent];
     }
 }
 

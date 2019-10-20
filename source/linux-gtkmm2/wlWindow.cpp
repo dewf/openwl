@@ -104,7 +104,7 @@ wl_Window::wl_Window(void *userData, wl_WindowProperties *props)
                         Gdk::BUTTON_MOTION_MASK |
                         Gdk::POINTER_MOTION_MASK | // do we not want this? only when explicitly asked for by API client?
                         Gdk::ENTER_NOTIFY_MASK | Gdk::LEAVE_NOTIFY_MASK |
-                        Gdk::FOCUS_CHANGE_MASK);
+                        Gdk::FOCUS_CHANGE_MASK | Gdk::SCROLL_MASK);
     //        drawArea.add_events(Gdk::ALL_EVENTS_MASK);
 
     drawArea.signal_button_press_event().connect(sigc::mem_fun1(*this, &wl_Window::on_drawArea_buttonPress));
@@ -114,6 +114,7 @@ wl_Window::wl_Window(void *userData, wl_WindowProperties *props)
     drawArea.signal_motion_notify_event().connect(sigc::mem_fun1(*this, &wl_Window::on_drawArea_mouseMotion));
     drawArea.signal_enter_notify_event().connect(sigc::mem_fun1(*this, &wl_Window::on_drawArea_enterNotify));
     drawArea.signal_leave_notify_event().connect(sigc::mem_fun1(*this, &wl_Window::on_drawArea_leaveNotify));
+    drawArea.signal_scroll_event().connect(sigc::mem_fun1(*this, &wl_Window::on_drawArea_scroll));
 
     // dnd, ughhh
     drawArea.signal_drag_begin().connect(sigc::mem_fun1(*this, &wl_Window::on_drawArea_dragBegin));
@@ -328,6 +329,29 @@ bool wl_Window::on_drawArea_leaveNotify(GdkEventCrossing *gdkEvent) {
     return event->handled;
 }
 
+bool wl_Window::on_drawArea_scroll(GdkEventScroll *gdkEvent) {
+    EventFrame ef((GdkEvent *)gdkEvent);
+    auto event = &ef.wlEvent;
+    event->eventType = wl_kEventTypeMouse;
+    event->mouseEvent.eventType = wl_kMouseEventTypeMouseWheel;
+    switch (gdkEvent->direction) {
+        case GdkScrollDirection::GDK_SCROLL_UP:
+        case GdkScrollDirection::GDK_SCROLL_DOWN:
+            event->mouseEvent.wheelAxis = wl_kMouseWheelAxisVertical;
+            event->mouseEvent.wheelDelta = (gdkEvent->direction == GdkScrollDirection::GDK_SCROLL_UP) ? 120 : -120;
+            break;
+        case GdkScrollDirection::GDK_SCROLL_LEFT:
+        case GdkScrollDirection::GDK_SCROLL_RIGHT:
+            event->mouseEvent.wheelAxis = wl_kMouseWheelAxisHorizontal;
+            event->mouseEvent.wheelDelta = (gdkEvent->direction == GdkScrollDirection::GDK_SCROLL_LEFT) ? 120 : -120;
+            break;
+    }
+    event->mouseEvent.modifiers = gdkToWlModifiers(gdkEvent->state);
+    event->mouseEvent.x = (int)gdkEvent->x;
+    event->mouseEvent.y = (int)gdkEvent->y;
+    dispatchEvent(event);
+    return event->handled;
+}
 
 // drag source handlers
 void wl_Window::on_drawArea_dragBegin(const Glib::RefPtr<Gdk::DragContext>& context) {
