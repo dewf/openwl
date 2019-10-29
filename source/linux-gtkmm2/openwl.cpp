@@ -77,7 +77,7 @@ OPENWL_API void CDECL wl_WindowShowRelative(wl_WindowRef window, wl_WindowRef re
     relativeTo->relativeToAbsolute(x, y, &x2, &y2);
     window->move(x2, y2);
     if (newWidth > 0 && newHeight > 0) {
-        window->set_size_request(newWidth, newHeight);
+        window->resize(newWidth, newHeight);
     }
     window->show_all();
 }
