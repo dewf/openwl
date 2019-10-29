@@ -19,6 +19,7 @@
 #import "WLWindowObject.h"
 #import "WLContentView.h"
 #import "MainThreadExecutor.h"
+#import "NSCustomWindow.h"
 
 #include "private_defs.h"
 
@@ -108,22 +109,32 @@ static wl_WindowRef _createNormalWindow(int width, int height, const char *title
 {
     NSRect frame = NSMakeRect(300, 300, width, height);
     
+    bool isBorderless = props && (props->usedFields & wl_kWindowPropStyle) && (props->style == wl_kWindowStyleFrameless);
+    
 #if defined(MAC_OS_X_VERSION_10_12) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_12
     NSWindowStyleMask styleMask = NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask|NSResizableWindowMask;
-    if (props && (props->usedFields & wl_kWindowPropStyle) && (props->style == wl_kWindowStyleFrameless)) {
+    if (isBorderless) {
         styleMask = NSWindowStyleMaskBorderless;
     }
 #else
     NSUInteger styleMask = NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask|NSResizableWindowMask;
-    if (props && (props->usedFields & wl_kWindowPropStyle) && (props->style == wl_kWindowStyleFrameless)) {
+    if (isBorderless) {
         styleMask = NSBorderlessWindowMask;
     }
 #endif
-    auto nsWindow = [[NSWindow alloc] initWithContentRect:frame
+    // we use a custom NSWindow subclass to get mouse events on borderless windows (otherwise they can't be set to 'key' window)
+    auto nsWindow = [[NSCustomWindow alloc] initWithContentRect:frame
                                                 styleMask:styleMask
                                                   backing:NSBackingStoreBuffered
                                                     defer:NO];
     
+    if (isBorderless) {
+        // other misc useful things to make these work properly ...
+        [nsWindow setLevel:NSFloatingWindowLevel];
+        [nsWindow setCollectionBehavior:NSWindowCollectionBehaviorFullScreenAuxiliary]; // so it can also work in fullscreen mode
+    }
+
+    // WL handle data allocation
     auto ret = [[WLWindowObject alloc] init];
     ret.nsWindow = nsWindow;
     ret.userData = userData;
@@ -220,16 +231,16 @@ OPENWL_API void CDECL wl_WindowShowRelative(wl_WindowRef window, wl_WindowRef re
 {
     WLWindowObject *obj = (WLWindowObject *)window;
     WLWindowObject *relObj = (WLWindowObject *)relativeTo;
-    
-    auto newOrigin = [relObj pointToScreen:NSMakePoint(x, y)];
-    [obj.nsWindow setFrameTopLeftPoint:newOrigin];
-    
+
+    // apparently need to size *before* moving, else it doesn't work right
     if (newWidth > 0 && newHeight > 0) {
         [obj.nsWindow setContentSize:NSMakeSize(newWidth, newHeight)];
     }
+
+    auto newOrigin = [relObj pointToScreen:NSMakePoint(x, y)];
+    [obj.nsWindow setFrameTopLeftPoint:newOrigin];
     
-    [obj.nsWindow orderFront:NULL];
-    [obj.nsWindow setIsVisible:YES];
+    [obj.nsWindow makeKeyAndOrderFront:NSApp];
 }
 
 OPENWL_API void CDECL wl_WindowHide(wl_WindowRef window)

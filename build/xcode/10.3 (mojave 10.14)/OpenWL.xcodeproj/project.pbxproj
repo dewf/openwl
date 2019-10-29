@@ -28,6 +28,8 @@
 		6560E02C226E9FB50026362F /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6560E02B226E9FB50026362F /* AppKit.framework */; };
 		6566427E226F033900BF029E /* OpenWLTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6566427D226F033900BF029E /* OpenWLTests.m */; };
 		65664280226F033900BF029E /* OpenWL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65C56BC1226E9E97005D362A /* OpenWL.framework */; };
+		65A8B2362368902000520263 /* NSCustomWindow.h in Headers */ = {isa = PBXBuildFile; fileRef = 65A8B2342368902000520263 /* NSCustomWindow.h */; };
+		65A8B2372368902000520263 /* NSCustomWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 65A8B2352368902000520263 /* NSCustomWindow.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,6 +66,8 @@
 		6566427B226F033900BF029E /* OpenWLTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OpenWLTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6566427D226F033900BF029E /* OpenWLTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OpenWLTests.m; sourceTree = "<group>"; };
 		6566427F226F033900BF029E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		65A8B2342368902000520263 /* NSCustomWindow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NSCustomWindow.h; path = "../../../../source/osx-cocoa/NSCustomWindow.h"; sourceTree = "<group>"; };
+		65A8B2352368902000520263 /* NSCustomWindow.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = NSCustomWindow.m; path = "../../../../source/osx-cocoa/NSCustomWindow.m"; sourceTree = "<group>"; };
 		65C56BC1226E9E97005D362A /* OpenWL.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OpenWL.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		65C56BC5226E9E97005D362A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -113,6 +117,8 @@
 				6560E009226E9F260026362F /* WLAppDelegate.h */,
 				6560E00F226E9F270026362F /* WLAppDelegate.mm */,
 				6560E00A226E9F260026362F /* WLContentView.h */,
+				65A8B2342368902000520263 /* NSCustomWindow.h */,
+				65A8B2352368902000520263 /* NSCustomWindow.m */,
 				6560E00E226E9F270026362F /* WLContentView.mm */,
 				6560E013226E9F270026362F /* WLWindowObject.h */,
 				6560E014226E9F270026362F /* WLWindowObject.mm */,
@@ -182,6 +188,7 @@
 				6560E01A226E9F270026362F /* WLAppDelegate.h in Headers */,
 				6560E01B226E9F270026362F /* WLContentView.h in Headers */,
 				6560E005226E9F1C0026362F /* openwl.h in Headers */,
+				65A8B2362368902000520263 /* NSCustomWindow.h in Headers */,
 				6560E027226E9F270026362F /* MainThreadExecutor.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -313,6 +320,7 @@
 				6560E018226E9F270026362F /* MainThreadExecutor.mm in Sources */,
 				6560E020226E9F270026362F /* WLAppDelegate.mm in Sources */,
 				6560E019226E9F270026362F /* miscutil.mm in Sources */,
+				65A8B2372368902000520263 /* NSCustomWindow.m in Sources */,
 				6560E025226E9F270026362F /* WLWindowObject.mm in Sources */,
 				6560E026226E9F270026362F /* globals.mm in Sources */,
 				6560E01D226E9F270026362F /* keystuff.mm in Sources */,
