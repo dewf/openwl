@@ -22,12 +22,12 @@ matrix:
         - make
 
     - os: osx
-      osx_image: xcode9.3
+      osx_image: xcode10.3
       language: objective-c
 
       env: >
             BUILDPATH="./DerivedData"
-            PROJECTPATH="build/xcode/9.3 (mojave 10.14)/OpenWL.xcodeproj"
+            PROJECTPATH="build/xcode/10.3 (mojave 10.14)/OpenWL.xcodeproj"
 
       script:
         - set -o pipefail && xcodebuild -project "$PROJECTPATH" -scheme "OpenWL-Release" -derivedDataPath "$BUILDPATH" -destination 'platform=macOS' clean build test | xcpretty
