@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+extern wl_Window *lastGrabWindow;
+
 struct wl_EventPrivate {
     UINT message;
     WPARAM wParam;
@@ -38,6 +40,9 @@ struct wl_Window {
 
     // for D2D only
     ID2D1HwndRenderTarget *d2dRenderTarget = nullptr;
+
+	// filter spurious post-grab-release move event :(
+	bool ignorePostGrabMove = false;
 
     // destructor
     ~wl_Window() {

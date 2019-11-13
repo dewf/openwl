@@ -341,6 +341,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         event.mouseEvent.x = GET_X_LPARAM(lParam);
         event.mouseEvent.y = GET_Y_LPARAM(lParam);
 
+		event.mouseEvent.modifiers = getMouseModifiers(wParam);
+
         eventCallback(wlw, &event, wlw->userData);
         if (!event.handled) {
             return DefWindowProc(hWnd, message, wParam, lParam);
@@ -348,10 +350,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
 
     case WM_MOUSEMOVE:
+		if (wlw->ignorePostGrabMove) {
+			// we just ungrabbed this window, so ignore 1 move message
+			wlw->ignorePostGrabMove = false;
+			return 0;
+		}
 		event.eventType = wl_kEventTypeMouse;
 		event.mouseEvent.x = GET_X_LPARAM(lParam);
 		event.mouseEvent.y = GET_Y_LPARAM(lParam);
-		//event.mouseEvent.modifiers = getMouseModifiers(wParam);
+		event.mouseEvent.modifiers = getMouseModifiers(wParam);
 
 		if (!wlw->mouseInWindow) {
 			// we must set a cursor since our WNDCLASS isn't allowed to have a default
@@ -380,8 +387,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			event.handled = false; // reset for next dispatch below
 		}
 
+		// set event type down here because might have to overwrite after branch above
         event.mouseEvent.eventType = wl_kMouseEventTypeMouseMove;
-        // button, modifiers etc not relevant
 
         eventCallback(wlw, &event, wlw->userData);
         if (!event.handled) {

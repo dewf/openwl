@@ -704,11 +704,13 @@ OPENWL_API size_t CDECL wl_SystemMillis()
 OPENWL_API void CDECL wl_MouseGrab(wl_WindowRef window)
 {
 	SetCapture(window->hwnd); // not saving the previous capture (return value) for now, maybe in the future
+	lastGrabWindow = window;  // because ungrab / releasecapture are app-global, no specific handle given
 }
 
 OPENWL_API void CDECL wl_MouseUngrab()
 {
 	ReleaseCapture();
+	lastGrabWindow->ignorePostGrabMove = true; // ignoring 1 unwanted move event, which can trigger unwanted redraws / state changes after a mouse up
 }
 
 OPENWL_API wl_CursorRef CDECL wl_CursorCreate(wl_CursorStyle style)

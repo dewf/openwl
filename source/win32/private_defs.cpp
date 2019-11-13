@@ -3,6 +3,8 @@
 #include "unicodestuff.h"
 #include <map>
 
+wl_Window *lastGrabWindow = nullptr;
+
 static bool formatEtcFromDragFormat(const char *dragFormatMIME, FORMATETC *fmtetc) {
 	if (!strcmp(dragFormatMIME, wl_kDragFormatUTF8)) {
 		*fmtetc = { CF_UNICODETEXT, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
