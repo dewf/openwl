@@ -222,16 +222,37 @@ OPENWL_API void CDECL wl_WindowHide(wl_WindowRef window)
 	ShowWindow(window->hwnd, SW_HIDE);
 }
 
+// maintain increasing IDs so that we uniquely identify timers (better than pointers, which could potentially be reused via 'new')
+static unsigned int nextTimerID = 0;
+static std::set<unsigned int> activeTimers;
+
+void deleteTimer(wl_TimerRef timer) {
+	//auto timerDeleted = CreateEvent(NULL, TRUE, FALSE, NULL);
+	//DeleteTimerQueueTimer(timer->timerQueue, timer->handle, timerDeleted);
+	//WaitForSingleObject(timerDeleted, INFINITE);
+	//CloseHandle(timerDeleted);
+	DeleteTimerQueueTimer(timer->timerQueue, timer->handle, INVALID_HANDLE_VALUE);
+
+	activeTimers.erase(timer->id); // no further events from this timer will be processed, even if they are queued (especially if they are queued!)
+
+	delete timer;
+}
 
 void processTimerMessage(UINT message, WPARAM wParam, LPARAM lParam)
 {
+	auto timer = (wl_TimerRef)lParam;
+
+	auto found = activeTimers.find(timer->id);
+	if (found == activeTimers.end()) {
+		//printf("openwl: attempted to process dead timer callback! nothx\n");
+		return;
+	}
+
 	wl_EventPrivate eventPrivate(message, wParam, lParam);
 	wl_Event event = {};
 	event._private = &eventPrivate;
 	event.eventType = wl_kEventTypeTimer;
 	event.handled = false;
-
-	auto timer = (wl_TimerRef)lParam;
 
 	event.timerEvent.timer = timer;
 	event.timerEvent.userData = timer->userData;
@@ -250,8 +271,7 @@ void processTimerMessage(UINT message, WPARAM wParam, LPARAM lParam)
 
 	// custom event so there's no defwindowproc handling
 	if (event.handled && event.timerEvent.stopTimer) {
-		// stop the timer immediately
-		DeleteTimerQueueTimer(timer->timerQueue, timer->handle, INVALID_HANDLE_VALUE);
+		deleteTimer(timer);
 	}
 }
 
@@ -330,9 +350,14 @@ OPENWL_API wl_TimerRef CDECL wl_TimerCreate(unsigned int msTimeout, void *userDa
 	// requires a window because it has userdat and other stuff  ...
 	// which I guess we could put into a wl_TimerRef structure, but then we have multiple types of userdata ...
 	wl_TimerRef timer = new wl_Timer;
+	timer->id = nextTimerID++;
 	timer->userData = userData;
     QueryPerformanceCounter(&timer->lastPerfCount);
 	timer->timerQueue = NULL; // default timer queue ... not sure why we created one to begin with // CreateTimerQueue();
+
+	// let it be known that this is currently a valid timer, so that callbacks can get through
+	//  (used to prevent dead timers from firing even if they've managed to queue a callback)
+	activeTimers.insert(timer->id);
 
 	if (!CreateTimerQueueTimer(&timer->handle, timer->timerQueue, timerCallback, timer, msTimeout, msTimeout, WT_EXECUTEDEFAULT)) {
 		printf("failed to create TimerQueueTimer\n");
@@ -343,12 +368,7 @@ OPENWL_API wl_TimerRef CDECL wl_TimerCreate(unsigned int msTimeout, void *userDa
 
 OPENWL_API void CDECL wl_TimerDestroy(wl_TimerRef timer)
 {
-	auto timerDeleted = CreateEvent(NULL, TRUE, FALSE, NULL);
-	DeleteTimerQueueTimer(timer->timerQueue, timer->handle, timerDeleted);
-	WaitForSingleObject(timerDeleted, INFINITE);
-	printf("wait complete, deleting timer\n");
-	delete timer;
-	CloseHandle(timerDeleted);
+	deleteTimer(timer);
 }
 
 

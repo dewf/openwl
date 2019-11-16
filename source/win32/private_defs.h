@@ -63,6 +63,7 @@ struct wl_Icon {
 };
 
 struct wl_Timer {
+	unsigned int id;
 	void *userData;
     HANDLE timerQueue;
     HANDLE handle;
