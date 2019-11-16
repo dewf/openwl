@@ -271,12 +271,18 @@ OPENWL_API int CDECL wl_Runloop() {
 		}
 		else
 		{
-			if (msg.message == OPENWL_TIMER_MESSAGE) {
-				// timer messages are app-global (not window-specific),
-				// must be processed manually
-				processTimerMessage(msg.message, msg.wParam, msg.lParam);
+			if (msg.message >= Win32MessageEnum::AppGlobalMsgBegin) {
+				switch (msg.message) {
+				case WM_WLTimerMessage:
+					processTimerMessage(msg.message, msg.wParam, msg.lParam);
+					break;
+				case WM_WLMainThreadExecMsg:
+					ExecuteMainItem((MainThreadExecItem *)msg.lParam);
+					break;
+				}
 			}
 			else {
+				// normal window message processing
 				if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
 				{
 					TranslateMessage(&msg);
@@ -316,7 +322,7 @@ OPENWL_API size_t CDECL wl_WindowGetOSHandle(wl_WindowRef window)
 
 VOID CALLBACK timerCallback(_In_ PVOID lpParameter, _In_ BOOLEAN TimerOrWaitFired) {
 	wl_TimerRef timer = (wl_TimerRef)lpParameter;
-	PostThreadMessage(mainThreadID, OPENWL_TIMER_MESSAGE, 0, (LPARAM)timer);
+	PostThreadMessage(mainThreadID, WM_WLTimerMessage, 0, (LPARAM)timer);
 }
 
 OPENWL_API wl_TimerRef CDECL wl_TimerCreate(unsigned int msTimeout, void *userData)
@@ -717,13 +723,13 @@ void ExecuteMainItem(MainThreadExecItem *item) {
 	item->execCond.notify_one();
 }
 
-OPENWL_API void CDECL wl_ExecuteOnMainThread(wl_WindowRef window, wl_VoidCallback callback, void *data)
+OPENWL_API void CDECL wl_ExecuteOnMainThread(wl_VoidCallback callback, void *data)
 {
 	std::unique_lock<std::mutex> lock(execMutex);
 	std::condition_variable cond;
 	
 	MainThreadExecItem item = { callback, data, cond };
-	PostMessage(window->hwnd, WM_MainThreadExecMsg, 0, (LPARAM)&item); // safe to pass a pointer to item, because this function doesn't exit until it's done
+	PostThreadMessage(mainThreadID, WM_WLMainThreadExecMsg, 0, (LPARAM)&item); // safe to pass a pointer to item, because this function doesn't exit until it's done
 
 	// block until it's done executing
 	cond.wait(lock);

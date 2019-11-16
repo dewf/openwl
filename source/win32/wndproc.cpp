@@ -412,10 +412,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		//      by the sometimes-late "leave" event
 		break;
 
-    case WM_MainThreadExecMsg:
-        ExecuteMainItem((MainThreadExecItem *)lParam);
-        break;
-
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }

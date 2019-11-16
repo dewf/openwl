@@ -1,4 +1,4 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
@@ -499,7 +499,7 @@ void addNewBox(void *data) {
 void bgThreadFunc(int threadID) {
 	while (true) {
 		size_t void_arg = threadID;
-		wl_ExecuteOnMainThread(mainWindow, addNewBox, (void *)void_arg);
+		wl_ExecuteOnMainThread(addNewBox, (void *)void_arg);
 		wl_Sleep(200);
 	}
 }

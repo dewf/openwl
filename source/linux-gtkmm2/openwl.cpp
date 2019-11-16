@@ -508,7 +508,7 @@ static gboolean idleFunc(gpointer user_data) {
     return G_SOURCE_REMOVE; // one shot
 }
 
-OPENWL_API void CDECL wl_ExecuteOnMainThread(wl_WindowRef window, wl_VoidCallback callback, void *data)
+OPENWL_API void CDECL wl_ExecuteOnMainThread(wl_VoidCallback callback, void *data)
 {
     std::unique_lock<std::mutex> lock(execMutex);
     std::condition_variable cond;

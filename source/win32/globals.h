@@ -16,9 +16,13 @@ extern const WCHAR *szWindowClass;
 
 extern DWORD mainThreadID;
 
-enum Win32MessageEnum {
+enum Win32MessageEnum: UINT {
     Nothing = WM_USER,
-    WM_MainThreadExecMsg,
+	// custom window messages here
+	AppGlobalMsgBegin = Nothing + 0x500,
+	// custom app (main thread) messages here
+	WM_WLTimerMessage,
+    WM_WLMainThreadExecMsg,
 };
 
 // globals
@@ -46,9 +50,4 @@ void ExecuteMainItem(MainThreadExecItem *item);
 
 // client-supplied callback
 extern wl_EventCallback eventCallback;
-
-// custom messages
-#define OPENWL_TIMER_MESSAGE WM_USER+0
-
-
 

@@ -676,7 +676,7 @@ OPENWL_API void CDECL wl_ClipboardFlush()
 
 /***** Misc Stuff ******/
 
-OPENWL_API void CDECL wl_ExecuteOnMainThread(wl_WindowRef window, wl_VoidCallback callback, void *data)
+OPENWL_API void CDECL wl_ExecuteOnMainThread(wl_VoidCallback callback, void *data)
 {
     auto mte = [MainThreadExecutor withCallback:callback param:data];
     [mte performSelectorOnMainThread:@selector(executeCallback) withObject:nil waitUntilDone:YES];

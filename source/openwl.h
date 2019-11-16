@@ -512,7 +512,7 @@ extern "C" {
 	OPENWL_API void CDECL wl_ClipboardFlush();
 
 	/* MISC */
-	OPENWL_API void CDECL wl_ExecuteOnMainThread(wl_WindowRef window, wl_VoidCallback callback, void *data);
+	OPENWL_API void CDECL wl_ExecuteOnMainThread(wl_VoidCallback callback, void *data);
 	OPENWL_API void CDECL wl_Sleep(unsigned int millis);
 	OPENWL_API size_t CDECL wl_SystemMillis();
 
