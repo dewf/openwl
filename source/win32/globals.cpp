@@ -6,6 +6,8 @@
 HINSTANCE hInstance = NULL; // set by DllMain
 const WCHAR *szWindowClass = L"OpenWLTopLevel";
 
+DWORD mainThreadID;
+
 // globals
 std::map<int, wl_ActionRef> actionMap;
 std::vector<ACCEL> acceleratorList;

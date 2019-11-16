@@ -22,6 +22,15 @@ struct wl_EventPrivate {
     GdkEvent *gdkEvent;
 };
 
+struct EventFrame {
+    wl_EventPrivate _priv;
+    wl_Event wlEvent;
+    explicit EventFrame(GdkEvent *gdkEvent) {
+        wlEvent._private = &_priv;
+        _priv.gdkEvent = gdkEvent;
+    }
+};
+
 struct wl_Cursor {
     GdkCursor *gdkCursor;
 };
@@ -45,20 +54,17 @@ struct wl_Action {
 };
 
 struct wl_Timer {
-    wl_WindowRef window;
-    int timerID;
+    void *userData;
     sigc::connection conn;
     bool connected = false;
     timespec lastTime = { 0 }; // to provide secondsSinceLast for timer callbacks
+
+    bool on_timer_timeout();
 
     void disconnect() {
         if (connected) {
             conn.disconnect();
             connected = false;
-            if (window) {
-                window->removeTimer(this);
-                window = nullptr;
-            }
         }
     }
 

@@ -139,22 +139,24 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 
 			printf("new size: %d, %d\n", width, height);
 
-			printf("TODO: remove resize inval\n");
-			wl_WindowInvalidate(window, 0, 0, 0, 0);
+			//printf("TODO: remove resize inval\n");
+			//wl_WindowInvalidate(window, 0, 0, 0, 0);
 
 			lastFrame = 0;
 		}
 		break;
 
 	case wl_kEventTypeTimer:
-		//printf("window %zu timer %zu event\n", window, event->timerEvent.timer);
-		if (event->timerEvent.timer == fastTimer) {
-			wl_WindowInvalidate(window, 0, 0, 0, 0); // entire window
-		}
-		else if (event->timerEvent.timer == slowTimer) {
+		// NOTE! 'window' param will be null here, timer events are app-global, not related to any specific window
+		switch ((size_t)event->timerEvent.userData) {
+		case ID_FastTimer:
+			wl_WindowInvalidate(mainWindow, 0, 0, 0, 0); // entire window
+			break;
+		case ID_SlowTimer:
 			//printf("%d frames\n", numFrames);
 			totalFrames = lastFrame;
 			lastFrame = 0;
+			break;
 		}
 		break;
 
@@ -529,8 +531,8 @@ int main(int argc, const char * argv[]) {
 
 	platformInit();
 
-	fastTimer = wl_TimerCreate(mainWindow, ID_FastTimer, 16); // ~60fps
-	slowTimer = wl_TimerCreate(mainWindow, ID_SlowTimer, 1000);
+	fastTimer = wl_TimerCreate(16, (void *)ID_FastTimer); // ~60fps
+	slowTimer = wl_TimerCreate(1000, (void *)ID_SlowTimer);
 
 	wl_WindowEnableDrops(mainWindow, true);
 

@@ -185,34 +185,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     }
 
-    case OPENWL_TIMER_MESSAGE:
-    {
-        auto timer = (wl_TimerRef)lParam;
-
-        event.eventType = wl_kEventTypeTimer;
-        event.timerEvent.timer = timer;
-        event.timerEvent.timerID = timer->timerID;
-        event.timerEvent.stopTimer = false;
-
-        LARGE_INTEGER perfCount;
-        QueryPerformanceCounter(&perfCount);
-
-        auto sinceLast = (double)(perfCount.QuadPart - timer->lastPerfCount.QuadPart);
-        sinceLast /= perfCounterTicksPerSecond.QuadPart;
-        event.timerEvent.secondsSinceLast = sinceLast;
-
-        eventCallback(wlw, &event, wlw->userData);
-
-        timer->lastPerfCount = perfCount;
-
-        // custom event so there's no defwindowproc handling
-        if (event.handled && event.timerEvent.stopTimer) {
-            // stop the timer immediately
-            printf("win32 OPENWL_TIMER_MESSAGE: cancel not yet implemented\n");
-        }
-        break;
-    }
-
     case WM_CHAR:
     {
         unsigned char scanCode = (lParam >> 16) & 0xFF;

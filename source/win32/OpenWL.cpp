@@ -60,6 +60,8 @@ void registerWindowClass() {
 OPENWL_API int CDECL wl_Init(wl_EventCallback callback, struct wl_PlatformOptions *options) {
 	initKeyMap();
 
+	mainThreadID = GetCurrentThreadId();
+
 	eventCallback = callback;
 	registerWindowClass();
 
@@ -215,14 +217,45 @@ OPENWL_API void CDECL wl_WindowShowRelative(wl_WindowRef window, wl_WindowRef re
 	SetWindowPos(window->hwnd, HWND_TOP, p.x, p.y, newWidth, newHeight, flags);
 }
 
-void wl_WindowHide(wl_WindowRef window)
+OPENWL_API void CDECL wl_WindowHide(wl_WindowRef window)
 {
 	ShowWindow(window->hwnd, SW_HIDE);
 }
 
-int wl_Runloop() {
-	//HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_ACCELERATOR1));
-	printf("installing %d accelerators\n", (int)acceleratorList.size());
+
+void processTimerMessage(UINT message, WPARAM wParam, LPARAM lParam)
+{
+	wl_EventPrivate eventPrivate(message, wParam, lParam);
+	wl_Event event = {};
+	event._private = &eventPrivate;
+	event.eventType = wl_kEventTypeTimer;
+	event.handled = false;
+
+	auto timer = (wl_TimerRef)lParam;
+
+	event.timerEvent.timer = timer;
+	event.timerEvent.userData = timer->userData;
+	event.timerEvent.stopTimer = false;
+
+	LARGE_INTEGER perfCount;
+	QueryPerformanceCounter(&perfCount);
+
+	auto sinceLast = (double)(perfCount.QuadPart - timer->lastPerfCount.QuadPart);
+	sinceLast /= perfCounterTicksPerSecond.QuadPart;
+	event.timerEvent.secondsSinceLast = sinceLast;
+
+	eventCallback(nullptr, &event, nullptr); // both window and userdata are null, because no window is the target. maybe in the future use an Application object w/ associated data?
+
+	timer->lastPerfCount = perfCount;
+
+	// custom event so there's no defwindowproc handling
+	if (event.handled && event.timerEvent.stopTimer) {
+		// stop the timer immediately
+		DeleteTimerQueueTimer(timer->timerQueue, timer->handle, INVALID_HANDLE_VALUE);
+	}
+}
+
+OPENWL_API int CDECL wl_Runloop() {
 	HACCEL hAccelTable = CreateAcceleratorTable((ACCEL *)acceleratorList.data(), (int)acceleratorList.size());
 
 	// Main message loop:
@@ -238,22 +271,29 @@ int wl_Runloop() {
 		}
 		else
 		{
-			if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
+			if (msg.message == OPENWL_TIMER_MESSAGE) {
+				// timer messages are app-global (not window-specific),
+				// must be processed manually
+				processTimerMessage(msg.message, msg.wParam, msg.lParam);
+			}
+			else {
+				if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+				{
+					TranslateMessage(&msg);
+					DispatchMessage(&msg);
+				}
 			}
 		}
 	}
 	return (int)msg.wParam;
 }
 
-void wl_ExitRunloop()
+OPENWL_API void CDECL wl_ExitRunloop()
 {
 	PostQuitMessage(0);
 }
 
-void wl_WindowInvalidate(wl_WindowRef window, int x, int y, int width, int height)
+OPENWL_API void CDECL wl_WindowInvalidate(wl_WindowRef window, int x, int y, int width, int height)
 {
 	if (width > 0 && height > 0) {
 		RECT r;
@@ -276,17 +316,16 @@ OPENWL_API size_t CDECL wl_WindowGetOSHandle(wl_WindowRef window)
 
 VOID CALLBACK timerCallback(_In_ PVOID lpParameter, _In_ BOOLEAN TimerOrWaitFired) {
 	wl_TimerRef timer = (wl_TimerRef)lpParameter;
-	PostMessage(timer->window->hwnd, OPENWL_TIMER_MESSAGE, 0, (LPARAM)timer);
+	PostThreadMessage(mainThreadID, OPENWL_TIMER_MESSAGE, 0, (LPARAM)timer);
 }
 
-OPENWL_API wl_TimerRef CDECL wl_TimerCreate(wl_WindowRef window, int timerID, unsigned int msTimeout)
+OPENWL_API wl_TimerRef CDECL wl_TimerCreate(unsigned int msTimeout, void *userData)
 {
 	// requires a window because it has userdat and other stuff  ...
 	// which I guess we could put into a wl_TimerRef structure, but then we have multiple types of userdata ...
 	wl_TimerRef timer = new wl_Timer;
-	timer->timerID = timerID;
+	timer->userData = userData;
     QueryPerformanceCounter(&timer->lastPerfCount);
-	timer->window = window;
 	timer->timerQueue = NULL; // default timer queue ... not sure why we created one to begin with // CreateTimerQueue();
 
 	if (!CreateTimerQueueTimer(&timer->handle, timer->timerQueue, timerCallback, timer, msTimeout, msTimeout, WT_EXECUTEDEFAULT)) {

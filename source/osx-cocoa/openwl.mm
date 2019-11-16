@@ -471,15 +471,14 @@ OPENWL_API wl_MenuRef CDECL wl_GetApplicationMenu()
 
 /********* timer API ************/
 
-OPENWL_API wl_TimerRef CDECL wl_TimerCreate(wl_WindowRef window, int timerID, unsigned int msTimeout)
+OPENWL_API wl_TimerRef CDECL wl_TimerCreate(unsigned int msTimeout, void *userData)
 {
     double interval = msTimeout / 1000.0;
     auto ret = [[WLTimerObject alloc] init];
-    ret._id = timerID;
-    ret.forWindow = (WLWindowObject *)window;
+    ret.userData = userData;
     clock_get_time(systemClock, &ret->lastTime);
     
-    ret.timer = [NSTimer scheduledTimerWithTimeInterval:interval target:ret selector:@selector(timerFired:) userInfo:nil repeats:YES];
+    ret.nsTimer = [NSTimer scheduledTimerWithTimeInterval:interval target:ret selector:@selector(timerFired:) userInfo:nil repeats:YES];
     return (wl_TimerRef)ret;
 }
 

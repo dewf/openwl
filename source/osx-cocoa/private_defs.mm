@@ -37,14 +37,13 @@ inline double timespecDiff(mach_timespec_t newer, mach_timespec_t older) {
 }
 
 @implementation WLTimerObject
-@synthesize timer;
-@synthesize forWindow;
-@synthesize _id;
+@synthesize nsTimer;
+@synthesize userData;
 - (void)timerFired:(id)sender {
     wl_Event event;
     event.handled = false;
     event.eventType = wl_kEventTypeTimer;
-    event.timerEvent.timerID = _id;
+    event.timerEvent.userData = userData;
     event.timerEvent.timer = (wl_TimerRef)self;
     event.timerEvent.stopTimer = false;
     
@@ -52,7 +51,7 @@ inline double timespecDiff(mach_timespec_t newer, mach_timespec_t older) {
     clock_get_time(systemClock, &now);
     event.timerEvent.secondsSinceLast = timespecDiff(now, self->lastTime);
     
-    eventCallback((wl_WindowRef)forWindow, &event, forWindow.userData);
+    eventCallback(nullptr, &event, nullptr); // window + userdata = null for timer events, which are app-global
     
     self->lastTime = now;
     
@@ -61,8 +60,8 @@ inline double timespecDiff(mach_timespec_t newer, mach_timespec_t older) {
     }
 }
 - (void)stopTimer {
-    printf("stopping timer %d\n", _id);
-    [timer invalidate];
+    printf("stopping timer %p\n", self);
+    [nsTimer invalidate];
 }
 @end
 

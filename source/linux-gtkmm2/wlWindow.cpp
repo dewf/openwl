@@ -5,15 +5,6 @@
 
 #include <gdk/gdkx.h>
 
-struct EventFrame {
-    wl_EventPrivate _priv;
-    wl_Event wlEvent;
-    explicit EventFrame(GdkEvent *gdkEvent) {
-        wlEvent._private = &_priv;
-        _priv.gdkEvent = gdkEvent;
-    }
-};
-
 void wl_Window::dragClipRender(Gtk::SelectionData &selectionData, guint info) {
     EventFrame ef(nullptr);
     auto event = &ef.wlEvent;
@@ -152,13 +143,6 @@ wl_Window::wl_Window(void *userData, wl_WindowProperties *props)
 
 wl_Window::~wl_Window() {
     printf("wl_WindowRef destruct\n");
-    // stop all associated timers
-    // copy set so removal doesn't mess with iterator
-    auto set_copy = timers;
-    for (auto timer : set_copy) {
-        timer->disconnect();
-        // but don't delete, in case the API client still has a handle to it
-    }
 
     EventFrame ef(nullptr);
     auto event = &ef.wlEvent;
@@ -453,28 +437,6 @@ void wl_Window::on_drawArea_dragDataReceived(const Glib::RefPtr<Gdk::DragContext
 
     printf("dragDataReceived end\n");
     dragDataAwait = false;
-}
-
-bool wl_Window::on_timer_timeout(wl_TimerRef timer) {
-    EventFrame ef(nullptr);
-    auto event = &ef.wlEvent;
-    event->eventType = wl_kEventTypeTimer;
-    event->timerEvent.timer = timer;
-    event->timerEvent.timerID = timer->timerID;
-    event->timerEvent.stopTimer = false;
-
-    timespec now;
-    clock_gettime(CLOCK_MONOTONIC, &now);
-    event->timerEvent.secondsSinceLast = timespecDiff(now, timer->lastTime);
-
-    dispatchEvent(event);
-
-    timer->lastTime = now;
-
-    if (event->timerEvent.stopTimer) {
-        return false; // disconnect (but don't delete)
-    }
-    return true; // continue by default
 }
 
 bool wl_Window::on_delete(GdkEventAny *gdkEvent) {

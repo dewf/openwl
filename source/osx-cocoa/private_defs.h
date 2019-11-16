@@ -64,9 +64,8 @@ struct wl_MenuItem {
 @interface WLTimerObject : NSObject {
     @public mach_timespec_t lastTime;
 }
-@property (retain) NSTimer *timer;
-@property int _id;
-@property (assign) WLWindowObject *forWindow;
+@property (retain) NSTimer *nsTimer;
+@property void *userData;
 - (void)timerFired:(id)sender;
 - (void)stopTimer;
 @end

@@ -308,7 +308,7 @@ extern "C" {
 	};
 	struct wl_TimerEvent {
 		wl_TimerRef timer;
-		int timerID;
+		void *userData;
 		bool stopTimer;
 		double secondsSinceLast;
 	};
@@ -456,7 +456,7 @@ extern "C" {
 	OPENWL_API void CDECL wl_WindowSetCursor(wl_WindowRef window, wl_CursorRef cursor); // null to clear
 
 	/* timer API */
-	OPENWL_API wl_TimerRef CDECL wl_TimerCreate(wl_WindowRef window, int timerID, unsigned int msTimeout);
+	OPENWL_API wl_TimerRef CDECL wl_TimerCreate(unsigned int msTimeout, void *userData);
 	OPENWL_API void CDECL wl_TimerDestroy(wl_TimerRef timer);
 
 	/* action API */

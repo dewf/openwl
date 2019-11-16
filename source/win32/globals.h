@@ -14,6 +14,8 @@
 extern HINSTANCE hInstance; // set by DllMain
 extern const WCHAR *szWindowClass;
 
+extern DWORD mainThreadID;
+
 enum Win32MessageEnum {
     Nothing = WM_USER,
     WM_MainThreadExecMsg,

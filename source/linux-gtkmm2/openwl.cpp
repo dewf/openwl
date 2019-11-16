@@ -159,19 +159,16 @@ OPENWL_API void CDECL wl_WindowSetCursor(wl_WindowRef window, wl_CursorRef curso
 /** TIMER API **/
 /***************/
 
-OPENWL_API wl_TimerRef CDECL wl_TimerCreate(wl_WindowRef window, int timerID, unsigned int msTimeout)
+OPENWL_API wl_TimerRef CDECL wl_TimerCreate(unsigned int msTimeout, void *userData)
 {
     auto timer = new wl_Timer;
-    timer->window = window;
-    timer->timerID = timerID;
+    timer->userData = userData;
     clock_gettime(CLOCK_MONOTONIC, &timer->lastTime);
 
-    auto slot = sigc::bind(sigc::mem_fun(*window, &wl_Window::on_timer_timeout), timer);
+    auto slot = sigc::mem_fun(*timer, &wl_Timer::on_timer_timeout);
     timer->conn = Glib::signal_timeout().connect(slot, msTimeout);
 
     timer->connected = true;
-
-    window->insertTimer(timer);
 
     return timer;
 }
@@ -179,9 +176,8 @@ OPENWL_API wl_TimerRef CDECL wl_TimerCreate(wl_WindowRef window, int timerID, un
 OPENWL_API void CDECL wl_TimerDestroy(wl_TimerRef timer)
 {
     delete timer;
-    printf("deleted timer %p - %d\n", timer, timer->timerID);
+    printf("deleted timer %p\n", timer);
 }
-
 
 /********************/
 /**** action API ****/

@@ -3,6 +3,7 @@
 //
 
 #include "private_defs.h"
+#include "util.h"
 
 #include <cstring>
 
@@ -78,4 +79,26 @@ bool wl_DropData::getFiles(const struct wl_Files **outFiles)
 }
 
 
+bool wl_Timer::on_timer_timeout() {
+    EventFrame ef(nullptr);
+    auto event = &ef.wlEvent;
+    event->eventType = wl_kEventTypeTimer;
+    event->timerEvent.timer = this;
+    event->timerEvent.userData = userData;
+    event->timerEvent.stopTimer = false;
 
+    timespec now{};
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    event->timerEvent.secondsSinceLast = timespecDiff(now, lastTime);
+
+    event->handled = false;
+    eventCallback(nullptr, event, nullptr); // null for both window and userdata args - these are app-global events
+
+    lastTime = now;
+
+    if (event->timerEvent.stopTimer) {
+        return false; // disconnect (but don't delete)
+    } else {
+        return true; // continue by default
+    }
+}
