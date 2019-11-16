@@ -60,7 +60,6 @@ inline double timespecDiff(mach_timespec_t newer, mach_timespec_t older) {
     }
 }
 - (void)stopTimer {
-    printf("stopping timer %p\n", self);
     [nsTimer invalidate];
 }
 @end
