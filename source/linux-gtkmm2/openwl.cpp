@@ -176,7 +176,6 @@ OPENWL_API wl_TimerRef CDECL wl_TimerCreate(unsigned int msTimeout, void *userDa
 OPENWL_API void CDECL wl_TimerDestroy(wl_TimerRef timer)
 {
     delete timer;
-    printf("deleted timer %p\n", timer);
 }
 
 /********************/
