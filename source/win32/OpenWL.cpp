@@ -18,8 +18,6 @@
 #include <Ole2.h>
 #include "dragdrop/dropsource.h"
 
-#include <boost/algorithm/string/join.hpp>
-
 #include "globals.h"
 #include "private_defs.h" // content for all the opaque API types
 
@@ -461,6 +459,21 @@ OPENWL_API wl_ActionRef CDECL wl_ActionCreate(int id, const char *label, wl_Icon
 	return retAction;
 }
 
+std::string joinParts(std::vector<std::string> parts, const char *delimiter) {
+	std::string res;
+
+	size_t numParts = parts.size();
+	int i = 0;
+	for (auto p = parts.begin(); p != parts.end(); p++, i++) {
+		res.append(*p);
+		if (i < numParts - 1) { // final element doesn't receive delimiter
+			res.append(delimiter);
+		}
+	}
+
+	return res;
+}
+
 std::string accelToString(wl_AcceleratorRef accel) {
 	std::vector<std::string> parts;
 	if (accel->modifiers & wl_kModifierControl)
@@ -471,10 +484,13 @@ std::string accelToString(wl_AcceleratorRef accel) {
 		parts.push_back("Shift");
 	//
 	auto stringRep = reverseKeyMap[accel->key]->stringRep;
-	parts.push_back(upperCased(stringRep));
+	
+	//parts.push_back(upperCased(stringRep)); // for the time being, no need to do this - we're only allowing known A-Za-z0-9 keys as accelerators
+											  // might have something to do with the "lookup at runtime" thing for getting the string representation of a key? been a long time
+	 
+	parts.push_back(stringRep);
 	//
-	auto joined = boost::algorithm::join(parts, "+");
-	return joined;
+	return joinParts(parts, "+");
 }
 
 wl_MenuItemRef wl_MenuAddAction(wl_MenuRef menu, wl_ActionRef action)

@@ -1,29 +1,31 @@
 #include "unicodestuff.h"
 
-#include <unicode/unistr.h>
-#include <boost/locale/encoding_utf.hpp>
-//#include <boost/locale.hpp>
-
-using boost::locale::conv::utf_to_utf;
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#include <assert.h>
 
 std::wstring utf8_to_wstring(const std::string &str) {
-	return utf_to_utf<wchar_t>(str.c_str(), str.c_str() + str.size());
+	auto bufferSize = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
+	assert(bufferSize != 0);
+	
+	auto buffer = new wchar_t[bufferSize];
+	MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, buffer, bufferSize);
+
+	auto ret = std::wstring(buffer);
+	delete[] buffer;
+
+	return ret;
 }
 
 std::string wstring_to_utf8(const std::wstring &str) {
-	return utf_to_utf<char>(str.c_str(), str.c_str() + str.size());
+	auto bufferSize = WideCharToMultiByte(CP_UTF8, 0, str.c_str(), -1, NULL, 0, NULL, NULL);
+	assert(bufferSize != 0);
+
+	auto buffer = new char[bufferSize];
+	WideCharToMultiByte(CP_UTF8, 0, str.c_str(), -1, buffer, bufferSize, NULL, NULL);
+
+	auto ret = std::string(buffer);
+	delete[] buffer;
+
+	return ret;
 }
-
-// see here what is required for this to work: https://stackoverflow.com/questions/26990412/c-boost-crashes-while-using-locale
-//std::string upperCased(std::string input) {
-//    return boost::locale::to_upper(input);
-//}
-
-std::string upperCased(std::string input) {
-	std::string output;
-	auto uni = icu::UnicodeString::fromUTF8(input);
-	auto upped = uni.toUpper();
-	upped.toUTF8String(output);
-	return output;
-}
-
