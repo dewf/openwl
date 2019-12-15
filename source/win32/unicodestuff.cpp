@@ -10,6 +10,7 @@ std::wstring utf8_to_wstring(const std::string &str) {
 	
 	auto buffer = new wchar_t[bufferSize];
 	MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, buffer, bufferSize);
+	assert(buffer[bufferSize - 1] == 0); // let's be certain ...
 
 	auto ret = std::wstring(buffer);
 	delete[] buffer;
@@ -23,6 +24,7 @@ std::string wstring_to_utf8(const std::wstring &str) {
 
 	auto buffer = new char[bufferSize];
 	WideCharToMultiByte(CP_UTF8, 0, str.c_str(), -1, buffer, bufferSize, NULL, NULL);
+	assert(buffer[bufferSize - 1] == 0); // let's be certain ...
 
 	auto ret = std::string(buffer);
 	delete[] buffer;
