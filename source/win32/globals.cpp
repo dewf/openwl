@@ -3,11 +3,13 @@
 #include "private_defs.h"
 #include <cassert>
 
-HINSTANCE hInstance = NULL; // set by DllMain
-const WCHAR *szWindowClass = L"OpenWLTopLevel";
+HINSTANCE hInstance = NULL; // set by DllMain - need to find a way to set it for static library compilation as well
+const WCHAR *topLevelWindowClass = L"OpenWLTopLevel";
+const WCHAR *appGlobalWindowClass = L"OpenWLAppGlobal";
 
 DWORD mainThreadID;
-HHOOK messageHook; // for intercepting thread messages in (some) modal situations
+
+HWND appGlobalWindow;
 
 // globals
 std::map<int, wl_ActionRef> actionMap;

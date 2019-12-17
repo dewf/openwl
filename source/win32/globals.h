@@ -12,10 +12,12 @@
 #include "../openwl.h"
 
 extern HINSTANCE hInstance; // set by DllMain
-extern const WCHAR *szWindowClass;
+extern const WCHAR *topLevelWindowClass;
+extern const WCHAR *appGlobalWindowClass;
 
 extern DWORD mainThreadID;
-extern HHOOK messageHook; // for intercepting thread messages in (some) modal situations
+
+extern HWND appGlobalWindow; // for receiving messages that don't belong to any window (see comments at point of creation for more)
 
 enum Win32MessageEnum: UINT {
     Nothing = WM_USER,

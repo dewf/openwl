@@ -34,13 +34,13 @@
 void RegisterDropWindow(wl_WindowRef window, IDropTarget **ppDropTarget);
 void UnregisterDropWindow(wl_WindowRef window, IDropTarget *pDropTarget);
 
-void registerWindowClass() {
+void registerWindowClass(const WCHAR *windowClass, WNDPROC windowProc) {
 	WNDCLASSEXW wcex;
 
 	wcex.cbSize = sizeof(WNDCLASSEX);
 
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc = WndProc;
+	wcex.lpfnWndProc = windowProc;
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
 	wcex.hInstance = hInstance;
@@ -48,13 +48,13 @@ void registerWindowClass() {
 	wcex.hCursor = NULL; // LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground = NULL; // (HBRUSH)(COLOR_WINDOW + 1);
 	wcex.lpszMenuName = NULL; // MAKEINTRESOURCEW(IDR_MENU1);
-	wcex.lpszClassName = szWindowClass;
+	wcex.lpszClassName = windowClass;
 	wcex.hIconSm = NULL; // LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
 	RegisterClassExW(&wcex);
 }
 
-LRESULT CALLBACK threadMessageHook(int code, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK appGlobalWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 OPENWL_API int CDECL wl_Init(wl_EventCallback callback, struct wl_PlatformOptions *options) {
 	initKeyMap();
@@ -62,7 +62,8 @@ OPENWL_API int CDECL wl_Init(wl_EventCallback callback, struct wl_PlatformOption
 	mainThreadID = GetCurrentThreadId();
 
 	eventCallback = callback;
-	registerWindowClass();
+	registerWindowClass(topLevelWindowClass, topLevelWindowProc);
+	registerWindowClass(appGlobalWindowClass, appGlobalWindowProc);
 
 	acceleratorList.clear();
 
@@ -85,12 +86,11 @@ OPENWL_API int CDECL wl_Init(wl_EventCallback callback, struct wl_PlatformOption
     QueryPerformanceFrequency(&perfCounterTicksPerSecond);
     printf("perf counter freq: %lld\n", perfCounterTicksPerSecond.QuadPart);
 
-	// hooks for processing background events (exec-on-main-thread / timer events) when stuck in a modal message loop
-	//  eg drag-n-drop, dragging the window (WM_ENTERSIZEMOVE/WM_EXITSIZEMOVE), etc
-	messageHook = SetWindowsHookEx(WH_GETMESSAGE, &threadMessageHook, NULL, mainThreadID);
-	if (!messageHook) {
-		printf("SetWindowsHookEx failed\n");
-	}
+	// for receiving messages that don't belong to any window:
+	// see: https://devblogs.microsoft.com/oldnewthing/20050426-18/?p=35783 "Thread messages are eaten by modal loops"
+	// and: https://devblogs.microsoft.com/oldnewthing/?p=16553 "Why do messages posted by PostThreadMessage disappear?"
+	// note 'HWND_MESSAGE' parent, for message-only windows
+	appGlobalWindow = CreateWindow(appGlobalWindowClass, L"(app global)", WS_OVERLAPPED, 0, 0, 10, 10, HWND_MESSAGE, NULL, hInstance, NULL);
 
 	// any "module" inits here ====
 
@@ -99,17 +99,11 @@ OPENWL_API int CDECL wl_Init(wl_EventCallback callback, struct wl_PlatformOption
 	return 0;
 }
 
-
-
 void wl_Shutdown() {
     if (useDirect2D) {
         d2dFactory->Release();
     }
 	OleUninitialize();
-
-	if (messageHook) {
-		UnhookWindowsHookEx(messageHook);
-	}
 }
 
 void calcChromeExtra(int *extraWidth, int *extraHeight, DWORD dwStyle, BOOL hasMenu) {
@@ -161,7 +155,7 @@ wl_WindowRef wl_WindowCreate(int width, int height, const char *title, void *use
 	HWND hWnd = NULL;
 	if (isPluginWindow)
 	{
-		hWnd = CreateWindowW(szWindowClass, wideTitle.c_str(), dwStyle,
+		hWnd = CreateWindowW(topLevelWindowClass, wideTitle.c_str(), dwStyle,
 			0, 0,
 			width, height, props->nativeParent, nullptr, hInstance, nullptr);
 	}
@@ -171,7 +165,7 @@ wl_WindowRef wl_WindowCreate(int width, int height, const char *title, void *use
 
 		auto exStyle = (dwStyle & WS_POPUP) ? WS_EX_TOOLWINDOW : 0; // no taskbar button plz
 
-		hWnd = CreateWindowExW(exStyle, szWindowClass, wideTitle.c_str(), dwStyle,
+		hWnd = CreateWindowExW(exStyle, topLevelWindowClass, wideTitle.c_str(), dwStyle,
 			CW_USEDEFAULT, CW_USEDEFAULT,
 			width + extraWidth, height + extraHeight, nullptr, nullptr, hInstance, nullptr);
 	}
@@ -345,13 +339,11 @@ OPENWL_API size_t CDECL wl_WindowGetOSHandle(wl_WindowRef window)
 
 VOID CALLBACK timerCallback(_In_ PVOID lpParameter, _In_ BOOLEAN TimerOrWaitFired) {
 	wl_TimerRef timer = (wl_TimerRef)lpParameter;
-	PostThreadMessage(mainThreadID, WM_WLTimerMessage, 0, (LPARAM)timer);
+	PostMessage(appGlobalWindow, WM_WLTimerMessage, 0, (LPARAM)timer);
 }
 
 OPENWL_API wl_TimerRef CDECL wl_TimerCreate(unsigned int msTimeout, void *userData)
 {
-	// requires a window because it has userdat and other stuff  ...
-	// which I guess we could put into a wl_TimerRef structure, but then we have multiple types of userdata ...
 	wl_TimerRef timer = new wl_Timer;
 	timer->id = nextTimerID++;
 	timer->userData = userData;
@@ -755,28 +747,6 @@ OPENWL_API void CDECL wl_DragRenderFormat(wl_RenderPayloadRef payload, const cha
 
 /******* MISC STUFF ******/
 
-LRESULT CALLBACK threadMessageHook(int code, WPARAM wParam, LPARAM lParam) {
-	if (code == HC_ACTION) {
-		auto msg = (MSG *)lParam;
-		bool removed = (wParam == PM_REMOVE);
-		if (removed && msg->message >= Win32MessageEnum::AppGlobalMsgBegin) {
-			switch (msg->message) {
-			case WM_WLTimerMessage:
-				processTimerMessage(msg->message, msg->wParam, msg->lParam);
-				break;
-			case WM_WLMainThreadExecMsg:
-				ExecuteMainItem((MainThreadExecItem *)msg->lParam);
-				break;
-			default:
-				break; // unknown?
-			}
-		}
-		// if we try to handled !removed ... crashes when opening a menu. why?
-		//  (but that also makes it work during drag-n-drop, sigh)
-	}
-	return CallNextHookEx(NULL, code, wParam, lParam);
-}
-
 static std::mutex execMutex;
 
 void ExecuteMainItem(MainThreadExecItem *item) {
@@ -791,7 +761,7 @@ OPENWL_API void CDECL wl_ExecuteOnMainThread(wl_VoidCallback callback, void *dat
 	std::condition_variable cond;
 	
 	MainThreadExecItem item = { callback, data, cond };
-	PostThreadMessage(mainThreadID, WM_WLMainThreadExecMsg, 0, (LPARAM)&item); // safe to pass a pointer to item, because this function doesn't exit until it's done
+	PostMessage(appGlobalWindow, WM_WLMainThreadExecMsg, 0, (LPARAM)&item); // safe to pass a pointer to item, because this function doesn't exit until it's done
 
 	// block until it's done executing
 	cond.wait(lock);
@@ -865,4 +835,26 @@ OPENWL_API void CDECL wl_WindowSetCursor(wl_WindowRef window, wl_CursorRef curso
 			}
 		}
 	}
+}
+
+// app-global window proc
+// just easier to put it here since it uses methods above, without having to declare them in yet another .h file
+LRESULT CALLBACK appGlobalWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	if (hWnd == appGlobalWindow) {
+		switch (message) {
+		case WM_WLTimerMessage:
+			processTimerMessage(message, wParam, lParam);
+			break;
+		case WM_WLMainThreadExecMsg:
+			ExecuteMainItem((MainThreadExecItem *)lParam);
+			break;
+		default:
+			return DefWindowProc(hWnd, message, wParam, lParam);
+		}
+	}
+	else {
+		return DefWindowProc(hWnd, message, wParam, lParam);
+	}
+	return 0;
 }
