@@ -15,6 +15,7 @@ extern HINSTANCE hInstance; // set by DllMain
 extern const WCHAR *szWindowClass;
 
 extern DWORD mainThreadID;
+extern HHOOK messageHook; // for intercepting thread messages in (some) modal situations
 
 enum Win32MessageEnum: UINT {
     Nothing = WM_USER,
@@ -41,7 +42,6 @@ void d2dCreateTarget(wl_WindowRef wlw);
 
 // fwd decls for wl_ExecuteOnMainThread
 struct MainThreadExecItem {
-
     wl_VoidCallback callback;
     void *data;
     std::condition_variable& execCond;

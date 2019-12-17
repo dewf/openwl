@@ -412,6 +412,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		//      by the sometimes-late "leave" event
 		break;
 
+	//case WM_ENTERSIZEMOVE:
+	//	printf("@@@ ENTER SIZE MOVE\n");
+	//	break;
+
+	//case WM_EXITSIZEMOVE:
+	//	printf("@@@ EXIT SIZE MOVE\n");
+	//	break;
+
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }

@@ -54,6 +54,7 @@ void registerWindowClass() {
 	RegisterClassExW(&wcex);
 }
 
+LRESULT CALLBACK threadMessageHook(int code, WPARAM wParam, LPARAM lParam);
 
 OPENWL_API int CDECL wl_Init(wl_EventCallback callback, struct wl_PlatformOptions *options) {
 	initKeyMap();
@@ -84,6 +85,13 @@ OPENWL_API int CDECL wl_Init(wl_EventCallback callback, struct wl_PlatformOption
     QueryPerformanceFrequency(&perfCounterTicksPerSecond);
     printf("perf counter freq: %lld\n", perfCounterTicksPerSecond.QuadPart);
 
+	// hooks for processing background events (exec-on-main-thread / timer events) when stuck in a modal message loop
+	//  eg drag-n-drop, dragging the window (WM_ENTERSIZEMOVE/WM_EXITSIZEMOVE), etc
+	messageHook = SetWindowsHookEx(WH_GETMESSAGE, &threadMessageHook, NULL, mainThreadID);
+	if (!messageHook) {
+		printf("SetWindowsHookEx failed\n");
+	}
+
 	// any "module" inits here ====
 
 	private_defs_init();
@@ -91,11 +99,17 @@ OPENWL_API int CDECL wl_Init(wl_EventCallback callback, struct wl_PlatformOption
 	return 0;
 }
 
+
+
 void wl_Shutdown() {
     if (useDirect2D) {
         d2dFactory->Release();
     }
 	OleUninitialize();
+
+	if (messageHook) {
+		UnhookWindowsHookEx(messageHook);
+	}
 }
 
 void calcChromeExtra(int *extraWidth, int *extraHeight, DWORD dwStyle, BOOL hasMenu) {
@@ -289,23 +303,14 @@ OPENWL_API int CDECL wl_Runloop() {
 		}
 		else
 		{
-			if (msg.message >= Win32MessageEnum::AppGlobalMsgBegin) {
-				switch (msg.message) {
-				case WM_WLTimerMessage:
-					processTimerMessage(msg.message, msg.wParam, msg.lParam);
-					break;
-				case WM_WLMainThreadExecMsg:
-					ExecuteMainItem((MainThreadExecItem *)msg.lParam);
-					break;
-				}
-			}
-			else {
-				// normal window message processing
-				if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-				{
-					TranslateMessage(&msg);
-					DispatchMessage(&msg);
-				}
+			// note that thread-only (windowless) messages such as WM_WLTimerMessage / WM_WLMainThreadExecMsg
+			//   are now being processed in a message hook (see wl_Init for that).
+			//   (because otherwise they won't be processed during modal events, like dragging the window, or DnD
+			// normal window message processing
+			if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
 			}
 		}
 	}
@@ -463,7 +468,7 @@ std::string joinParts(std::vector<std::string> parts, const char *delimiter) {
 	std::string res;
 
 	size_t numParts = parts.size();
-	int i = 0;
+	size_t i = 0;
 	for (auto p = parts.begin(); p != parts.end(); p++, i++) {
 		res.append(*p);
 		if (i < numParts - 1) { // final element doesn't receive delimiter
@@ -750,11 +755,32 @@ OPENWL_API void CDECL wl_DragRenderFormat(wl_RenderPayloadRef payload, const cha
 
 /******* MISC STUFF ******/
 
+LRESULT CALLBACK threadMessageHook(int code, WPARAM wParam, LPARAM lParam) {
+	if (code == HC_ACTION) {
+		auto msg = (MSG *)lParam;
+		bool removed = (wParam == PM_REMOVE);
+		if (removed && msg->message >= Win32MessageEnum::AppGlobalMsgBegin) {
+			switch (msg->message) {
+			case WM_WLTimerMessage:
+				processTimerMessage(msg->message, msg->wParam, msg->lParam);
+				break;
+			case WM_WLMainThreadExecMsg:
+				ExecuteMainItem((MainThreadExecItem *)msg->lParam);
+				break;
+			default:
+				break; // unknown?
+			}
+		}
+		// if we try to handled !removed ... crashes when opening a menu. why?
+		//  (but that also makes it work during drag-n-drop, sigh)
+	}
+	return CallNextHookEx(NULL, code, wParam, lParam);
+}
+
 static std::mutex execMutex;
 
 void ExecuteMainItem(MainThreadExecItem *item) {
 	std::lock_guard<std::mutex> lock(execMutex);
-	//
 	item->callback(item->data);
 	item->execCond.notify_one();
 }

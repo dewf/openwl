@@ -7,6 +7,7 @@ HINSTANCE hInstance = NULL; // set by DllMain
 const WCHAR *szWindowClass = L"OpenWLTopLevel";
 
 DWORD mainThreadID;
+HHOOK messageHook; // for intercepting thread messages in (some) modal situations
 
 // globals
 std::map<int, wl_ActionRef> actionMap;
