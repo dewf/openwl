@@ -53,22 +53,22 @@ wl_TimerRef fastTimer, slowTimer;
 
 wl_WindowRef mainWindow;
 wl_WindowRef framelessWindow;
-//bool framelessWindowVisible = false;
-//
-//wl_CursorRef customCursor;
-//
-//bool dragging = false;
-//int dragStartX, dragStartY;
-//
-//bool grabbed = false;
-//
-//bool pointInRect(int px, int py, int x, int y, int w, int h) {
-//	return (px >= x && px < (x + w) && py >= y && py < (y + h));
-//}
-//float pointDist(int x1, int y1, int x2, int y2) {
-//	return (float)sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-//}
-//
+bool framelessWindowVisible = false;
+
+wl_CursorRef customCursor;
+
+bool dragging = false;
+int dragStartX, dragStartY;
+
+bool grabbed = false;
+
+bool pointInRect(int px, int py, int x, int y, int w, int h) {
+	return (px >= x && px < (x + w) && py >= y && py < (y + h));
+}
+float pointDist(int x1, int y1, int x2, int y2) {
+	return (float)sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+}
+
 //inline bool strEqual(const char *a, const char *b) {
 //	return !strcmp(a, b);
 //}
@@ -160,97 +160,97 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 		}
 		break;
 
-//	case wl_kEventTypeMouse:
-//	{
-//		if (window != mainWindow) break;
-//
-//		if (event->mouseEvent.eventType == wl_kMouseEventTypeMouseDown) {
-//			if (event->mouseEvent.button == wl_kMouseButtonLeft) {
-//				if (pointInRect(event->mouseEvent.x, event->mouseEvent.y, DRAG_SOURCE_X, DRAG_SOURCE_Y, DRAG_SOURCE_W, DRAG_SOURCE_H)) {
-//					// start drag, save position
-//					dragging = true;
-//					dragStartX = event->mouseEvent.x;
-//					dragStartY = event->mouseEvent.y;
-//					printf("(potentially) starting drag...\n");
-//				} else {
-//				    // begin grab
-//				    wl_MouseGrab(mainWindow);
-//				    grabbed = true;
-//				}
-//			}
-//			else if (event->mouseEvent.button == wl_kMouseButtonRight) {
-//				printf("mouse down event, button %d @ %d,%d\n", event->mouseEvent.button, event->mouseEvent.x, event->mouseEvent.y);
-//				wl_WindowShowContextMenu(window, event->mouseEvent.x, event->mouseEvent.y, contextMenu, event);
-//			}
-//		}
-//		else if (event->mouseEvent.eventType == wl_kMouseEventTypeMouseUp) {
-//		    if (event->mouseEvent.button == wl_kMouseButtonLeft) {
-//                dragging = false;
-//                if (grabbed) {
-//                    printf("ending grab\n");
-//                    wl_MouseUngrab();
-//                    grabbed = false;
-//                }
-//		    }
-//		}
-//		else if (event->mouseEvent.eventType == wl_kMouseEventTypeMouseMove) {
-//			// if dragging ...
-//			if (dragging) {
-//				if (pointDist(dragStartX, dragStartY, event->mouseEvent.x, event->mouseEvent.y) > 4.0) {
-//					auto dragData = wl_DragDataCreate(window);
-//
-//					wl_DragAddFormat(dragData, wl_kDragFormatUTF8);
-//					//                    wl_DragAddFormat(dragData, wlDragFormatFiles);
-//
-//					printf("starting drag ...\n");
-//					auto whichAction = wl_DragExec(dragData, wl_kDropEffectCopy | wl_kDropEffectMove | wl_kDropEffectLink, event);
-//					printf("selected dragexec action: %d\n", whichAction);
-//                    dragging = false;
-//					wl_DragDataRelease(&dragData);
-//					printf("drag complete\n");
-//				}
-//			} else if (grabbed) {
-//			    // just print coords to verify grab
-//			    printf("(grabbed) move event: %d,%d\n", event->mouseEvent.x, event->mouseEvent.y);
-//			} else {
-//			    // neither dragging nor grabbing
-//
-//                // frameless hover updates
-//                if (pointInRect(event->mouseEvent.x, event->mouseEvent.y, HOVER_HERE_X, HOVER_HERE_Y, HOVER_HERE_W, HOVER_HERE_H)) {
-//                    // show/move no matter what
-//                    auto x2 = event->mouseEvent.x - POPUP_WIDTH / 2;
-//                    auto y2 = event->mouseEvent.y - (POPUP_HEIGHT + 50);
-//                    wl_WindowShowRelative(framelessWindow, mainWindow, x2, y2, 0, 0);
-//                    framelessWindowVisible = true;
-//
-//                    // set custom cursor
-//                    wl_WindowSetCursor(mainWindow, customCursor);
-//                }
-//                else {
-//                    if (framelessWindowVisible) {
-//                        wl_WindowHide(framelessWindow);
-//                        framelessWindowVisible = false;
-//                    }
-//                    // clear custom cursor
-//                    wl_WindowSetCursor(mainWindow, nullptr);
-//                }
-//			}
-//		}
-//		else if (event->mouseEvent.eventType == wl_kMouseEventTypeMouseEnter) {
-//			printf("==> mouse entered window\n");
-//		}
-//		else if (event->mouseEvent.eventType == wl_kMouseEventTypeMouseLeave) {
-//			printf("<== mouse left window\n");
-//		}
-//		else if (event->mouseEvent.eventType == wl_kMouseEventTypeMouseWheel) {
-//			printf("[mouse wheel: %s delta %d @ %d,%d]\n", 
-//				(event->mouseEvent.wheelAxis == wl_kMouseWheelAxisHorizontal) ? "HORIZ" : "VERT",
-//				event->mouseEvent.wheelDelta, event->mouseEvent.x, event->mouseEvent.y);
-//		}
-//
-//		break;
-//	}
-//
+	case wl_kEventTypeMouse:
+	{
+		if (window != mainWindow) break;
+
+		if (event->mouseEvent.eventType == wl_kMouseEventTypeMouseDown) {
+			//if (event->mouseEvent.button == wl_kMouseButtonLeft) {
+			//	if (pointInRect(event->mouseEvent.x, event->mouseEvent.y, DRAG_SOURCE_X, DRAG_SOURCE_Y, DRAG_SOURCE_W, DRAG_SOURCE_H)) {
+			//		// start drag, save position
+			//		dragging = true;
+			//		dragStartX = event->mouseEvent.x;
+			//		dragStartY = event->mouseEvent.y;
+			//		printf("(potentially) starting drag...\n");
+			//	} else {
+			//	    // begin grab
+			//	    wl_MouseGrab(mainWindow);
+			//	    grabbed = true;
+			//	}
+			//}
+			//else if (event->mouseEvent.button == wl_kMouseButtonRight) {
+			//	printf("mouse down event, button %d @ %d,%d\n", event->mouseEvent.button, event->mouseEvent.x, event->mouseEvent.y);
+			//	wl_WindowShowContextMenu(window, event->mouseEvent.x, event->mouseEvent.y, contextMenu, event);
+			//}
+		}
+		else if (event->mouseEvent.eventType == wl_kMouseEventTypeMouseUp) {
+		    //if (event->mouseEvent.button == wl_kMouseButtonLeft) {
+      //          dragging = false;
+      //          if (grabbed) {
+      //              printf("ending grab\n");
+      //              wl_MouseUngrab();
+      //              grabbed = false;
+      //          }
+		    //}
+		}
+		else if (event->mouseEvent.eventType == wl_kMouseEventTypeMouseMove) {
+			// if dragging ...
+			if (dragging) {
+				//if (pointDist(dragStartX, dragStartY, event->mouseEvent.x, event->mouseEvent.y) > 4.0) {
+				//	auto dragData = wl_DragDataCreate(window);
+
+				//	wl_DragAddFormat(dragData, wl_kDragFormatUTF8);
+				//	//                    wl_DragAddFormat(dragData, wlDragFormatFiles);
+
+				//	printf("starting drag ...\n");
+				//	auto whichAction = wl_DragExec(dragData, wl_kDropEffectCopy | wl_kDropEffectMove | wl_kDropEffectLink, event);
+				//	printf("selected dragexec action: %d\n", whichAction);
+    //                dragging = false;
+				//	wl_DragDataRelease(&dragData);
+				//	printf("drag complete\n");
+				//}
+			} else if (grabbed) {
+			    // just print coords to verify grab
+			    printf("(grabbed) move event: %d,%d\n", event->mouseEvent.x, event->mouseEvent.y);
+			} else {
+			    // neither dragging nor grabbing
+
+                // frameless hover updates
+                if (pointInRect(event->mouseEvent.x, event->mouseEvent.y, HOVER_HERE_X, HOVER_HERE_Y, HOVER_HERE_W, HOVER_HERE_H)) {
+                    // show/move no matter what
+                    auto x2 = event->mouseEvent.x - POPUP_WIDTH / 2;
+                    auto y2 = event->mouseEvent.y - (POPUP_HEIGHT + 50);
+                    wl_WindowShowRelative(framelessWindow, mainWindow, x2, y2, 0, 0);
+                    framelessWindowVisible = true;
+
+                    // set custom cursor
+                    wl_WindowSetCursor(mainWindow, customCursor);
+                }
+                else {
+                    if (framelessWindowVisible) {
+                        wl_WindowHide(framelessWindow);
+                        framelessWindowVisible = false;
+                    }
+                    // clear custom cursor
+                    wl_WindowSetCursor(mainWindow, nullptr);
+                }
+			}
+		}
+		else if (event->mouseEvent.eventType == wl_kMouseEventTypeMouseEnter) {
+			printf("==> mouse entered window\n");
+		}
+		else if (event->mouseEvent.eventType == wl_kMouseEventTypeMouseLeave) {
+			printf("<== mouse left window\n");
+		}
+		else if (event->mouseEvent.eventType == wl_kMouseEventTypeMouseWheel) {
+			printf("[mouse wheel: %s delta %d @ %d,%d]\n", 
+				(event->mouseEvent.wheelAxis == wl_kMouseWheelAxisHorizontal) ? "HORIZ" : "VERT",
+				event->mouseEvent.wheelDelta, event->mouseEvent.x, event->mouseEvent.y);
+		}
+
+		break;
+	}
+
 //	case wl_kEventTypeKey:
 //		switch (event->keyEvent.eventType) {
 //		case wl_kKeyEventTypeDown:
@@ -522,10 +522,10 @@ int main(int argc, const char * argv[]) {
 
 	mainWindow = wl_WindowCreate(width, height, u8"hello there, cross-platform friend āǢʥϢ۩ใ ♥☺☼", nullptr, &props);
 
-	//props = { 0 };
-	//props.usedFields = wl_kWindowPropStyle;
-	//props.style = wl_kWindowStyleFrameless;
-	//framelessWindow = wl_WindowCreate(POPUP_WIDTH, POPUP_HEIGHT, nullptr, nullptr, &props);
+	props = { 0 };
+	props.usedFields = wl_kWindowPropStyle;
+	props.style = wl_kWindowStyleFrameless;
+	framelessWindow = wl_WindowCreate(POPUP_WIDTH, POPUP_HEIGHT, nullptr, nullptr, &props);
 
 //	createMenu();
 
@@ -538,7 +538,7 @@ int main(int argc, const char * argv[]) {
 
 	platformCreateThreads(bgThreadFunc, NUM_THREADS);
 
-//	customCursor = wl_CursorCreate(wl_kCursorStyleResizeLeftRight);
+	customCursor = wl_CursorCreate(wl_kCursorStyleResizeLeftRight);
 
 	wl_WindowShow(mainWindow);
 

@@ -122,25 +122,31 @@ void platformDraw(wl_PlatformContext *platformContext) {
 
 void platformDrawFrameless(wl_PlatformContext *platformContext)
 {
-	//Gdiplus::Graphics target(platformContext->gdi.hdc);
+	Gdiplus::Graphics target(platformContext->gdi.hdc);
 
-	//// double buffer ...
-	//Gdiplus::Bitmap offScreenBuffer(POPUP_WIDTH, POPUP_HEIGHT, &target);
-	//Gdiplus::Graphics graphics(&offScreenBuffer);
-	//graphics.SetSmoothingMode(SmoothingModeAntiAlias);
-	//graphics.SetTextRenderingHint(TextRenderingHintAntiAlias);
+	DECLSF(platformContext->dpi);
 
-	////// ==========================
-	//RectF rect(0, 0, POPUP_WIDTH, POPUP_HEIGHT);
+	int pWidth = DPIUP(POPUP_WIDTH);
+	int pHeight = DPIUP(POPUP_HEIGHT);
 
-	//SolidBrush brush(Color::White);
-	//graphics.FillRectangle(&brush, rect);
+	// double buffer ...
+	Gdiplus::Bitmap offScreenBuffer(pWidth, pHeight, &target);
+	Gdiplus::Graphics graphics(&offScreenBuffer);
+	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
+	graphics.SetTextRenderingHint(TextRenderingHintAntiAlias);
 
-	//Gdiplus::Font font(L"Arial", 20.0);
-	//drawTextRect(graphics, font, L"HELLO!", (int)rect.X, (int)rect.Y, (int)rect.Width, (int)rect.Height, true);
+	//// ==========================
+	RectF rect(0, 0, (float)pWidth, (float)pHeight);
 
-	//// =============
-	//target.DrawImage(&offScreenBuffer, Rect(0, 0, POPUP_WIDTH, POPUP_HEIGHT));
+	SolidBrush brush(Color::White);
+	graphics.FillRectangle(&brush, rect);
+
+	Gdiplus::Font font(L"Arial", 20.0);
+	drawTextRect(platformContext->dpi, graphics, font, L"HELLO!", 0, 0, POPUP_WIDTH, POPUP_HEIGHT, true);
+		//(int)rect.X, (int)rect.Y, (int)rect.Width, (int)rect.Height, true);
+
+	// =============
+	target.DrawImage(&offScreenBuffer, Rect(0, 0, pWidth, pHeight));
 }
 
 void platformDrawBox(RandomBox *box) {

@@ -4,7 +4,11 @@
 #include "globals.h"
 #include "comstuff.h"
 
+#include "cursor.h"
+
 #include <ShellScalingApi.h>
+
+#include <windowsx.h> // for some macros (GET_X_LPARAM etc)
 
 #include <stdio.h>
 
@@ -19,6 +23,8 @@
 // fwd decls
 long getWindowStyle(wl_WindowProperties* props, bool isPluginWindow);
 void calcChromeExtra(int* extraWidth, int* extraHeight, DWORD dwStyle, BOOL hasMenu, UINT dpi);
+unsigned int getKeyModifiers();
+unsigned int getMouseModifiers(WPARAM wParam);
 
 wl_Window::wl_Window()
 {
@@ -159,6 +165,26 @@ void wl_Window::show()
 	UpdateWindow(hWnd);
 }
 
+void wl_Window::showRelative(wl_WindowRef relativeTo, int x, int y, int newWidth, int newHeight)
+{
+	DECLSF(dpi);
+	DPIUP_INPLACE(x);
+	DPIUP_INPLACE(y);
+	DPIUP_INPLACE(newWidth);
+	DPIUP_INPLACE(newHeight);
+
+	POINT p{ x, y };
+	ClientToScreen(relativeTo->hWnd, &p);
+	auto doSize = (newWidth > 0 && newHeight > 0);
+	auto flags = (doSize ? 0 : SWP_NOSIZE) | SWP_SHOWWINDOW | SWP_NOACTIVATE;
+	SetWindowPos(hWnd, HWND_TOP, p.x, p.y, newWidth, newHeight, flags);
+}
+
+void wl_Window::hide()
+{
+	ShowWindow(hWnd, SW_HIDE);
+}
+
 void wl_Window::invalidate(int x, int y, int width, int height)
 {
 	DECLSF(dpi);
@@ -172,6 +198,24 @@ void wl_Window::invalidate(int x, int y, int width, int height)
 	}
 	else {
 		InvalidateRect(hWnd, nullptr, FALSE); // entire window
+	}
+}
+
+void wl_Window::setCursor(wl_CursorRef cursor)
+{
+	if (mouseInWindow) { // only makes sense to set when it's inside - gets reset when it leaves/re-enters anyway
+		if (this->cursor != cursor) { // only set on change
+			if (cursor) {
+				// actually set
+				cursor->set();
+				this->cursor = cursor;
+			}
+			else {
+				// clear
+				wl_Cursor::defaultCursor->set();
+				this->cursor = nullptr;
+			}
+		}
 	}
 }
 
@@ -274,6 +318,69 @@ void wl_Window::onPaint(wl_Event& event)
 	EndPaint(hWnd, &ps);
 }
 
+void wl_Window::onMouseMove(wl_Event& event, WPARAM wParam, LPARAM lParam, bool *ignored)
+{
+	DECLSF(dpi);
+
+	if (ignorePostGrabMove) {
+		// we just ungrabbed this window, so ignore 1 move message
+		ignorePostGrabMove = false;
+		*ignored = true;
+		return;
+	}
+	event.eventType = wl_kEventTypeMouse;
+	event.mouseEvent.x = DPIDOWN(GET_X_LPARAM(lParam));
+	event.mouseEvent.y = DPIDOWN(GET_Y_LPARAM(lParam));
+	event.mouseEvent.modifiers = getMouseModifiers(wParam);
+
+	if (!mouseInWindow) {
+		// we must set a cursor since our WNDCLASS isn't allowed to have a default
+		//    (a class default prevents ad-hoc cursors entirely)
+		// (otherwise we'll get random junk coming in from outside)
+		// note this also MUST happen before sending the synthetic enter event,
+		//  because said event might very well set the mouse cursor, and we'd just be negating it
+		setCursor(wl_Cursor::defaultCursor);
+		//wl_Cursor::setDefault();
+		//cursor = nullptr;
+		//SetCursor(defaultCursor);
+		//wlw->cursor = nullptr;
+
+		// set the mouse-in-window flag now because some API calls (eg wl_WindowSetCursor) called by event handlers may require it ASAP
+		mouseInWindow = true;
+
+		// synthesize an "enter" event before the 1st move event sent
+		event.mouseEvent.eventType = wl_kMouseEventTypeMouseEnter;
+		eventCallback(this, &event, userData);
+
+		// indicate that we want a WM_MOUSELEAVE event to balance this
+		// TODO: can't recall, does this need to be canceled elsewhere?
+		TRACKMOUSEEVENT tme;
+		tme.cbSize = sizeof(TRACKMOUSEEVENT);
+		tme.hwndTrack = hWnd;
+		tme.dwFlags = TME_LEAVE;
+		tme.dwHoverTime = HOVER_DEFAULT;
+		TrackMouseEvent(&tme);
+
+		event.handled = false; // reset for next dispatch below
+	}
+
+	// set event type down here because might have to overwrite after branch above
+	event.mouseEvent.eventType = wl_kMouseEventTypeMouseMove;
+
+	eventCallback(this, &event, userData);
+}
+
+void wl_Window::onMouseLeave(wl_Event& event)
+{
+	event.eventType = wl_kEventTypeMouse;
+	event.mouseEvent.eventType = wl_kMouseEventTypeMouseLeave;
+	// no other values come with event
+
+	mouseInWindow = false;
+
+	eventCallback(this, &event, userData);
+}
+
 // misc util funcs =================================================================
 
 long getWindowStyle(wl_WindowProperties* props, bool isPluginWindow) {
@@ -309,4 +416,21 @@ void calcChromeExtra(int* extraWidth, int* extraHeight, DWORD dwStyle, BOOL hasM
 
 	*extraWidth = (rect.right - rect.left) - arbitraryExtent;  // left and top will be negative, hence the subtraction (right - left) = outer width
 	*extraHeight = (rect.bottom - rect.top) - arbitraryExtent; // bottom - top = outer height
+}
+
+unsigned int getKeyModifiers() {
+	unsigned int modifiers = 0;
+	modifiers |= (GetKeyState(VK_CONTROL) & 0x8000) ? wl_kModifierControl : 0;
+	modifiers |= (GetKeyState(VK_MENU) & 0x8000) ? wl_kModifierAlt : 0;
+	modifiers |= (GetKeyState(VK_SHIFT) & 0x8000) ? wl_kModifierShift : 0;
+	return modifiers;
+}
+
+unsigned int getMouseModifiers(WPARAM wParam) {
+	unsigned int modifiers = 0;
+	auto fwKeys = GET_KEYSTATE_WPARAM(wParam);
+	modifiers |= (fwKeys & MK_CONTROL) ? wl_kModifierControl : 0;
+	modifiers |= (fwKeys & MK_SHIFT) ? wl_kModifierShift : 0;
+	modifiers |= (fwKeys & MK_ALT) ? wl_kModifierAlt : 0;
+	return modifiers;
 }

@@ -162,6 +162,7 @@
     <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\source\win32-hidpi\cursor.cpp" />
     <ClCompile Include="..\..\..\source\win32-hidpi\dllmain.cpp" />
     <ClCompile Include="..\..\..\source\win32-hidpi\globals.cpp" />
     <ClCompile Include="..\..\..\source\win32-hidpi\openwl.cpp" />
@@ -175,6 +176,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\source\openwl.h" />
     <ClInclude Include="..\..\..\source\win32-hidpi\comstuff.h" />
+    <ClInclude Include="..\..\..\source\win32-hidpi\cursor.h" />
     <ClInclude Include="..\..\..\source\win32-hidpi\globals.h" />
     <ClInclude Include="..\..\..\source\win32-hidpi\private_defs.h" />
     <ClInclude Include="..\..\..\source\win32-hidpi\timer.h" />

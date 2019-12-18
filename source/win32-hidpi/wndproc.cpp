@@ -16,23 +16,6 @@
 //#include <windowsx.h> // for some macros (GET_X_LPARAM etc)
 //#include <assert.h>
 //
-//unsigned int getKeyModifiers() {
-//    unsigned int modifiers = 0;
-//    modifiers |= (GetKeyState(VK_CONTROL) & 0x8000) ? wl_kModifierControl : 0;
-//    modifiers |= (GetKeyState(VK_MENU) & 0x8000) ? wl_kModifierAlt : 0;
-//    modifiers |= (GetKeyState(VK_SHIFT) & 0x8000) ? wl_kModifierShift : 0;
-//    return modifiers;
-//}
-//
-//unsigned int getMouseModifiers(WPARAM wParam) {
-//    unsigned int modifiers = 0;
-//    auto fwKeys = GET_KEYSTATE_WPARAM(wParam);
-//    modifiers |= (fwKeys & MK_CONTROL) ? wl_kModifierControl : 0;
-//    modifiers |= (fwKeys & MK_SHIFT) ? wl_kModifierShift : 0;
-//    modifiers |= (fwKeys & MK_ALT) ? wl_kModifierAlt : 0;
-//    return modifiers;
-//}
-
 // app-global window proc
 
 void ExecuteMainItem(MainThreadExecItem* item) {
@@ -285,52 +268,17 @@ LRESULT CALLBACK topLevelWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
     //    }
     //    break;
 
-    //case WM_MOUSEMOVE:
-    //    if (wlw->ignorePostGrabMove) {
-    //        // we just ungrabbed this window, so ignore 1 move message
-    //        wlw->ignorePostGrabMove = false;
-    //        return 0;
-    //    }
-    //    event.eventType = wl_kEventTypeMouse;
-    //    event.mouseEvent.x = GET_X_LPARAM(lParam);
-    //    event.mouseEvent.y = GET_Y_LPARAM(lParam);
-    //    event.mouseEvent.modifiers = getMouseModifiers(wParam);
-
-    //    if (!wlw->mouseInWindow) {
-    //        // we must set a cursor since our WNDCLASS isn't allowed to have a default
-    //        //    (a class default prevents ad-hoc cursors entirely)
-    //        // (otherwise we'll get random junk coming in from outside)
-    //        // note this also MUST happen before sending the synthetic enter event,
-    //        //  because said event might very well set the mouse cursor, and we'd just be negating it
-    //        SetCursor(defaultCursor);
-    //        wlw->cursor = nullptr;
-
-    //        // set the mouse-in-window flag now because some API calls (eg wl_WindowSetCursor) called by event handlers may require it ASAP
-    //        wlw->mouseInWindow = true;
-
-    //        // synthesize an "enter" event before the 1st move event sent
-    //        event.mouseEvent.eventType = wl_kMouseEventTypeMouseEnter;
-    //        eventCallback(wlw, &event, wlw->userData);
-
-    //        // indicate that we want a WM_MOUSELEAVE event to balance this
-    //        TRACKMOUSEEVENT tme;
-    //        tme.cbSize = sizeof(TRACKMOUSEEVENT);
-    //        tme.hwndTrack = hWnd;
-    //        tme.dwFlags = TME_LEAVE;
-    //        tme.dwHoverTime = HOVER_DEFAULT;
-    //        TrackMouseEvent(&tme);
-
-    //        event.handled = false; // reset for next dispatch below
-    //    }
-
-    //    // set event type down here because might have to overwrite after branch above
-    //    event.mouseEvent.eventType = wl_kMouseEventTypeMouseMove;
-
-    //    eventCallback(wlw, &event, wlw->userData);
-    //    if (!event.handled) {
-    //        return DefWindowProc(hWnd, message, wParam, lParam);
-    //    }
-    //    break;
+    case WM_MOUSEMOVE: {
+        bool ignored = false;
+        wlw->onMouseMove(event, wParam, lParam, &ignored);
+        if (ignored) {
+            return 0; // no default handling -- pretend it didn't happen
+        }
+        if (!event.handled) {
+            return DefWindowProc(hWnd, message, wParam, lParam);
+        }
+        break;
+    }
 
     //case WM_MOUSEWHEEL:
     //case WM_MOUSEHWHEEL: // handle horizontal wheel as well
@@ -353,28 +301,21 @@ LRESULT CALLBACK topLevelWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
     //    }
     //    break;
 
-    //case WM_MOUSELEAVE:
-    //    event.eventType = wl_kEventTypeMouse;
-    //    event.mouseEvent.eventType = wl_kMouseEventTypeMouseLeave;
-    //    // no other values come with event
-
-    //    wlw->mouseInWindow = false;
-
-    //    eventCallback(wlw, &event, wlw->userData);
-    //    if (!event.handled) {
-    //        return DefWindowProc(hWnd, message, wParam, lParam);
-    //    }
-
-    //    // experimentally determined:
-    //    //   don't bother resetting the cursor on its way out:
-    //    //   1) windows seems to always handle it,
-    //    //   2) if we have any overlapping (popup etc) windows of our own,
-    //    //      because of the different timing of the event queues,
-    //    //      there is no guarantee the "leave" event of one window will be processed
-    //    //      before the (synthesized) "enter" of another --
-    //    //      which was causing the explicitly set mouse pointer to be overridden incorrectly
-    //    //      by the sometimes-late "leave" event
-    //    break;
+    case WM_MOUSELEAVE:
+        wlw->onMouseLeave(event);
+        if (!event.handled) {
+            return DefWindowProc(hWnd, message, wParam, lParam);
+        }
+        // experimentally determined:
+        //   don't bother resetting the cursor on its way out:
+        //   1) windows seems to always handle it,
+        //   2) if we have any overlapping (popup etc) windows of our own,
+        //      because of the different timing of the event queues,
+        //      there is no guarantee the "leave" event of one window will be processed
+        //      before the (synthesized) "enter" of another --
+        //      which was causing the explicitly set mouse pointer to be overridden incorrectly
+        //      by the sometimes-late "leave" event
+        break;
 
     //    //case WM_ENTERSIZEMOVE:
     //    //	printf("@@@ ENTER SIZE MOVE\n");

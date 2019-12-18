@@ -7,8 +7,10 @@
 #include "unicodestuff.h"
 #include "comstuff.h"
 
+// misc "modules"
 #include "window.h"
 #include "timer.h"
+#include "cursor.h"
 
 #include <stdio.h>
 #include <assert.h>
@@ -43,6 +45,9 @@ OPENWL_API int CDECL wl_Init(wl_EventCallback callback, struct wl_PlatformOption
 	// and: https://devblogs.microsoft.com/oldnewthing/?p=16553 "Why do messages posted by PostThreadMessage disappear?"
 	// note 'HWND_MESSAGE' parent, for message-only windows
 	appGlobalWindow = CreateWindow(appGlobalWindowClass, L"(app global)", WS_OVERLAPPED, 0, 0, 10, 10, HWND_MESSAGE, NULL, hInstance, NULL);
+
+	// various "module" inits ======
+	cursor_init();
 
 	return 0;
 }
@@ -104,6 +109,16 @@ OPENWL_API void CDECL wl_WindowShow(wl_WindowRef window)
 	window->show();
 }
 
+OPENWL_API void CDECL wl_WindowShowRelative(wl_WindowRef window, wl_WindowRef relativeTo, int x, int y, int newWidth, int newHeight)
+{
+	window->showRelative(relativeTo, x, y, newWidth, newHeight);
+}
+
+OPENWL_API void CDECL wl_WindowHide(wl_WindowRef window)
+{
+	window->hide();
+}
+
 OPENWL_API void CDECL wl_WindowInvalidate(wl_WindowRef window, int x, int y, int width, int height)
 {
 	window->invalidate(x, y, width, height);
@@ -138,4 +153,14 @@ OPENWL_API void CDECL wl_ExecuteOnMainThread(wl_VoidCallback callback, void* dat
 OPENWL_API void CDECL wl_Sleep(unsigned int millis)
 {
 	Sleep(millis);
+}
+
+OPENWL_API wl_CursorRef CDECL wl_CursorCreate(wl_CursorStyle style)
+{
+	return wl_Cursor::create(style);
+}
+
+OPENWL_API void CDECL wl_WindowSetCursor(wl_WindowRef window, wl_CursorRef cursor)
+{
+	window->setCursor(cursor);
 }

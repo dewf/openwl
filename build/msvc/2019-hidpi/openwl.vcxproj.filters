@@ -45,6 +45,9 @@
     <ClCompile Include="..\..\..\source\win32-hidpi\timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\source\win32-hidpi\cursor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\source\openwl.h">
@@ -72,6 +75,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\source\win32-hidpi\timer.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\win32-hidpi\cursor.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -38,7 +38,11 @@ public:
 	static wl_WindowRef create(int width, int height, const char* title, void* userData, wl_WindowProperties* props);
     void wlDestroy(); // OpenWL API method - the wndproc will be responsible for actual win32 / C++ deletion
     void show();
+    void showRelative(wl_WindowRef relativeTo, int x, int y, int newWidth, int newHeight);
+    void hide();
     void invalidate(int x, int y, int width, int height);
+
+    void setCursor(wl_CursorRef cursor);
 
     // wndproc handlers
     void onClose(wl_Event& event);
@@ -46,4 +50,6 @@ public:
 	void onSize(wl_Event& event);
     void onGetMinMaxInfo(MINMAXINFO* mmi);
     void onPaint(wl_Event& event);
+    void onMouseMove(wl_Event& event, WPARAM wParam, LPARAM lParam, bool* ignored); // 'ignored' is OUT parameter - named for clarity, instead of a bool return value
+    void onMouseLeave(wl_Event& event);
 };
