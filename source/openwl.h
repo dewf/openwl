@@ -270,6 +270,7 @@ extern "C" {
     // used in the repaint event - placed here to declutter the wl_RepaintEvent struct a bit
     struct wl_PlatformContext {
 #ifdef WL_PLATFORM_WINDOWS
+		UINT dpi;
 		union {
 			struct {
 				ID2D1Factory *factory;

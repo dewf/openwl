@@ -14,6 +14,8 @@
 
 OPENWL_API int CDECL wl_Init(wl_EventCallback callback, struct wl_PlatformOptions* options)
 {
+	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+
 	eventCallback = callback;
 	registerWindowClass(topLevelWindowClass, topLevelWindowProc);
 	registerWindowClass(appGlobalWindowClass, appGlobalWindowProc);

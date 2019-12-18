@@ -4,11 +4,21 @@
 #include "globals.h"
 #include "comstuff.h"
 
+#include <ShellScalingApi.h>
+
 #include <stdio.h>
+
+// DPI macros
+#define DECLSF(dpi) double scaleFactor = dpi / 96.0;
+#define INT(x) ((int)(x))
+#define DPIUP(x) INT(x * scaleFactor)                // from device-independent pixels to physical res
+#define DPIDOWN(x) INT(x / scaleFactor)              // from physical res to DIPs
+#define DPIUP_INPLACE(x) x = DPIUP(x);
+#define DPIDOWN_INPLACE(x) x = DPIDOWN(x);
 
 // fwd decls
 long getWindowStyle(wl_WindowProperties* props, bool isPluginWindow);
-void calcChromeExtra(int* extraWidth, int* extraHeight, DWORD dwStyle, BOOL hasMenu);
+void calcChromeExtra(int* extraWidth, int* extraHeight, DWORD dwStyle, BOOL hasMenu, UINT dpi);
 
 wl_Window::wl_Window()
 {
@@ -22,7 +32,7 @@ wl_Window::~wl_Window()
 	}
 }
 
-wl_WindowRef wl_Window::create(int width, int height, const char* title, void* userData, wl_WindowProperties* props)
+wl_WindowRef wl_Window::create(int dipWidth, int dipHeight, const char* title, void* userData, wl_WindowProperties* props)
 {
 	auto wideTitle = title ? utf8_to_wstring(title) : L"(UNTITLED)";
 
@@ -36,6 +46,23 @@ wl_WindowRef wl_Window::create(int width, int height, const char* title, void* u
 
 	auto dwStyle = getWindowStyle(props, isPluginWindow);
 
+	// DPI awareness
+	auto defaultMonitor = MonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY);
+	UINT dpiX, dpiY;
+	GetDpiForMonitor(defaultMonitor, MDT_DEFAULT, &dpiX, &dpiY);
+	UINT dpi = (dpiX + dpiY) / 2; // uhh, I guess?
+
+	DECLSF(dpi);
+	auto width = DPIUP(dipWidth);
+	auto height = DPIUP(dipHeight);
+
+	// fix props
+	DPIUP_INPLACE(props->minWidth);
+	DPIUP_INPLACE(props->minHeight);
+	DPIUP_INPLACE(props->maxWidth);
+	DPIUP_INPLACE(props->maxHeight);
+
+	// create actual win32 window
 	HWND hWnd = NULL;
 	if (isPluginWindow)
 	{
@@ -45,7 +72,7 @@ wl_WindowRef wl_Window::create(int width, int height, const char* title, void* u
 	}
 	else {
 		// normal top-level window (or frameless)
-		calcChromeExtra(&extraWidth, &extraHeight, dwStyle, FALSE); // FALSE = no menu for now ... will recalc when the time comes
+		calcChromeExtra(&extraWidth, &extraHeight, dwStyle, FALSE, dpi); // FALSE = no menu for now ... will recalc when the time comes
 
 		auto exStyle = (dwStyle & WS_POPUP) ? WS_EX_TOOLWINDOW : 0; // no taskbar button plz
 
@@ -59,6 +86,7 @@ wl_WindowRef wl_Window::create(int width, int height, const char* title, void* u
 		wl_WindowRef wlw = new wl_Window;
 		wlw->hWnd = hWnd;
 		wlw->dwStyle = dwStyle;
+		wlw->dpi = dpi;
 		wlw->clientWidth = width;
 		wlw->clientHeight = height;
 		wlw->extraWidth = extraWidth;
@@ -157,11 +185,13 @@ void wl_Window::onSize(wl_Event& event) {
 	int newWidth = clientRect.right - clientRect.left;
 	int newHeight = clientRect.bottom - clientRect.top;
 
+	DECLSF(dpi);
+
 	event.eventType = wl_kEventTypeWindowResized;
-	event.resizeEvent.newWidth = newWidth;
-	event.resizeEvent.newHeight = newHeight;
-	event.resizeEvent.oldWidth = clientWidth; // hasn't updated yet
-	event.resizeEvent.oldHeight = clientHeight;
+	event.resizeEvent.newWidth = DPIDOWN(newWidth);
+	event.resizeEvent.newHeight = DPIDOWN(newHeight);
+	event.resizeEvent.oldWidth = DPIDOWN(clientWidth); // hasn't updated yet
+	event.resizeEvent.oldHeight = DPIDOWN(clientHeight);
 	eventCallback(this, &event, userData);
 
 	// update saved/old
@@ -198,11 +228,16 @@ void wl_Window::onPaint(wl_Event& event)
 	PAINTSTRUCT ps;
 	HDC hdc = BeginPaint(hWnd, &ps);
 
+	DECLSF(dpi);
+
 	event.eventType = wl_kEventTypeWindowRepaint;
-	event.repaintEvent.x = ps.rcPaint.left;
-	event.repaintEvent.y = ps.rcPaint.top;
-	event.repaintEvent.width = (ps.rcPaint.right - ps.rcPaint.left);
-	event.repaintEvent.height = (ps.rcPaint.bottom - ps.rcPaint.top);
+	event.repaintEvent.x = DPIDOWN(ps.rcPaint.left);   // is this going to give us off-by-1 pixel errors repainting? due to rounding?
+	event.repaintEvent.y = DPIDOWN(ps.rcPaint.top);
+	event.repaintEvent.width = DPIDOWN(ps.rcPaint.right) - event.repaintEvent.x;
+	event.repaintEvent.height = DPIDOWN(ps.rcPaint.bottom) - event.repaintEvent.y;
+
+	// pass through DPI in either case
+	event.repaintEvent.platformContext.dpi = dpi;
 
 	if (useDirect2D) {
 		event.repaintEvent.platformContext.d2d.factory = d2dFactory;
@@ -246,14 +281,16 @@ long getWindowStyle(wl_WindowProperties* props, bool isPluginWindow) {
 	return dwStyle;
 }
 
-void calcChromeExtra(int* extraWidth, int* extraHeight, DWORD dwStyle, BOOL hasMenu) {
+void calcChromeExtra(int* extraWidth, int* extraHeight, DWORD dwStyle, BOOL hasMenu, UINT dpi) {
 	const int arbitraryExtent = 500;
 	RECT rect;
 	rect.left = 0;
 	rect.top = 0;
 	rect.right = arbitraryExtent; // just some arbitrary extents -- it's the difference we're interested in
 	rect.bottom = arbitraryExtent;
-	AdjustWindowRect(&rect, dwStyle, hasMenu);
+
+	AdjustWindowRectExForDpi(&rect, dwStyle, hasMenu, 0, dpi);
+
 	*extraWidth = (rect.right - rect.left) - arbitraryExtent;  // left and top will be negative, hence the subtraction (right - left) = outer width
 	*extraHeight = (rect.bottom - rect.top) - arbitraryExtent; // bottom - top = outer height
 }

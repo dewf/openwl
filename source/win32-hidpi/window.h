@@ -12,6 +12,8 @@ private:
     DWORD dwStyle = 0;
     BOOL hasMenu = FALSE;
 
+    UINT dpi;
+
     int clientWidth = -1;
     int clientHeight = -1;
     int extraWidth = -1;    // difference between client size and window size
