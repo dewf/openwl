@@ -25,24 +25,24 @@ enum IDsEnum {
     ID_SlowTimer
 };
 
-//// file menu
-//wl_ActionRef fileAction1;
-//wl_ActionRef fileAction2;
-//wl_ActionRef exitAction;
-//
-//// edit menu
-//wl_ActionRef copyAction;
-//wl_ActionRef pasteAction;
-//
-//// help menu
-//wl_ActionRef helpAction1;
-//
-//// context menu
-//wl_ActionRef contextAction1;
-//wl_ActionRef contextAction2;
-//wl_ActionRef contextAction3;
-//wl_ActionRef contextAction4;
-//wl_MenuRef contextMenu;
+// file menu
+wl_ActionRef fileAction1;
+wl_ActionRef fileAction2;
+wl_ActionRef exitAction;
+
+// edit menu
+wl_ActionRef copyAction;
+wl_ActionRef pasteAction;
+
+// help menu
+wl_ActionRef helpAction1;
+
+// context menu
+wl_ActionRef contextAction1;
+wl_ActionRef contextAction2;
+wl_ActionRef contextAction3;
+wl_ActionRef contextAction4;
+wl_MenuRef contextMenu;
 
 int lastFrame = 0;
 int totalFrames = 0;
@@ -91,37 +91,37 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 			wl_ExitRunloop();
 		}
 		break;
-//	case wl_kEventTypeAction:
-//		printf("action %p chosen\n", (void *)event->actionEvent.action);
-//		if (event->actionEvent.action == exitAction) {
-//			wl_WindowDestroy(window); // app will close when destroy message received (see above)
-//		}
-//		else if (event->actionEvent.action == copyAction) {
-//			auto clipData = wl_DragDataCreate(window);
-//			wl_DragAddFormat(clipData, wl_kDragFormatUTF8);
-//			wl_ClipboardSet(clipData);
-//			printf("clipboard copy done\n");
-//			wl_DragDataRelease(&clipData);
-//		}
-//		else if (event->actionEvent.action == pasteAction) {
-//			auto clipData = wl_ClipboardGet();
-//			if (wl_DropHasFormat(clipData, wl_kDragFormatFiles)) {
-//				const wl_Files *files;
-//				wl_DropGetFiles(clipData, &files);
-//				for (int i = 0; i < files->numFiles; i++) {
-//					printf("Got file: [%s]\n", files->filenames[i]);
-//				}
-//			}
-//			else if (wl_DropHasFormat(clipData, wl_kDragFormatUTF8)) {
-//				const char *text;
-//				size_t textSize;
-//				if (wl_DropGetFormat(clipData, wl_kDragFormatUTF8, (const void **)&text, &textSize)) {
-//					printf("got clipboard text: [%s]\n", text);
-//				}
-//			}
-//			wl_ClipboardRelease(clipData);
-//		}
-//		break;
+	case wl_kEventTypeAction:
+		printf("action %p chosen\n", (void *)event->actionEvent.action);
+		if (event->actionEvent.action == exitAction) {
+			wl_WindowDestroy(window); // app will close when destroy message received (see above)
+		}
+		else if (event->actionEvent.action == copyAction) {
+			//auto clipData = wl_DragDataCreate(window);
+			//wl_DragAddFormat(clipData, wl_kDragFormatUTF8);
+			//wl_ClipboardSet(clipData);
+			//printf("clipboard copy done\n");
+			//wl_DragDataRelease(&clipData);
+		}
+		else if (event->actionEvent.action == pasteAction) {
+			//auto clipData = wl_ClipboardGet();
+			//if (wl_DropHasFormat(clipData, wl_kDragFormatFiles)) {
+			//	const wl_Files *files;
+			//	wl_DropGetFiles(clipData, &files);
+			//	for (int i = 0; i < files->numFiles; i++) {
+			//		printf("Got file: [%s]\n", files->filenames[i]);
+			//	}
+			//}
+			//else if (wl_DropHasFormat(clipData, wl_kDragFormatUTF8)) {
+			//	const char *text;
+			//	size_t textSize;
+			//	if (wl_DropGetFormat(clipData, wl_kDragFormatUTF8, (const void **)&text, &textSize)) {
+			//		printf("got clipboard text: [%s]\n", text);
+			//	}
+			//}
+			//wl_ClipboardRelease(clipData);
+		}
+		break;
 
 	case wl_kEventTypeWindowRepaint:
 		if (window == mainWindow) {
@@ -179,8 +179,8 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 				}
 			}
 			else if (event->mouseEvent.button == wl_kMouseButtonRight) {
-				//printf("mouse down event, button %d @ %d,%d\n", event->mouseEvent.button, event->mouseEvent.x, event->mouseEvent.y);
-				//wl_WindowShowContextMenu(window, event->mouseEvent.x, event->mouseEvent.y, contextMenu, event);
+				printf("mouse down event, button %d @ %d,%d\n", event->mouseEvent.button, event->mouseEvent.x, event->mouseEvent.y);
+				wl_WindowShowContextMenu(window, event->mouseEvent.x, event->mouseEvent.y, contextMenu, event);
 			}
 		}
 		else if (event->mouseEvent.eventType == wl_kMouseEventTypeMouseUp) {
@@ -371,99 +371,99 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 	return 0;
 }
 
-//void createActions() {
-//	auto icon1 = wl_IconLoadFromFile("_icons/tall.png", 64);
-//	auto icon2 = wl_IconLoadFromFile("_icons/wide.png", 64);
-//	//auto icon1 = wl_IconLoadFromFile("_icons/horse.png", 16);
-//	//auto icon2 = wl_IconLoadFromFile("_icons/laptop.png", 16);
-//
-//	fileAction1 = wl_ActionCreate(ID_FileAction1, "Something", icon1, 0);
-//
-//	// user uppercase key enums here because that's required for win32 virtual key codes,
-//	//  and doesn't require any special handling when generating labels (toupper etc)
-//	auto fa2Accel = wl_AccelCreate(wl_kKeyK, wl_kModifierAlt);
-//	fileAction2 = wl_ActionCreate(ID_FileAction2, "SubMenuItem", 0, fa2Accel);
-//
-//	auto exitAccel = wl_AccelCreate(wl_kKeyQ, wl_kModifierControl);
-//	exitAction = wl_ActionCreate(ID_ExitAction, "Quit c-client", 0, exitAccel);
-//
-//	auto copyAccel = wl_AccelCreate(wl_kKeyC, wl_kModifierControl);
-//	copyAction = wl_ActionCreate(ID_CopyAction, "Copy", 0, copyAccel);
-//
-//	auto pasteAccel = wl_AccelCreate(wl_kKeyV, wl_kModifierControl);
-//	pasteAction = wl_ActionCreate(ID_PasteAction, "Paste", 0, pasteAccel);
-//
-//	helpAction1 = wl_ActionCreate(ID_HelpAction, "Placeholder", icon2, 0);
-//	contextAction1 = wl_ActionCreate(ID_ContextAction1, "Context 01", 0, 0);
-//	contextAction2 = wl_ActionCreate(ID_ContextAction2, "Context 02", 0, 0);
-//	auto c3Accel = wl_AccelCreate(wl_kKeyN, wl_kModifierShift);
-//	contextAction3 = wl_ActionCreate(ID_ContextAction3, "Context 03", 0, c3Accel);
-//
-//	//auto c4Accel = wl_AccelCreate(wl_kKeyOEM_4, wl_kModifierControl);
-//	//contextAction4 = wl_ActionCreate(CONTEXT_ACTION_4, "Context WAT", 0, c4Accel);
-//}
-//
-//void createMenu() {
-//
-//	createActions();
-//
-//#ifdef WL_PLATFORM_MACOS
-//	auto menuBar = wl_MenuBarGetDefault();
-//	auto appMenu = wl_GetApplicationMenu();
-//#else
-//	auto menuBar = wl_MenuBarCreate();
-//#endif
-//	/* file menu */
-//	auto fileMenu = wl_MenuCreate();
-//	wl_MenuAddAction(fileMenu, fileAction1);
-//
-//	auto fileSubMenu = wl_MenuCreate();
-//	wl_MenuAddAction(fileSubMenu, fileAction2);
-//	wl_MenuAddSubmenu(fileMenu, "Su&bmenu", fileSubMenu);
-//
-//#ifdef WL_PLATFORM_MACOS
-//	// app menu gets exit action on Apple platforms
-//	wl_MenuAddAction(appMenu, exitAction);
-//#else
-//	// but it goes on the File menu elsewhere
-//	wl_MenuAddSeparator(fileMenu);
-//	wl_MenuAddAction(fileMenu, exitAction);
-//#endif
-//	wl_MenuBarAddMenu(menuBar, "&File", fileMenu);
-//
-//	/* edit menu */
-//	auto editMenu = wl_MenuCreate();
-//	wl_MenuAddAction(editMenu, copyAction);
-//	wl_MenuAddAction(editMenu, pasteAction);
-//	wl_MenuBarAddMenu(menuBar, "&Edit", editMenu);
-//
-//	/* context menu (useful later) */
-//	contextMenu = wl_MenuCreate();
-//	wl_MenuAddAction(contextMenu, contextAction1);
-//	wl_MenuAddAction(contextMenu, contextAction2);
-//	wl_MenuAddSeparator(contextMenu);
-//
-//	auto contextSubMenu = wl_MenuCreate();
-//	wl_MenuAddAction(contextSubMenu, contextAction3);
-//	wl_MenuAddSubmenu(contextMenu, "Su&bmenu", contextSubMenu);
-//	/* end context menu*/
-//
-//	wl_MenuBarAddMenu(menuBar, "&Context", contextMenu);
-//
-//	/* help menu */
-//	auto helpMenu = wl_MenuCreate();
-//	wl_MenuAddAction(helpMenu, helpAction1);
-//
-//	wl_MenuBarAddMenu(menuBar, "&Help", helpMenu);
-//
-//	/* end */
-//#ifdef WL_PLATFORM_MACOS
-//	// nothing to do
-//#else
-//	wl_WindowSetMenuBar(mainWindow, menuBar);
-//#endif
-//}
-//
+void createActions() {
+	auto icon1 = wl_IconLoadFromFile("_icons/tall.png", 64);
+	auto icon2 = wl_IconLoadFromFile("_icons/wide.png", 64);
+	//auto icon1 = wl_IconLoadFromFile("_icons/horse.png", 32);
+	//auto icon2 = wl_IconLoadFromFile("_icons/laptop.png", 32);
+
+	fileAction1 = wl_ActionCreate(ID_FileAction1, "Something", icon1, 0);
+
+	// user uppercase key enums here because that's required for win32 virtual key codes,
+	//  and doesn't require any special handling when generating labels (toupper etc)
+	auto fa2Accel = wl_AccelCreate(wl_kKeyK, wl_kModifierAlt);
+	fileAction2 = wl_ActionCreate(ID_FileAction2, "SubMenuItem", 0, fa2Accel);
+
+	auto exitAccel = wl_AccelCreate(wl_kKeyQ, wl_kModifierControl);
+	exitAction = wl_ActionCreate(ID_ExitAction, "Quit c-client", 0, exitAccel);
+
+	auto copyAccel = wl_AccelCreate(wl_kKeyC, wl_kModifierControl);
+	copyAction = wl_ActionCreate(ID_CopyAction, "Copy", 0, copyAccel);
+
+	auto pasteAccel = wl_AccelCreate(wl_kKeyV, wl_kModifierControl);
+	pasteAction = wl_ActionCreate(ID_PasteAction, "Paste", 0, pasteAccel);
+
+	helpAction1 = wl_ActionCreate(ID_HelpAction, "Placeholder", icon2, 0);
+	contextAction1 = wl_ActionCreate(ID_ContextAction1, "Context 01", 0, 0);
+	contextAction2 = wl_ActionCreate(ID_ContextAction2, "Context 02", 0, 0);
+	auto c3Accel = wl_AccelCreate(wl_kKeyN, wl_kModifierShift);
+	contextAction3 = wl_ActionCreate(ID_ContextAction3, "Context 03", 0, c3Accel);
+
+	//auto c4Accel = wl_AccelCreate(wl_kKeyOEM_4, wl_kModifierControl);
+	//contextAction4 = wl_ActionCreate(CONTEXT_ACTION_4, "Context WAT", 0, c4Accel);
+}
+
+void createMenu() {
+
+	createActions();
+
+#ifdef WL_PLATFORM_MACOS
+	auto menuBar = wl_MenuBarGetDefault();
+	auto appMenu = wl_GetApplicationMenu();
+#else
+	auto menuBar = wl_MenuBarCreate();
+#endif
+	/* file menu */
+	auto fileMenu = wl_MenuCreate();
+	wl_MenuAddAction(fileMenu, fileAction1);
+
+	auto fileSubMenu = wl_MenuCreate();
+	wl_MenuAddAction(fileSubMenu, fileAction2);
+	wl_MenuAddSubmenu(fileMenu, "Su&bmenu", fileSubMenu);
+
+#ifdef WL_PLATFORM_MACOS
+	// app menu gets exit action on Apple platforms
+	wl_MenuAddAction(appMenu, exitAction);
+#else
+	// but it goes on the File menu elsewhere
+	wl_MenuAddSeparator(fileMenu);
+	wl_MenuAddAction(fileMenu, exitAction);
+#endif
+	wl_MenuBarAddMenu(menuBar, "&File", fileMenu);
+
+	/* edit menu */
+	auto editMenu = wl_MenuCreate();
+	wl_MenuAddAction(editMenu, copyAction);
+	wl_MenuAddAction(editMenu, pasteAction);
+	wl_MenuBarAddMenu(menuBar, "&Edit", editMenu);
+
+	/* context menu (useful later) */
+	contextMenu = wl_MenuCreate();
+	wl_MenuAddAction(contextMenu, contextAction1);
+	wl_MenuAddAction(contextMenu, contextAction2);
+	wl_MenuAddSeparator(contextMenu);
+
+	auto contextSubMenu = wl_MenuCreate();
+	wl_MenuAddAction(contextSubMenu, contextAction3);
+	wl_MenuAddSubmenu(contextMenu, "Su&bmenu", contextSubMenu);
+	/* end context menu*/
+
+	wl_MenuBarAddMenu(menuBar, "&Context", contextMenu);
+
+	/* help menu */
+	auto helpMenu = wl_MenuCreate();
+	wl_MenuAddAction(helpMenu, helpAction1);
+
+	wl_MenuBarAddMenu(menuBar, "&Help", helpMenu);
+
+	/* end */
+#ifdef WL_PLATFORM_MACOS
+	// nothing to do
+#else
+	wl_WindowSetMenuBar(mainWindow, menuBar);
+#endif
+}
+
 // this function is executed on the main thread,
 // so no worries about locking the imageSurface or other shared things
 void addNewBox(void *data) {
@@ -527,7 +527,7 @@ int main(int argc, const char * argv[]) {
 	props.style = wl_kWindowStyleFrameless;
 	framelessWindow = wl_WindowCreate(POPUP_WIDTH, POPUP_HEIGHT, nullptr, nullptr, &props);
 
-//	createMenu();
+	createMenu();
 
 	platformInit();
 

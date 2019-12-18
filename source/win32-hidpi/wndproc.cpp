@@ -7,16 +7,10 @@
 #include <stdio.h>
 #include "globals.h"
 
+#include "action.h"
 #include "timer.h"
-//
-//#include "unicodestuff.h"
-//
-//#include "keystuff.h" // locationForKey, keyInfo, etc
-//
-//#include <windowsx.h> // for some macros (GET_X_LPARAM etc)
-//#include <assert.h>
-//
-// app-global window proc
+
+// app-global window proc stuff ==================================================
 
 void ExecuteMainItem(MainThreadExecItem* item) {
     std::lock_guard<std::mutex> lock(execMutex);
@@ -46,6 +40,8 @@ LRESULT CALLBACK appGlobalWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPA
     return 0;
 }
 
+// top-level window proc ==================================================================
+
 LRESULT CALLBACK topLevelWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     wl_WindowRef wlw = (wl_WindowRef)GetWindowLongPtr(hWnd, GWLP_USERDATA);
@@ -58,23 +54,15 @@ LRESULT CALLBACK topLevelWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 
     switch (message)
     {
-    //case WM_COMMAND:
-    //{
-    //    int wmId = LOWORD(wParam);
-
-    //    auto found = actionMap.find(wmId);
-    //    if (found != actionMap.end()) {
-    //        auto action = found->second;
-    //        event.eventType = wl_kEventTypeAction;
-    //        event.actionEvent.action = action; // aka value
-    //        event.actionEvent.id = action->id;
-    //        eventCallback(wlw, &event, wlw->userData);
-    //    }
-    //    if (!event.handled) {
-    //        return DefWindowProc(hWnd, message, wParam, lParam);
-    //    }
-    //}
-    //break;
+    case WM_COMMAND:
+    {
+        int wmId = LOWORD(wParam);
+        wl_Action::onActionID(event, wmId, wlw);
+        if (!event.handled) {
+            return DefWindowProc(hWnd, message, wParam, lParam);
+        }
+    }
+    break;
 
     case WM_ERASEBKGND:
         //printf("nothx erase background!\n");

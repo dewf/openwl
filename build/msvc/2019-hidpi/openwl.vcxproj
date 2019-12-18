@@ -99,7 +99,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>d2d1.lib;shcore.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d2d1.lib;shcore.lib;windowscodecs.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -115,7 +115,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>d2d1.lib;shcore.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d2d1.lib;shcore.lib;windowscodecs.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -135,7 +135,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>d2d1.lib;shcore.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d2d1.lib;shcore.lib;windowscodecs.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -155,17 +155,20 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>d2d1.lib;shcore.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d2d1.lib;shcore.lib;windowscodecs.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\source\win32-hidpi\action.cpp" />
     <ClCompile Include="..\..\..\source\win32-hidpi\cursor.cpp" />
     <ClCompile Include="..\..\..\source\win32-hidpi\dllmain.cpp" />
     <ClCompile Include="..\..\..\source\win32-hidpi\globals.cpp" />
+    <ClCompile Include="..\..\..\source\win32-hidpi\keystuff.cpp" />
     <ClCompile Include="..\..\..\source\win32-hidpi\openwl.cpp" />
+    <ClCompile Include="..\..\..\source\win32-hidpi\pngloader.cpp" />
     <ClCompile Include="..\..\..\source\win32-hidpi\private_defs.cpp" />
     <ClCompile Include="..\..\..\source\win32-hidpi\timer.cpp" />
     <ClCompile Include="..\..\..\source\win32-hidpi\unicodestuff.cpp" />
@@ -175,9 +178,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\source\openwl.h" />
+    <ClInclude Include="..\..\..\source\win32-hidpi\action.h" />
     <ClInclude Include="..\..\..\source\win32-hidpi\comstuff.h" />
     <ClInclude Include="..\..\..\source\win32-hidpi\cursor.h" />
     <ClInclude Include="..\..\..\source\win32-hidpi\globals.h" />
+    <ClInclude Include="..\..\..\source\win32-hidpi\keystuff.h" />
+    <ClInclude Include="..\..\..\source\win32-hidpi\pngloader.h" />
     <ClInclude Include="..\..\..\source\win32-hidpi\private_defs.h" />
     <ClInclude Include="..\..\..\source\win32-hidpi\timer.h" />
     <ClInclude Include="..\..\..\source\win32-hidpi\unicodestuff.h" />

@@ -49,6 +49,12 @@ public:
 
     void setCursor(wl_CursorRef cursor);
 
+    void showContextMenu(int x, int y, wl_MenuRef menu, struct wl_Event* fromEvent);
+    void setMenuBar(wl_MenuBarRef menuBar);
+
+    // misc
+    void sendEvent(wl_Event& event); // send a prepared event (currently used with wl_Action - murky responsibilities now that wl_Action is a class)
+
     // wndproc handlers
     void onClose(wl_Event& event);
     void onDestroy(wl_Event& event);

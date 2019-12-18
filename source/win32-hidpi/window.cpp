@@ -5,11 +5,10 @@
 #include "comstuff.h"
 
 #include "cursor.h"
+#include "private_defs.h"
 
 #include <ShellScalingApi.h>
-
 #include <windowsx.h> // for some macros (GET_X_LPARAM etc)
-
 #include <stdio.h>
 
 // DPI macros
@@ -235,6 +234,47 @@ void wl_Window::setCursor(wl_CursorRef cursor)
 			}
 		}
 	}
+}
+
+void wl_Window::showContextMenu(int x, int y, wl_MenuRef menu, wl_Event* fromEvent)
+{
+	DECLSF(dpi);
+
+	int needsRightAlign = GetSystemMetrics(SM_MENUDROPALIGNMENT);
+	UINT alignFlags = needsRightAlign ? TPM_RIGHTALIGN : TPM_LEFTALIGN;
+	// translate x,y into screen coords
+	POINT point;
+	point.x = DPIUP(x); // from DIPs to real pixels
+	point.y = DPIUP(y);
+	ClientToScreen(hWnd, &point);
+
+	// menus are still dumb data structures so we'll leave this here for now (as opposed to a method on wl_MenuRef)
+	TrackPopupMenu(menu->hmenu, alignFlags | TPM_TOPALIGN | TPM_LEFTBUTTON, point.x, point.y, 0, hWnd, NULL);
+}
+
+void wl_Window::setMenuBar(wl_MenuBarRef menuBar)
+{
+	hasMenu = TRUE; // use win32 bool constant ... but shouldn't be different from C++ true/false
+
+	// recalc the "extra" (window chrome extents) so that we're dealing with inner client area
+	// this is needed for enforcement of min/max sizes as well as just fixing up the client size below
+	calcChromeExtra(&extraWidth, &extraHeight, dwStyle, hasMenu, dpi);
+
+	// force resize to preserve client area
+	SetWindowPos(hWnd, NULL, 0, 0,
+		clientWidth + extraWidth,
+		clientHeight + extraHeight,
+		SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOZORDER);
+
+	// don't set the menu until the very end, otherwise it sends a WM_SIZE message that fucks our calculations up
+	SetMenu(hWnd, menuBar->hmenu);
+}
+
+// misc ===========================================================================
+
+void wl_Window::sendEvent(wl_Event& event)
+{
+	eventCallback(this, &event, userData);
 }
 
 // win32 wndproc handling ==========================================================
