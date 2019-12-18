@@ -17,3 +17,6 @@ LARGE_INTEGER perfCounterTicksPerSecond = { 0 };
 // direct2D stuff
 bool useDirect2D = false;
 ID2D1Factory1* d2dFactory = nullptr;
+
+// exec on main thread
+std::mutex execMutex;

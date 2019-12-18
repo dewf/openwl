@@ -3,6 +3,9 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
+#include <mutex>
+#include <condition_variable>
+
 #include "../openwl.h"
 
 extern HINSTANCE hInstance; // set by DllMain
@@ -29,6 +32,17 @@ extern LARGE_INTEGER perfCounterTicksPerSecond;
 // direct2D stuff
 extern bool useDirect2D;
 extern ID2D1Factory1* d2dFactory;
+
+// for wl_ExecuteOnMainThread
+extern std::mutex execMutex;
+
+struct MainThreadExecItem {
+	wl_VoidCallback callback;
+	void* data;
+	std::condition_variable& execCond;
+};
+
+void ExecuteMainItem(MainThreadExecItem* item); // defined in wndproc.cpp
 
 // client-supplied callback
 extern wl_EventCallback eventCallback;

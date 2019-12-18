@@ -34,6 +34,13 @@
 //}
 
 // app-global window proc
+
+void ExecuteMainItem(MainThreadExecItem* item) {
+    std::lock_guard<std::mutex> lock(execMutex);
+    item->callback(item->data);
+    item->execCond.notify_one();
+}
+
 LRESULT CALLBACK appGlobalWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     if (hWnd == appGlobalWindow) {
@@ -43,9 +50,9 @@ LRESULT CALLBACK appGlobalWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPA
             timer->onTimerMessage(message, wParam, lParam);
             break;
         }
-        //case WM_WLMainThreadExecMsg:
-        //    ExecuteMainItem((MainThreadExecItem*)lParam);
-        //    break;
+        case WM_WLMainThreadExecMsg:
+            ExecuteMainItem((MainThreadExecItem*)lParam);
+            break;
         default:
             return DefWindowProc(hWnd, message, wParam, lParam);
         }

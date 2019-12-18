@@ -120,3 +120,22 @@ OPENWL_API void CDECL wl_TimerDestroy(wl_TimerRef timer)
 {
 	delete timer;
 }
+
+/* MISC */
+
+OPENWL_API void CDECL wl_ExecuteOnMainThread(wl_VoidCallback callback, void* data)
+{
+	std::unique_lock<std::mutex> lock(execMutex);
+	std::condition_variable cond;
+
+	MainThreadExecItem item = { callback, data, cond };
+	PostMessage(appGlobalWindow, WM_WLMainThreadExecMsg, 0, (LPARAM)&item); // safe to pass a pointer to item, because this function doesn't exit until it's done
+
+	// block until it's done executing
+	cond.wait(lock);
+}
+
+OPENWL_API void CDECL wl_Sleep(unsigned int millis)
+{
+	Sleep(millis);
+}

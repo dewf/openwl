@@ -464,45 +464,45 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 //#endif
 //}
 //
-//// this function is executed on the main thread,
-//// so no worries about locking the imageSurface or other shared things
-//void addNewBox(void *data) {
-//	auto threadID = (size_t)data;
-//
-//	// generate a random square to draw
-//	int x = rand() % (width - BOXWIDTH);
-//	int y = rand() % (height - BOXWIDTH);
-//	float r, g, b;
-//	if ((threadID % 3) == 0) {
-//		r = 1.0;
-//		g = 0.0;
-//		b = 0;
-//	}
-//	else if ((threadID % 3) == 1) {
-//		r = 0.0;
-//		g = 1.0;
-//		b = 0.0;
-//	}
-//	else {
-//		r = 0.0;
-//		g = 0.0;
-//		b = 1.0;
-//	}
-//	RandomBox xbox = { r, g, b, x, y, BOXWIDTH, BOXWIDTH };
-//	auto box = &xbox;
-//
-//	platformDrawBox(box);
-//
-//	wl_WindowInvalidate(mainWindow, box->x, box->y, box->width, box->height);
-//}
-//
-//void bgThreadFunc(int threadID) {
-//	while (true) {
-//		size_t void_arg = threadID;
-//		wl_ExecuteOnMainThread(addNewBox, (void *)void_arg);
-//		wl_Sleep(200);
-//	}
-//}
+// this function is executed on the main thread,
+// so no worries about locking the imageSurface or other shared things
+void addNewBox(void *data) {
+	auto threadID = (size_t)data;
+
+	// generate a random square to draw
+	int x = rand() % (width - BOXWIDTH);
+	int y = rand() % (height - BOXWIDTH);
+	float r, g, b;
+	if ((threadID % 3) == 0) {
+		r = 1.0;
+		g = 0.0;
+		b = 0;
+	}
+	else if ((threadID % 3) == 1) {
+		r = 0.0;
+		g = 1.0;
+		b = 0.0;
+	}
+	else {
+		r = 0.0;
+		g = 0.0;
+		b = 1.0;
+	}
+	RandomBox xbox = { r, g, b, x, y, BOXWIDTH, BOXWIDTH };
+	auto box = &xbox;
+
+	platformDrawBox(box);
+
+	wl_WindowInvalidate(mainWindow, box->x, box->y, box->width, box->height);
+}
+
+void bgThreadFunc(int threadID) {
+	while (true) {
+		size_t void_arg = threadID;
+		wl_ExecuteOnMainThread(addNewBox, (void *)void_arg);
+		wl_Sleep(200);
+	}
+}
 
 int main(int argc, const char * argv[]) {
 	srand((unsigned int)time(NULL));
@@ -522,11 +522,11 @@ int main(int argc, const char * argv[]) {
 
 	mainWindow = wl_WindowCreate(width, height, u8"hello there, cross-platform friend āǢʥϢ۩ใ ♥☺☼", nullptr, &props);
 
-//	props = { 0 };
-//	props.usedFields = wl_kWindowPropStyle;
-//	props.style = wl_kWindowStyleFrameless;
-//	framelessWindow = wl_WindowCreate(POPUP_WIDTH, POPUP_HEIGHT, nullptr, nullptr, &props);
-//
+	//props = { 0 };
+	//props.usedFields = wl_kWindowPropStyle;
+	//props.style = wl_kWindowStyleFrameless;
+	//framelessWindow = wl_WindowCreate(POPUP_WIDTH, POPUP_HEIGHT, nullptr, nullptr, &props);
+
 //	createMenu();
 
 	platformInit();
@@ -535,9 +535,9 @@ int main(int argc, const char * argv[]) {
 	slowTimer = wl_TimerCreate(1000, (void *)ID_SlowTimer);
 
 //	wl_WindowEnableDrops(mainWindow, true);
-//
-//	platformCreateThreads(bgThreadFunc, NUM_THREADS);
-//
+
+	platformCreateThreads(bgThreadFunc, NUM_THREADS);
+
 //	customCursor = wl_CursorCreate(wl_kCursorStyleResizeLeftRight);
 
 	wl_WindowShow(mainWindow);
@@ -548,8 +548,8 @@ int main(int argc, const char * argv[]) {
 	wl_TimerDestroy(slowTimer);
 
 //	wl_ClipboardFlush();
-//
-//	platformJoinThreads();
+
+	platformJoinThreads();
 	platformShutdown();
 
 	wl_Shutdown();
