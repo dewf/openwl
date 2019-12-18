@@ -33,7 +33,14 @@ private:
 public:
     ~wl_Window();
 	static wl_WindowRef create(int width, int height, const char* title, void* userData, wl_WindowProperties* props);
-    void destroy(); // win32 destruction - the wndproc will be responsible for actual C++ deletion
+    void wlDestroy(); // OpenWL API method - the wndproc will be responsible for actual win32 / C++ deletion
     void show();
     void direct2DCreateTarget();
+
+    // wndproc handlers
+    void onClose(wl_Event& event);
+    void onDestroy(wl_Event& event);
+	void onSize(wl_Event& event);
+    void onGetMinMaxInfo(MINMAXINFO* mmi);
+    void onPaint(wl_Event& event);
 };

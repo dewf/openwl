@@ -43,16 +43,16 @@
 //wl_ActionRef contextAction3;
 //wl_ActionRef contextAction4;
 //wl_MenuRef contextMenu;
-//
-//int lastFrame = 0;
-//int totalFrames = 0;
+
+int lastFrame = 0;
+int totalFrames = 0;
 
 int width, height;
 
 //wl_TimerRef fastTimer, slowTimer;
 
 wl_WindowRef mainWindow;
-//wl_WindowRef framelessWindow;
+wl_WindowRef framelessWindow;
 //bool framelessWindowVisible = false;
 //
 //wl_CursorRef customCursor;
@@ -76,21 +76,21 @@ wl_WindowRef mainWindow;
 int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 	event->handled = true;
 	switch (event->eventType) {
-//	case wl_kEventTypeWindowCloseRequest:
-//		if (window == mainWindow) {
-//			printf("main window closing ... or is it?\n");
-//			//event->closeRequestEvent.cancelClose = true;
-//		}
-//		else {
-//			printf("closed something else, staying\n");
-//		}
-//		break;
-//	case wl_kEventTypeWindowDestroyed:
-//		if (window == mainWindow) {
-//			printf("main window destroyed! exiting runloop\n");
-//			wl_ExitRunloop();
-//		}
-//		break;
+	case wl_kEventTypeWindowCloseRequest:
+		if (window == mainWindow) {
+			printf("main window closing ... or is it?\n");
+			//event->closeRequestEvent.cancelClose = true;
+		}
+		else {
+			printf("closed something else, staying\n");
+		}
+		break;
+	case wl_kEventTypeWindowDestroyed:
+		if (window == mainWindow) {
+			printf("main window destroyed! exiting runloop\n");
+			wl_ExitRunloop();
+		}
+		break;
 //	case wl_kEventTypeAction:
 //		printf("action %p chosen\n", (void *)event->actionEvent.action);
 //		if (event->actionEvent.action == exitAction) {
@@ -122,30 +122,30 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 //			wl_ClipboardRelease(clipData);
 //		}
 //		break;
-//
-//	case wl_kEventTypeWindowRepaint:
-//		if (window == mainWindow) {
-//			platformDraw(&event->repaintEvent.platformContext);
-//		}
-//		else if (window == framelessWindow) {
-//			platformDrawFrameless(&event->repaintEvent.platformContext);
-//		}
-//		break;
-//
-//	case wl_kEventTypeWindowResized:
-//		if (window == mainWindow) {
-//			width = event->resizeEvent.newWidth;
-//			height = event->resizeEvent.newHeight;
-//
-//			printf("new size: %d, %d\n", width, height);
-//
-//			//printf("TODO: remove resize inval\n");
-//			//wl_WindowInvalidate(window, 0, 0, 0, 0);
-//
-//			lastFrame = 0;
-//		}
-//		break;
-//
+
+	case wl_kEventTypeWindowRepaint:
+		if (window == mainWindow) {
+			platformDraw(&event->repaintEvent.platformContext);
+		}
+		else if (window == framelessWindow) {
+			platformDrawFrameless(&event->repaintEvent.platformContext);
+		}
+		break;
+
+	case wl_kEventTypeWindowResized:
+		if (window == mainWindow) {
+			width = event->resizeEvent.newWidth;
+			height = event->resizeEvent.newHeight;
+
+			printf("new size: %d, %d\n", width, height);
+
+			//printf("TODO: remove resize inval\n");
+			//wl_WindowInvalidate(window, 0, 0, 0, 0);
+
+			lastFrame = 0;
+		}
+		break;
+
 //	case wl_kEventTypeTimer:
 //		// NOTE! 'window' param will be null here, timer events are app-global, not related to any specific window
 //		switch ((size_t)event->timerEvent.userData) {
@@ -528,9 +528,9 @@ int main(int argc, const char * argv[]) {
 //	framelessWindow = wl_WindowCreate(POPUP_WIDTH, POPUP_HEIGHT, nullptr, nullptr, &props);
 //
 //	createMenu();
-//
-//	platformInit();
-//
+
+	platformInit();
+
 //	fastTimer = wl_TimerCreate(16, (void *)ID_FastTimer); // ~60fps
 //	slowTimer = wl_TimerCreate(1000, (void *)ID_SlowTimer);
 //
@@ -550,7 +550,7 @@ int main(int argc, const char * argv[]) {
 //	wl_ClipboardFlush();
 //
 //	platformJoinThreads();
-//	platformShutdown();
+	platformShutdown();
 
 	wl_Shutdown();
 	return 0;

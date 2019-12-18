@@ -4,6 +4,8 @@
 #include "globals.h"
 #include "comstuff.h"
 
+#include <stdio.h>
+
 // fwd decls
 long getWindowStyle(wl_WindowProperties* props, bool isPluginWindow);
 void calcChromeExtra(int* extraWidth, int* extraHeight, DWORD dwStyle, BOOL hasMenu);
@@ -117,7 +119,7 @@ void wl_Window::direct2DCreateTarget()
 	// don't care if it was handled or not
 }
 
-void wl_Window::destroy()
+void wl_Window::wlDestroy()
 {
 	unregisterDropWindow();
 	DestroyWindow(hWnd);
@@ -127,6 +129,98 @@ void wl_Window::show()
 {
 	ShowWindow(hWnd, SW_SHOWNORMAL); // might need to use a different cmd based on whether first time or not
 	UpdateWindow(hWnd);
+}
+
+// win32 wndproc handling ==========================================================
+
+void wl_Window::onClose(wl_Event& event)
+{
+	event.eventType = wl_kEventTypeWindowCloseRequest;
+	event.closeRequestEvent.cancelClose = false;
+	eventCallback(this, &event, userData);
+}
+
+void wl_Window::onDestroy(wl_Event& event)
+{
+	event.eventType = wl_kEventTypeWindowDestroyed;
+	event.destroyEvent.reserved = 0;
+	eventCallback(this, &event, userData);
+
+	printf("deleting wl_Window\n");
+	delete this;
+}
+
+void wl_Window::onSize(wl_Event& event) {
+	RECT clientRect;
+	GetClientRect(hWnd, &clientRect);
+
+	int newWidth = clientRect.right - clientRect.left;
+	int newHeight = clientRect.bottom - clientRect.top;
+
+	event.eventType = wl_kEventTypeWindowResized;
+	event.resizeEvent.newWidth = newWidth;
+	event.resizeEvent.newHeight = newHeight;
+	event.resizeEvent.oldWidth = clientWidth; // hasn't updated yet
+	event.resizeEvent.oldHeight = clientHeight;
+	eventCallback(this, &event, userData);
+
+	// update saved/old
+	clientWidth = newWidth;
+	clientHeight = newHeight;
+
+	if (useDirect2D) {
+		auto size = D2D1::SizeU(newWidth, newHeight);
+		HR(d2dRenderTarget->Resize(size));
+	}
+}
+
+void wl_Window::onGetMinMaxInfo(MINMAXINFO* mmi)
+{
+	// min
+	if (props.usedFields & wl_kWindowPropMinWidth) {
+		mmi->ptMinTrackSize.x = props.minWidth + extraWidth;
+	}
+	if (props.usedFields & wl_kWindowPropMinHeight) {
+		mmi->ptMinTrackSize.y = props.minHeight + extraHeight;
+	}
+
+	// max
+	if (props.usedFields & wl_kWindowPropMaxWidth) {
+		mmi->ptMaxTrackSize.x = props.maxWidth + extraWidth;
+	}
+	if (props.usedFields & wl_kWindowPropMaxHeight) {
+		mmi->ptMaxTrackSize.y = props.maxHeight + extraHeight;
+	}
+}
+
+void wl_Window::onPaint(wl_Event& event)
+{
+	PAINTSTRUCT ps;
+	HDC hdc = BeginPaint(hWnd, &ps);
+
+	event.eventType = wl_kEventTypeWindowRepaint;
+	event.repaintEvent.x = ps.rcPaint.left;
+	event.repaintEvent.y = ps.rcPaint.top;
+	event.repaintEvent.width = (ps.rcPaint.right - ps.rcPaint.left);
+	event.repaintEvent.height = (ps.rcPaint.bottom - ps.rcPaint.top);
+
+	if (useDirect2D) {
+		event.repaintEvent.platformContext.d2d.factory = d2dFactory;
+		event.repaintEvent.platformContext.d2d.target = d2dRenderTarget;
+
+		d2dRenderTarget->BeginDraw();
+		eventCallback(this, &event, userData);
+		auto hr = d2dRenderTarget->EndDraw();
+		if (hr == D2DERR_RECREATE_TARGET) {
+			direct2DCreateTarget();
+		}
+	}
+	else {
+		event.repaintEvent.platformContext.gdi.hdc = hdc;
+		eventCallback(this, &event, userData);
+	}
+
+	EndPaint(hWnd, &ps);
 }
 
 // misc util funcs =================================================================

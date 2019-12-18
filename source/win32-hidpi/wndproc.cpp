@@ -1,7 +1,10 @@
 #include "wndproc.h"
 
-//#include "../openwl.h"
-//#include "private_defs.h"
+#include "../openwl.h"
+#include "window.h"
+#include "private_defs.h"
+
+#include <stdio.h>
 //#include "globals.h"
 //
 //#include "unicodestuff.h"
@@ -52,13 +55,13 @@ LRESULT CALLBACK appGlobalWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 
 LRESULT CALLBACK topLevelWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    //wl_WindowRef wlw = (wl_WindowRef)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+    wl_WindowRef wlw = (wl_WindowRef)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
-    //wl_EventPrivate eventPrivate(message, wParam, lParam);
-    //wl_Event event = {};
-    //event._private = &eventPrivate;
-    //event.eventType = wl_kEventTypeNone;
-    //event.handled = false;
+    wl_EventPrivate eventPrivate(message, wParam, lParam);
+    wl_Event event = {};
+    event._private = &eventPrivate;
+    event.eventType = wl_kEventTypeNone;
+    event.handled = false;
 
     switch (message)
     {
@@ -80,132 +83,61 @@ LRESULT CALLBACK topLevelWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
     //}
     //break;
 
-    //case WM_ERASEBKGND:
-    //    //printf("nothx erase background!\n");
-    //    return 1;
-    //    //break;
+    case WM_ERASEBKGND:
+        //printf("nothx erase background!\n");
+        return 1; // nonzero = we're handling background erasure -- keeps windows from doing it
+        //break;
 
-    //case WM_SIZE:
-    //{
-    //    if (wlw) {
-    //        RECT clientRect;
-    //        GetClientRect(hWnd, &clientRect);
-    //        int newWidth = clientRect.right - clientRect.left;
-    //        int newHeight = clientRect.bottom - clientRect.top;
+    case WM_SIZE:
+    {
+        if (wlw) {
+            // apparently we receive this event with null handles sometimes?
+            wlw->onSize(event);
+        }
+        if (!event.handled) {
+            return DefWindowProc(hWnd, message, wParam, lParam);
+        }
+        break;
+    }
 
-    //        event.eventType = wl_kEventTypeWindowResized;
-    //        event.resizeEvent.newWidth = newWidth;
-    //        event.resizeEvent.newHeight = newHeight;
-    //        event.resizeEvent.oldWidth = wlw->clientWidth; // hasn't updated yet
-    //        event.resizeEvent.oldHeight = wlw->clientHeight;
-    //        eventCallback(wlw, &event, wlw->userData);
+    case WM_PAINT:
+    {
+        wlw->onPaint(event);
+        if (!event.handled) {
+            return DefWindowProc(hWnd, message, wParam, lParam);
+        }
+    }
+    break;
 
-    //        //printf("old w/h: %d,%d  --- new: %d, %d (extra %d,%d)\n", wlw->clientWidth, wlw->clientHeight, newWidth, newHeight,
-    //        //    wlw->extraWidth, wlw->extraHeight);
+    case WM_CLOSE:
+        wlw->onClose(event);
+        if (event.handled && event.closeRequestEvent.cancelClose) {
+            // window not ready to close! -- do nothing, return 0
+        }
+        else {
+            // onward to destruction ...
+            return DefWindowProc(hWnd, message, wParam, lParam);
+        }
+        break;
 
-    //        // update
-    //        wlw->clientWidth = newWidth;
-    //        wlw->clientHeight = newHeight;
+    case WM_DESTROY:
+        wlw->onDestroy(event);
+        if (!event.handled) {
+            return DefWindowProc(hWnd, message, wParam, lParam);
+        }
+        break;
 
-    //        if (useDirect2D) {
-    //            auto size = D2D1::SizeU(newWidth, newHeight);
-    //            auto hr = wlw->d2dRenderTarget->Resize(size);
-    //            assert(hr == S_OK);
-    //        }
-    //    }
-    //    if (!event.handled) {
-    //        return DefWindowProc(hWnd, message, wParam, lParam);
-    //    }
-    //    break;
-    //}
-
-    //case WM_PAINT:
-    //{
-    //    PAINTSTRUCT ps;
-    //    HDC hdc = BeginPaint(hWnd, &ps);
-    //    event.eventType = wl_kEventTypeWindowRepaint;
-    //    event.repaintEvent.x = ps.rcPaint.left;
-    //    event.repaintEvent.y = ps.rcPaint.top;
-    //    event.repaintEvent.width = (ps.rcPaint.right - ps.rcPaint.left);
-    //    event.repaintEvent.height = (ps.rcPaint.bottom - ps.rcPaint.top);
-
-    //    if (useDirect2D) {
-    //        event.repaintEvent.platformContext.d2d.factory = d2dFactory;
-    //        event.repaintEvent.platformContext.d2d.target = wlw->d2dRenderTarget;
-
-    //        wlw->d2dRenderTarget->BeginDraw();
-    //        eventCallback(wlw, &event, wlw->userData);
-    //        auto hr = wlw->d2dRenderTarget->EndDraw();
-    //        if (hr == D2DERR_RECREATE_TARGET) {
-    //            d2dCreateTarget(wlw);
-    //        }
-    //    }
-    //    else {
-    //        event.repaintEvent.platformContext.gdi.hdc = hdc;
-    //        eventCallback(wlw, &event, wlw->userData);
-    //    }
-
-    //    EndPaint(hWnd, &ps);
-
-    //    if (!event.handled) {
-    //        return DefWindowProc(hWnd, message, wParam, lParam);
-    //    }
-    //}
-    //break;
-
-    //case WM_CLOSE:
-    //    event.eventType = wl_kEventTypeWindowCloseRequest;
-    //    event.closeRequestEvent.cancelClose = false;
-    //    eventCallback(wlw, &event, wlw->userData);
-    //    if (event.handled && event.closeRequestEvent.cancelClose) {
-    //        // canceled -- do nothing / return 0
-    //    }
-    //    else {
-    //        //DestroyWindow(hWnd);
-    //        return DefWindowProc(hWnd, message, wParam, lParam);
-    //    }
-    //    break;
-
-    //case WM_DESTROY:
-    //    event.eventType = wl_kEventTypeWindowDestroyed;
-    //    event.destroyEvent.reserved = 0;
-    //    eventCallback(wlw, &event, wlw->userData);
-
-    //    // free the associated WindowData
-    //    printf("freeing window handle\n");
-    //    delete wlw;
-
-    //    if (!event.handled) {
-    //        return DefWindowProc(hWnd, message, wParam, lParam);
-    //    }
-    //    break;
-
-    //case WM_GETMINMAXINFO:
-    //{
-    //    MINMAXINFO* mmi = (MINMAXINFO*)lParam;
-
-    //    if (wlw) {
-    //        // min
-    //        if (wlw->props.usedFields & wl_kWindowPropMinWidth) {
-    //            mmi->ptMinTrackSize.x = wlw->props.minWidth + wlw->extraWidth;
-    //        }
-    //        if (wlw->props.usedFields & wl_kWindowPropMinHeight) {
-    //            mmi->ptMinTrackSize.y = wlw->props.minHeight + wlw->extraHeight;
-    //        }
-
-    //        // max
-    //        if (wlw->props.usedFields & wl_kWindowPropMaxWidth) {
-    //            mmi->ptMaxTrackSize.x = wlw->props.maxWidth + wlw->extraWidth;
-    //        }
-    //        if (wlw->props.usedFields & wl_kWindowPropMaxHeight) {
-    //            mmi->ptMaxTrackSize.y = wlw->props.maxHeight + wlw->extraHeight;
-    //        }
-    //    }
-    //    else {
-    //        return DefWindowProc(hWnd, message, wParam, lParam);
-    //    }
-    //    break;
-    //}
+    case WM_GETMINMAXINFO:
+    {
+        if (wlw) {
+            MINMAXINFO* mmi = (MINMAXINFO*)lParam;
+            wlw->onGetMinMaxInfo(mmi);
+        }
+        else {
+            return DefWindowProc(hWnd, message, wParam, lParam);
+        }
+        break;
+    }
 
     //case WM_CHAR:
     //{

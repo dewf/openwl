@@ -89,7 +89,7 @@ OPENWL_API wl_WindowRef CDECL wl_WindowCreate(int width, int height, const char*
 
 OPENWL_API void CDECL wl_WindowDestroy(wl_WindowRef window)
 {
-	window->destroy();
+	window->wlDestroy();
 }
 
 OPENWL_API void CDECL wl_WindowShow(wl_WindowRef window)
