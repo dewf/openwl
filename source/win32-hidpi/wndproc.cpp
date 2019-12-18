@@ -225,48 +225,17 @@ LRESULT CALLBACK topLevelWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
     //    break;
     //}
 
-    //case WM_LBUTTONDOWN:
-    //case WM_LBUTTONUP:
-    //case WM_MBUTTONDOWN:
-    //case WM_MBUTTONUP:
-    //case WM_RBUTTONDOWN:
-    //case WM_RBUTTONUP:
-    //    event.eventType = wl_kEventTypeMouse;
-
-    //    switch (message) {
-    //    case WM_LBUTTONDOWN:
-    //    case WM_MBUTTONDOWN:
-    //    case WM_RBUTTONDOWN:
-    //        event.mouseEvent.eventType = wl_kMouseEventTypeMouseDown;
-    //        break;
-    //    default:
-    //        event.mouseEvent.eventType = wl_kMouseEventTypeMouseUp;
-    //    }
-
-    //    switch (message) {
-    //    case WM_LBUTTONDOWN:
-    //    case WM_LBUTTONUP:
-    //        event.mouseEvent.button = wl_kMouseButtonLeft;
-    //        break;
-    //    case WM_MBUTTONDOWN:
-    //    case WM_MBUTTONUP:
-    //        event.mouseEvent.button = wl_kMouseButtonMiddle;
-    //        break;
-    //    case WM_RBUTTONDOWN:
-    //    case WM_RBUTTONUP:
-    //        event.mouseEvent.button = wl_kMouseButtonRight;
-    //        break;
-    //    }
-    //    event.mouseEvent.x = GET_X_LPARAM(lParam);
-    //    event.mouseEvent.y = GET_Y_LPARAM(lParam);
-
-    //    event.mouseEvent.modifiers = getMouseModifiers(wParam);
-
-    //    eventCallback(wlw, &event, wlw->userData);
-    //    if (!event.handled) {
-    //        return DefWindowProc(hWnd, message, wParam, lParam);
-    //    }
-    //    break;
+    case WM_LBUTTONDOWN:
+    case WM_LBUTTONUP:
+    case WM_MBUTTONDOWN:
+    case WM_MBUTTONUP:
+    case WM_RBUTTONDOWN:
+    case WM_RBUTTONUP:
+        wlw->onMouseButton(event, message, wParam, lParam);
+        if (!event.handled) {
+            return DefWindowProc(hWnd, message, wParam, lParam);
+        }
+        break;
 
     case WM_MOUSEMOVE: {
         bool ignored = false;

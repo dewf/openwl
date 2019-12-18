@@ -165,33 +165,33 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 		if (window != mainWindow) break;
 
 		if (event->mouseEvent.eventType == wl_kMouseEventTypeMouseDown) {
-			//if (event->mouseEvent.button == wl_kMouseButtonLeft) {
-			//	if (pointInRect(event->mouseEvent.x, event->mouseEvent.y, DRAG_SOURCE_X, DRAG_SOURCE_Y, DRAG_SOURCE_W, DRAG_SOURCE_H)) {
-			//		// start drag, save position
-			//		dragging = true;
-			//		dragStartX = event->mouseEvent.x;
-			//		dragStartY = event->mouseEvent.y;
-			//		printf("(potentially) starting drag...\n");
-			//	} else {
-			//	    // begin grab
-			//	    wl_MouseGrab(mainWindow);
-			//	    grabbed = true;
-			//	}
-			//}
-			//else if (event->mouseEvent.button == wl_kMouseButtonRight) {
-			//	printf("mouse down event, button %d @ %d,%d\n", event->mouseEvent.button, event->mouseEvent.x, event->mouseEvent.y);
-			//	wl_WindowShowContextMenu(window, event->mouseEvent.x, event->mouseEvent.y, contextMenu, event);
-			//}
+			if (event->mouseEvent.button == wl_kMouseButtonLeft) {
+				if (pointInRect(event->mouseEvent.x, event->mouseEvent.y, DRAG_SOURCE_X, DRAG_SOURCE_Y, DRAG_SOURCE_W, DRAG_SOURCE_H)) {
+					// start drag, save position
+					dragging = true;
+					dragStartX = event->mouseEvent.x;
+					dragStartY = event->mouseEvent.y;
+					printf("(potentially) starting drag...\n");
+				} else {
+				    // begin grab
+				    wl_MouseGrab(mainWindow);
+				    grabbed = true;
+				}
+			}
+			else if (event->mouseEvent.button == wl_kMouseButtonRight) {
+				//printf("mouse down event, button %d @ %d,%d\n", event->mouseEvent.button, event->mouseEvent.x, event->mouseEvent.y);
+				//wl_WindowShowContextMenu(window, event->mouseEvent.x, event->mouseEvent.y, contextMenu, event);
+			}
 		}
 		else if (event->mouseEvent.eventType == wl_kMouseEventTypeMouseUp) {
-		    //if (event->mouseEvent.button == wl_kMouseButtonLeft) {
-      //          dragging = false;
-      //          if (grabbed) {
-      //              printf("ending grab\n");
-      //              wl_MouseUngrab();
-      //              grabbed = false;
-      //          }
-		    //}
+		    if (event->mouseEvent.button == wl_kMouseButtonLeft) {
+                dragging = false;
+                if (grabbed) {
+                    printf("ending grab\n");
+                    wl_MouseUngrab();
+                    grabbed = false;
+                }
+		    }
 		}
 		else if (event->mouseEvent.eventType == wl_kMouseEventTypeMouseMove) {
 			// if dragging ...

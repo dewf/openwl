@@ -4,6 +4,8 @@
 
 struct wl_Window {
 private:
+    static wl_WindowRef lastGrabWindow;
+
     HWND hWnd = NULL;
     wl_WindowProperties props;
     void* userData = nullptr;           // for client callback on window events
@@ -42,6 +44,9 @@ public:
     void hide();
     void invalidate(int x, int y, int width, int height);
 
+    void grab();
+    static void ungrab();
+
     void setCursor(wl_CursorRef cursor);
 
     // wndproc handlers
@@ -52,4 +57,5 @@ public:
     void onPaint(wl_Event& event);
     void onMouseMove(wl_Event& event, WPARAM wParam, LPARAM lParam, bool* ignored); // 'ignored' is OUT parameter - named for clarity, instead of a bool return value
     void onMouseLeave(wl_Event& event);
+    void onMouseButton(wl_Event& event, UINT message, WPARAM wParam, LPARAM lParam);
 };

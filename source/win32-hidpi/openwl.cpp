@@ -155,6 +155,16 @@ OPENWL_API void CDECL wl_Sleep(unsigned int millis)
 	Sleep(millis);
 }
 
+OPENWL_API void CDECL wl_MouseGrab(wl_WindowRef window)
+{
+	window->grab();
+}
+
+OPENWL_API void CDECL wl_MouseUngrab()
+{
+	wl_Window::ungrab();
+}
+
 OPENWL_API wl_CursorRef CDECL wl_CursorCreate(wl_CursorStyle style)
 {
 	return wl_Cursor::create(style);

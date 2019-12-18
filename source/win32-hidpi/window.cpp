@@ -26,6 +26,11 @@ void calcChromeExtra(int* extraWidth, int* extraHeight, DWORD dwStyle, BOOL hasM
 unsigned int getKeyModifiers();
 unsigned int getMouseModifiers(WPARAM wParam);
 
+// static variables
+wl_WindowRef wl_Window::lastGrabWindow = nullptr;
+
+// methods ============================================================
+
 wl_Window::wl_Window()
 {
 	// nothing yet, all the work done in static ::create
@@ -199,6 +204,19 @@ void wl_Window::invalidate(int x, int y, int width, int height)
 	else {
 		InvalidateRect(hWnd, nullptr, FALSE); // entire window
 	}
+}
+
+void wl_Window::grab()
+{
+	SetCapture(hWnd); // not saving the previous capture (return value) for now, maybe in the future
+	lastGrabWindow = this;  // because ungrab / releasecapture are app-global, no specific handle given
+}
+
+// note this is a static method
+void wl_Window::ungrab()
+{
+	ReleaseCapture();
+	lastGrabWindow->ignorePostGrabMove = true; // ignoring 1 unwanted move event, which can trigger unwanted redraws / state changes after a mouse up
 }
 
 void wl_Window::setCursor(wl_CursorRef cursor)
@@ -377,6 +395,44 @@ void wl_Window::onMouseLeave(wl_Event& event)
 	// no other values come with event
 
 	mouseInWindow = false;
+
+	eventCallback(this, &event, userData);
+}
+
+void wl_Window::onMouseButton(wl_Event& event, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	event.eventType = wl_kEventTypeMouse;
+
+	DECLSF(dpi);
+
+	switch (message) {
+	case WM_LBUTTONDOWN:
+	case WM_MBUTTONDOWN:
+	case WM_RBUTTONDOWN:
+		event.mouseEvent.eventType = wl_kMouseEventTypeMouseDown;
+		break;
+	default:
+		event.mouseEvent.eventType = wl_kMouseEventTypeMouseUp;
+	}
+
+	switch (message) {
+	case WM_LBUTTONDOWN:
+	case WM_LBUTTONUP:
+		event.mouseEvent.button = wl_kMouseButtonLeft;
+		break;
+	case WM_MBUTTONDOWN:
+	case WM_MBUTTONUP:
+		event.mouseEvent.button = wl_kMouseButtonMiddle;
+		break;
+	case WM_RBUTTONDOWN:
+	case WM_RBUTTONUP:
+		event.mouseEvent.button = wl_kMouseButtonRight;
+		break;
+	}
+	event.mouseEvent.x = DPIDOWN(GET_X_LPARAM(lParam));
+	event.mouseEvent.y = DPIDOWN(GET_Y_LPARAM(lParam));
+
+	event.mouseEvent.modifiers = getMouseModifiers(wParam);
 
 	eventCallback(this, &event, userData);
 }
