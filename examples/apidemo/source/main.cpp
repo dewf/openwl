@@ -46,12 +46,12 @@
 //
 //int lastFrame = 0;
 //int totalFrames = 0;
-//
-//int width, height;
-//
+
+int width, height;
+
 //wl_TimerRef fastTimer, slowTimer;
-//
-//wl_WindowRef mainWindow;
+
+wl_WindowRef mainWindow;
 //wl_WindowRef framelessWindow;
 //bool framelessWindowVisible = false;
 //
@@ -510,18 +510,18 @@ int main(int argc, const char * argv[]) {
 	wl_PlatformOptions opts = { 0 };
 	wl_Init(eventCallback, &opts);
 
-//	wl_WindowProperties props = { 0 };
-//	props.usedFields = wl_kWindowPropMinWidth | wl_kWindowPropMinHeight | wl_kWindowPropMaxWidth | wl_kWindowPropMaxHeight;
-//	props.minWidth = 300;
-//	props.minHeight = 200;
-//	props.maxWidth = MAX_WIDTH;
-//	props.maxHeight = MAX_HEIGHT;
-//
-//	width = 800;
-//	height = 600;
-//
-//	mainWindow = wl_WindowCreate(width, height, u8"hello there, cross-platform friend āǢʥϢ۩ใ ♥☺☼", nullptr, &props);
-//
+	wl_WindowProperties props = { 0 };
+	props.usedFields = wl_kWindowPropMinWidth | wl_kWindowPropMinHeight | wl_kWindowPropMaxWidth | wl_kWindowPropMaxHeight;
+	props.minWidth = 300;
+	props.minHeight = 200;
+	props.maxWidth = MAX_WIDTH;
+	props.maxHeight = MAX_HEIGHT;
+
+	width = 800;
+	height = 600;
+
+	mainWindow = wl_WindowCreate(width, height, u8"hello there, cross-platform friend āǢʥϢ۩ใ ♥☺☼", nullptr, &props);
+
 //	props = { 0 };
 //	props.usedFields = wl_kWindowPropStyle;
 //	props.style = wl_kWindowStyleFrameless;
@@ -539,8 +539,8 @@ int main(int argc, const char * argv[]) {
 //	platformCreateThreads(bgThreadFunc, NUM_THREADS);
 //
 //	customCursor = wl_CursorCreate(wl_kCursorStyleResizeLeftRight);
-//
-//	wl_WindowShow(mainWindow);
+
+	wl_WindowShow(mainWindow);
 
 	wl_Runloop();
 

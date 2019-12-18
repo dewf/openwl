@@ -99,6 +99,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>d2d1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -114,6 +115,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>d2d1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -133,6 +135,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>d2d1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -152,6 +155,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>d2d1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -161,13 +165,18 @@
     <ClCompile Include="..\..\..\source\win32-hidpi\dllmain.cpp" />
     <ClCompile Include="..\..\..\source\win32-hidpi\globals.cpp" />
     <ClCompile Include="..\..\..\source\win32-hidpi\openwl.cpp" />
+    <ClCompile Include="..\..\..\source\win32-hidpi\unicodestuff.cpp" />
     <ClCompile Include="..\..\..\source\win32-hidpi\win32util.cpp" />
+    <ClCompile Include="..\..\..\source\win32-hidpi\window.cpp" />
     <ClCompile Include="..\..\..\source\win32-hidpi\wndproc.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\source\openwl.h" />
+    <ClInclude Include="..\..\..\source\win32-hidpi\comstuff.h" />
     <ClInclude Include="..\..\..\source\win32-hidpi\globals.h" />
+    <ClInclude Include="..\..\..\source\win32-hidpi\unicodestuff.h" />
     <ClInclude Include="..\..\..\source\win32-hidpi\win32util.h" />
+    <ClInclude Include="..\..\..\source\win32-hidpi\window.h" />
     <ClInclude Include="..\..\..\source\win32-hidpi\wndproc.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -4,14 +4,32 @@
 #include "win32util.h"
 
 #include "wndproc.h" // topLevelWindowProc, appGlobalWindowProc
+#include "unicodestuff.h"
+
+#include "window.h"
+#include "comstuff.h"
 
 #include <stdio.h>
+#include <assert.h>
 
 OPENWL_API int CDECL wl_Init(wl_EventCallback callback, struct wl_PlatformOptions* options)
 {
 	eventCallback = callback;
 	registerWindowClass(topLevelWindowClass, topLevelWindowProc);
 	registerWindowClass(appGlobalWindowClass, appGlobalWindowProc);
+
+	OleInitialize(nullptr);
+
+	if (options) {
+		if (options->useDirect2D) {
+			useDirect2D = true;
+
+			HR(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &d2dFactory));
+
+			// return to client so that it can be used elsewhere (by the drawing layer, etc)
+			options->outParams.factory = d2dFactory;
+		}
+	}
 
 	// for receiving messages that don't belong to any window:
 	// see: https://devblogs.microsoft.com/oldnewthing/20050426-18/?p=35783 "Thread messages are eaten by modal loops"
@@ -24,10 +42,8 @@ OPENWL_API int CDECL wl_Init(wl_EventCallback callback, struct wl_PlatformOption
 
 OPENWL_API void CDECL wl_Shutdown()
 {
-	//if (useDirect2D) {
-	//	d2dFactory->Release();
-	//}
-	//OleUninitialize();
+	SafeRelease(&d2dFactory);
+	OleUninitialize();
 }
 
 OPENWL_API int CDECL wl_Runloop()
@@ -64,4 +80,19 @@ OPENWL_API int CDECL wl_Runloop()
 OPENWL_API void CDECL wl_ExitRunloop()
 {
 	PostQuitMessage(0);
+}
+
+OPENWL_API wl_WindowRef CDECL wl_WindowCreate(int width, int height, const char* title, void* userData, struct wl_WindowProperties* props)
+{
+	return wl_Window::create(width, height, title, userData, props);
+}
+
+OPENWL_API void CDECL wl_WindowDestroy(wl_WindowRef window)
+{
+	window->destroy();
+}
+
+OPENWL_API void CDECL wl_WindowShow(wl_WindowRef window)
+{
+	window->show();
 }

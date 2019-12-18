@@ -2,6 +2,8 @@
 
 #include "globals.h"
 
+#include <stdio.h>
+
 void registerWindowClass(const WCHAR* windowClass, WNDPROC windowProc) {
 	WNDCLASSEXW wcex;
 
@@ -21,3 +23,4 @@ void registerWindowClass(const WCHAR* windowClass, WNDPROC windowProc) {
 
 	RegisterClassExW(&wcex);
 }
+

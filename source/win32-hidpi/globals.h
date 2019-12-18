@@ -15,3 +15,7 @@ extern HWND appGlobalWindow; // for receiving messages that don't belong to any 
 
 // client-supplied callback
 extern wl_EventCallback eventCallback;
+
+// direct2D stuff
+extern bool useDirect2D;
+extern ID2D1Factory1* d2dFactory;

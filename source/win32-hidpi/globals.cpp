@@ -10,3 +10,7 @@ HWND appGlobalWindow;
 
 // client-supplied callback
 wl_EventCallback eventCallback = nullptr;
+
+// direct2D stuff
+bool useDirect2D = false;
+ID2D1Factory1* d2dFactory = nullptr;
