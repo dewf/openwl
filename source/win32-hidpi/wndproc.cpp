@@ -56,13 +56,13 @@ LRESULT CALLBACK topLevelWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
     {
     case WM_COMMAND:
     {
-        int wmId = LOWORD(wParam);
-        wl_Action::onActionID(event, wmId, wlw);
+        int id = LOWORD(wParam);
+        wlw->onAction(event, id);
         if (!event.handled) {
             return DefWindowProc(hWnd, message, wParam, lParam);
         }
+        break;
     }
-    break;
 
     case WM_ERASEBKGND:
         //printf("nothx erase background!\n");
@@ -120,98 +120,24 @@ LRESULT CALLBACK topLevelWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
         break;
     }
 
-    //case WM_CHAR:
-    //{
-    //    unsigned char scanCode = (lParam >> 16) & 0xFF;
-    //    bool found = (suppressedScanCodes.find(scanCode) != suppressedScanCodes.end());
-    //    if (!found) {
-    //        static wchar_t utf16_buffer[10];
-    //        static int buf_len = 0;
-    //        utf16_buffer[buf_len++] = (wchar_t)wParam;
-    //        if (wParam >= 0xD800 && wParam <= 0xDFFF) {
-    //            if (buf_len == 2) {
-    //                utf16_buffer[2] = 0;
-    //                auto utf8 = wstring_to_utf8(utf16_buffer);
+    case WM_CHAR:
+    {
+        wlw->onChar(event, wParam, lParam);
+        if (!event.handled) {
+            return DefWindowProc(hWnd, message, wParam, lParam);
+        }
+        break;
+    }
 
-    //                event.eventType = wl_kEventTypeKey;
-    //                event.keyEvent.eventType = wl_kKeyEventTypeChar;
-    //                event.keyEvent.key = wl_kKeyUnknown;
-    //                event.keyEvent.modifiers = 0; // not used here
-
-    //                event.keyEvent.string = utf8.c_str();
-    //                eventCallback(wlw, &event, wlw->userData);
-
-    //                buf_len = 0;
-    //            }
-    //        }
-    //        else {
-    //            // single char
-    //            utf16_buffer[1] = 0;
-    //            auto utf8 = wstring_to_utf8(utf16_buffer);
-
-    //            event.eventType = wl_kEventTypeKey;
-    //            event.keyEvent.eventType = wl_kKeyEventTypeChar;
-    //            event.keyEvent.key = wl_kKeyUnknown;
-    //            event.keyEvent.modifiers = 0; // not used here
-
-    //            event.keyEvent.string = utf8.c_str();
-    //            eventCallback(wlw, &event, wlw->userData);
-
-    //            buf_len = 0;
-    //        }
-    //    }
-    //    if (!event.handled) {
-    //        return DefWindowProc(hWnd, message, wParam, lParam);
-    //    }
-    //    break;
-    //}
-
-    //case WM_KEYDOWN:
-    //case WM_KEYUP:
-    //{
-    //    unsigned char scanCode = (lParam >> 16) & 0xFF;
-    //    bool extended = ((lParam >> 24) & 0x1) ? true : false;
-
-    //    KeyInfo* value = keyMap[0]; // wl_kKeyUnknown
-    //    auto found = keyMap.find(wParam); // wParam = win32 virtual key
-    //    if (found != keyMap.end()) {
-    //        value = found->second;
-    //    }
-    //    if (value->key != wl_kKeyUnknown) {
-    //        event.eventType = wl_kEventTypeKey;
-    //        event.keyEvent.eventType = (message == WM_KEYDOWN ? wl_kKeyEventTypeDown : wl_kKeyEventTypeUp);
-    //        event.keyEvent.key = value->key;
-    //        event.keyEvent.modifiers = getKeyModifiers(); // should probably be tracking ctrl/alt/shift state as we go, instead of grabbing instantaneously here
-    //        event.keyEvent.string = value->stringRep;
-
-    //        // use scancode, extended value, etc to figure out location (left/right/numpad/etc)
-    //        if (value->knownLocation >= 0) {
-    //            event.keyEvent.location = (wl_KeyLocation)value->knownLocation;
-    //        }
-    //        else {
-    //            event.keyEvent.location = locationForKey(value->key, scanCode, extended);
-    //        }
-
-    //        eventCallback(wlw, &event, wlw->userData);
-
-    //        if (message == WM_KEYDOWN) { // is this needed for KEYUP too?
-
-    //            // does the WM_CHAR need to be suppressed?
-    //            // just add it to the blacklisted set (redundant but sufficient)
-    //            // could/should use a queue instead, but not every WM_CHAR has a corresponding/prior WM_KEYDOWN event
-    //            if (value->suppressCharEvent) {
-    //                suppressedScanCodes.insert(scanCode);
-    //            }
-    //        }
-    //    }
-    //    else {
-    //        printf("### unrecognized: VK %zd, scan %d [%s]\n", wParam, scanCode, extended ? "ext" : "--");
-    //    }
-    //    if (!event.handled) {
-    //        return DefWindowProcW(hWnd, message, wParam, lParam);
-    //    }
-    //    break;
-    //}
+    case WM_KEYDOWN:
+    case WM_KEYUP:
+    {
+        wlw->onKey(event, message, wParam, lParam);
+        if (!event.handled) {
+            return DefWindowProcW(hWnd, message, wParam, lParam);
+        }
+        break;
+    }
 
     case WM_LBUTTONDOWN:
     case WM_LBUTTONUP:

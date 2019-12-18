@@ -52,9 +52,6 @@ public:
     void showContextMenu(int x, int y, wl_MenuRef menu, struct wl_Event* fromEvent);
     void setMenuBar(wl_MenuBarRef menuBar);
 
-    // misc
-    void sendEvent(wl_Event& event); // send a prepared event (currently used with wl_Action - murky responsibilities now that wl_Action is a class)
-
     // wndproc handlers
     void onClose(wl_Event& event);
     void onDestroy(wl_Event& event);
@@ -64,4 +61,7 @@ public:
     void onMouseMove(wl_Event& event, WPARAM wParam, LPARAM lParam, bool* ignored); // 'ignored' is OUT parameter - named for clarity, instead of a bool return value
     void onMouseLeave(wl_Event& event);
     void onMouseButton(wl_Event& event, UINT message, WPARAM wParam, LPARAM lParam);
+    void onChar(wl_Event& event, WPARAM wParam, LPARAM lParam);
+    void onKey(wl_Event& event, UINT message, WPARAM wParam, LPARAM lParam);
+    void onAction(wl_Event& event, int actionID);
 };

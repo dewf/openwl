@@ -48,15 +48,14 @@ HACCEL wl_Action::createAccelTable()
 	return CreateAcceleratorTable((ACCEL*)acceleratorList.data(), (int)acceleratorList.size());
 }
 
-void wl_Action::onActionID(wl_Event& event, int id, wl_WindowRef window)
+wl_ActionRef wl_Action::findByID(int id)
 {
 	auto found = actionMap.find(id);
 	if (found != actionMap.end()) {
-		auto action = found->second;
-		event.eventType = wl_kEventTypeAction;
-		event.actionEvent.action = action; // aka value
-		event.actionEvent.id = action->id;
-		window->sendEvent(event);
+		return found->second;
+	}
+	else {
+		return nullptr;
 	}
 }
 

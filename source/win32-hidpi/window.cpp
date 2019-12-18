@@ -6,10 +6,14 @@
 
 #include "cursor.h"
 #include "private_defs.h"
+#include "keystuff.h"
+#include "action.h"
 
 #include <ShellScalingApi.h>
 #include <windowsx.h> // for some macros (GET_X_LPARAM etc)
 #include <stdio.h>
+
+#include <set>
 
 // DPI macros
 #define DECLSF(dpi) double scaleFactor = dpi / 96.0;
@@ -27,6 +31,7 @@ unsigned int getMouseModifiers(WPARAM wParam);
 
 // static variables
 wl_WindowRef wl_Window::lastGrabWindow = nullptr;
+std::set<unsigned char> suppressedScanCodes;
 
 // methods ============================================================
 
@@ -270,13 +275,6 @@ void wl_Window::setMenuBar(wl_MenuBarRef menuBar)
 	SetMenu(hWnd, menuBar->hmenu);
 }
 
-// misc ===========================================================================
-
-void wl_Window::sendEvent(wl_Event& event)
-{
-	eventCallback(this, &event, userData);
-}
-
 // win32 wndproc handling ==========================================================
 
 void wl_Window::onClose(wl_Event& event)
@@ -475,6 +473,100 @@ void wl_Window::onMouseButton(wl_Event& event, UINT message, WPARAM wParam, LPAR
 	event.mouseEvent.modifiers = getMouseModifiers(wParam);
 
 	eventCallback(this, &event, userData);
+}
+
+void wl_Window::onChar(wl_Event& event, WPARAM wParam, LPARAM lParam)
+{
+	unsigned char scanCode = (lParam >> 16) & 0xFF;
+	bool found = (suppressedScanCodes.find(scanCode) != suppressedScanCodes.end());
+	if (!found) {
+		static wchar_t utf16_buffer[10];
+		static int buf_len = 0;
+		utf16_buffer[buf_len++] = (wchar_t)wParam;
+		if (wParam >= 0xD800 && wParam <= 0xDFFF) {
+			if (buf_len == 2) {
+				utf16_buffer[2] = 0;
+				auto utf8 = wstring_to_utf8(utf16_buffer);
+
+				event.eventType = wl_kEventTypeKey;
+				event.keyEvent.eventType = wl_kKeyEventTypeChar;
+				event.keyEvent.key = wl_kKeyUnknown;
+				event.keyEvent.modifiers = 0; // not used here
+
+				event.keyEvent.string = utf8.c_str();
+				eventCallback(this, &event, userData);
+
+				buf_len = 0;
+			}
+		}
+		else {
+			// single char
+			utf16_buffer[1] = 0;
+			auto utf8 = wstring_to_utf8(utf16_buffer);
+
+			event.eventType = wl_kEventTypeKey;
+			event.keyEvent.eventType = wl_kKeyEventTypeChar;
+			event.keyEvent.key = wl_kKeyUnknown;
+			event.keyEvent.modifiers = 0; // not used here
+
+			event.keyEvent.string = utf8.c_str();
+			eventCallback(this, &event, userData);
+
+			buf_len = 0;
+		}
+	}
+}
+
+void wl_Window::onKey(wl_Event& event, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	unsigned char scanCode = (lParam >> 16) & 0xFF;
+	bool extended = ((lParam >> 24) & 0x1) ? true : false;
+
+	KeyInfo* value = keyMap[0]; // wl_kKeyUnknown
+	auto found = keyMap.find(wParam); // wParam = win32 virtual key
+	if (found != keyMap.end()) {
+		value = found->second;
+	}
+	if (value->key != wl_kKeyUnknown) {
+		event.eventType = wl_kEventTypeKey;
+		event.keyEvent.eventType = (message == WM_KEYDOWN ? wl_kKeyEventTypeDown : wl_kKeyEventTypeUp);
+		event.keyEvent.key = value->key;
+		event.keyEvent.modifiers = getKeyModifiers(); // should probably be tracking ctrl/alt/shift state as we go, instead of grabbing instantaneously here
+		event.keyEvent.string = value->stringRep;
+
+		// use scancode, extended value, etc to figure out location (left/right/numpad/etc)
+		if (value->knownLocation >= 0) {
+			event.keyEvent.location = (wl_KeyLocation)value->knownLocation;
+		}
+		else {
+			event.keyEvent.location = locationForKey(value->key, scanCode, extended);
+		}
+
+		eventCallback(this, &event, userData);
+
+		if (message == WM_KEYDOWN) { // is this needed for KEYUP too?
+			// does the WM_CHAR need to be suppressed?
+			// just add it to the blacklisted set (redundant but sufficient)
+			// could/should use a queue instead, but not every WM_CHAR has a corresponding/prior WM_KEYDOWN event
+			if (value->suppressCharEvent) {
+				suppressedScanCodes.insert(scanCode);
+			}
+		}
+	}
+	else {
+		printf("### unrecognized: VK %zd, scan %d [%s]\n", wParam, scanCode, extended ? "ext" : "--");
+	}
+}
+
+void wl_Window::onAction(wl_Event& event, int actionID)
+{
+	auto action = wl_Action::findByID(actionID);
+	if (action) {
+		event.eventType = wl_kEventTypeAction;
+		event.actionEvent.action = action; // aka value
+		event.actionEvent.id = actionID;
+		eventCallback(this, &event, userData);
+	}
 }
 
 // misc util funcs =================================================================

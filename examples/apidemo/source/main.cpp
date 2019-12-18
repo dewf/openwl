@@ -251,43 +251,43 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 		break;
 	}
 
-//	case wl_kEventTypeKey:
-//		switch (event->keyEvent.eventType) {
-//		case wl_kKeyEventTypeDown:
-//		{
-//			const char *loc =
-//				event->keyEvent.location == wl_kKeyLocationDefault ? "Default" :
-//				(event->keyEvent.location == wl_kKeyLocationLeft ? "Left" :
-//				(event->keyEvent.location == wl_kKeyLocationRight ? "Right" :
-//					(event->keyEvent.location == wl_kKeyLocationNumPad ? "Numpad" : "Unknown")));
-//			printf("Key down: %d [%s] (mods %02X) (loc %s)\n", event->keyEvent.key, event->keyEvent.string, event->keyEvent.modifiers, loc);
-//
-//			//if (event->keyEvent.key == wl_kKeyZ) {
-//			//	printf("fuckin Z!!\n");
-//			//	if (!framelessWindowVisible) {
-//			//		auto x2 = HOVER_HERE_X - POPUP_WIDTH / 2;
-//			//		auto y2 = HOVER_HERE_Y - 50;
-//			//		wl_WindowShowRelative(framelessWindow, mainWindow, x2, y2, 0, 0);
-//			//		framelessWindowVisible = true;
-//			//		printf("showing window!\n");
-//			//	}
-//			//	else {
-//			//		wl_WindowHide(framelessWindow);
-//			//		framelessWindowVisible = false;
-//			//		printf("hiding window!\n");
-//			//	}
-//			//}
-//			break;
-//		}
-//		case wl_kKeyEventTypeUp:
-//			//printf(" - keyup: %d [%s]\n", event->keyEvent.key, event->keyEvent.string);
-//			break;
-//		case wl_kKeyEventTypeChar:
-//			printf("CHAR: '%s'\n", event->keyEvent.string);
-//			break;
-//		}
-//		break;
-//
+	case wl_kEventTypeKey:
+		switch (event->keyEvent.eventType) {
+		case wl_kKeyEventTypeDown:
+		{
+			const char *loc =
+				event->keyEvent.location == wl_kKeyLocationDefault ? "Default" :
+				(event->keyEvent.location == wl_kKeyLocationLeft ? "Left" :
+				(event->keyEvent.location == wl_kKeyLocationRight ? "Right" :
+					(event->keyEvent.location == wl_kKeyLocationNumPad ? "Numpad" : "Unknown")));
+			printf("Key down: %d [%s] (mods %02X) (loc %s)\n", event->keyEvent.key, event->keyEvent.string, event->keyEvent.modifiers, loc);
+
+			//if (event->keyEvent.key == wl_kKeyZ) {
+			//	printf("fuckin Z!!\n");
+			//	if (!framelessWindowVisible) {
+			//		auto x2 = HOVER_HERE_X - POPUP_WIDTH / 2;
+			//		auto y2 = HOVER_HERE_Y - 50;
+			//		wl_WindowShowRelative(framelessWindow, mainWindow, x2, y2, 0, 0);
+			//		framelessWindowVisible = true;
+			//		printf("showing window!\n");
+			//	}
+			//	else {
+			//		wl_WindowHide(framelessWindow);
+			//		framelessWindowVisible = false;
+			//		printf("hiding window!\n");
+			//	}
+			//}
+			break;
+		}
+		case wl_kKeyEventTypeUp:
+			//printf(" - keyup: %d [%s]\n", event->keyEvent.key, event->keyEvent.string);
+			break;
+		case wl_kKeyEventTypeChar:
+			printf("CHAR: '%s'\n", event->keyEvent.string);
+			break;
+		}
+		break;
+
 //	case wl_kEventTypeDragRender:
 //		if (platformProvidesDragFormat(event->dragRenderEvent.dragFormat)) {
 //			platformRenderDragFormat(event->dragRenderEvent.payload, event->dragRenderEvent.dragFormat);

@@ -16,7 +16,7 @@ private:
 public:
     static wl_ActionRef create(int id, const char* label, wl_IconRef icon, wl_AcceleratorRef accel);
     static HACCEL createAccelTable();
-    static void onActionID(wl_Event& event, int id, wl_WindowRef window);
+    static wl_ActionRef findByID(int id);
 
     wl_MenuItemRef addToMenu(wl_MenuRef menu);
 };
