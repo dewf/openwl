@@ -166,6 +166,7 @@
     <ClCompile Include="..\..\..\source\win32-hidpi\globals.cpp" />
     <ClCompile Include="..\..\..\source\win32-hidpi\openwl.cpp" />
     <ClCompile Include="..\..\..\source\win32-hidpi\private_defs.cpp" />
+    <ClCompile Include="..\..\..\source\win32-hidpi\timer.cpp" />
     <ClCompile Include="..\..\..\source\win32-hidpi\unicodestuff.cpp" />
     <ClCompile Include="..\..\..\source\win32-hidpi\win32util.cpp" />
     <ClCompile Include="..\..\..\source\win32-hidpi\window.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="..\..\..\source\win32-hidpi\comstuff.h" />
     <ClInclude Include="..\..\..\source\win32-hidpi\globals.h" />
     <ClInclude Include="..\..\..\source\win32-hidpi\private_defs.h" />
+    <ClInclude Include="..\..\..\source\win32-hidpi\timer.h" />
     <ClInclude Include="..\..\..\source\win32-hidpi\unicodestuff.h" />
     <ClInclude Include="..\..\..\source\win32-hidpi\win32util.h" />
     <ClInclude Include="..\..\..\source\win32-hidpi\window.h" />

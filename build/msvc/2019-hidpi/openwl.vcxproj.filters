@@ -42,6 +42,9 @@
     <ClCompile Include="..\..\..\source\win32-hidpi\private_defs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\source\win32-hidpi\timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\source\openwl.h">
@@ -66,6 +69,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\source\win32-hidpi\private_defs.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\win32-hidpi\timer.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

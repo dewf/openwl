@@ -32,12 +32,13 @@ private:
     // private methods ============================
 	wl_Window();
     void unregisterDropWindow();
+    void direct2DCreateTarget();
 public:
     ~wl_Window();
 	static wl_WindowRef create(int width, int height, const char* title, void* userData, wl_WindowProperties* props);
     void wlDestroy(); // OpenWL API method - the wndproc will be responsible for actual win32 / C++ deletion
     void show();
-    void direct2DCreateTarget();
+    void invalidate(int x, int y, int width, int height);
 
     // wndproc handlers
     void onClose(wl_Event& event);

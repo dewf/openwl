@@ -5,7 +5,9 @@
 #include "private_defs.h"
 
 #include <stdio.h>
-//#include "globals.h"
+#include "globals.h"
+
+#include "timer.h"
 //
 //#include "unicodestuff.h"
 //
@@ -34,23 +36,24 @@
 // app-global window proc
 LRESULT CALLBACK appGlobalWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    //if (hWnd == appGlobalWindow) {
-    //    switch (message) {
-    //    case WM_WLTimerMessage:
-    //        processTimerMessage(message, wParam, lParam);
-    //        break;
-    //    case WM_WLMainThreadExecMsg:
-    //        ExecuteMainItem((MainThreadExecItem*)lParam);
-    //        break;
-    //    default:
-    //        return DefWindowProc(hWnd, message, wParam, lParam);
-    //    }
-    //}
-    //else {
-    //    return DefWindowProc(hWnd, message, wParam, lParam);
-    //}
-    //return 0;
-    return DefWindowProc(hWnd, message, wParam, lParam);
+    if (hWnd == appGlobalWindow) {
+        switch (message) {
+        case WM_WLTimerMessage: {
+            auto timer = (wl_TimerRef)lParam;
+            timer->onTimerMessage(message, wParam, lParam);
+            break;
+        }
+        //case WM_WLMainThreadExecMsg:
+        //    ExecuteMainItem((MainThreadExecItem*)lParam);
+        //    break;
+        default:
+            return DefWindowProc(hWnd, message, wParam, lParam);
+        }
+    }
+    else {
+        return DefWindowProc(hWnd, message, wParam, lParam);
+    }
+    return 0;
 }
 
 LRESULT CALLBACK topLevelWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)

@@ -8,23 +8,23 @@
 
 #include "main.h"
 
-//enum IDsEnum {
-//    // action IDs
-//    ID_FileAction1,
-//    ID_FileAction2,
-//    ID_ExitAction,
-//    ID_CopyAction,
-//    ID_PasteAction,
-//    ID_HelpAction,
-//    ID_ContextAction1,
-//    ID_ContextAction2,
-//    ID_ContextAction3,
-//    ID_ContextAction4,
-//    // timer IDs
-//    ID_FastTimer,
-//    ID_SlowTimer
-//};
-//
+enum IDsEnum {
+    // action IDs
+    ID_FileAction1,
+    ID_FileAction2,
+    ID_ExitAction,
+    ID_CopyAction,
+    ID_PasteAction,
+    ID_HelpAction,
+    ID_ContextAction1,
+    ID_ContextAction2,
+    ID_ContextAction3,
+    ID_ContextAction4,
+    // timer IDs
+    ID_FastTimer,
+    ID_SlowTimer
+};
+
 //// file menu
 //wl_ActionRef fileAction1;
 //wl_ActionRef fileAction2;
@@ -49,7 +49,7 @@ int totalFrames = 0;
 
 int width, height;
 
-//wl_TimerRef fastTimer, slowTimer;
+wl_TimerRef fastTimer, slowTimer;
 
 wl_WindowRef mainWindow;
 wl_WindowRef framelessWindow;
@@ -146,20 +146,20 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 		}
 		break;
 
-//	case wl_kEventTypeTimer:
-//		// NOTE! 'window' param will be null here, timer events are app-global, not related to any specific window
-//		switch ((size_t)event->timerEvent.userData) {
-//		case ID_FastTimer:
-//			wl_WindowInvalidate(mainWindow, 0, 0, 0, 0); // entire window
-//			break;
-//		case ID_SlowTimer:
-//			//printf("%d frames\n", numFrames);
-//			totalFrames = lastFrame;
-//			lastFrame = 0;
-//			break;
-//		}
-//		break;
-//
+	case wl_kEventTypeTimer:
+		// NOTE! 'window' param will be null here, timer events are app-global, not related to any specific window
+		switch ((size_t)event->timerEvent.userData) {
+		case ID_FastTimer:
+			wl_WindowInvalidate(mainWindow, 0, 0, 0, 0); // entire window
+			break;
+		case ID_SlowTimer:
+			//printf("%d frames\n", numFrames);
+			totalFrames = lastFrame;
+			lastFrame = 0;
+			break;
+		}
+		break;
+
 //	case wl_kEventTypeMouse:
 //	{
 //		if (window != mainWindow) break;
@@ -531,9 +531,9 @@ int main(int argc, const char * argv[]) {
 
 	platformInit();
 
-//	fastTimer = wl_TimerCreate(16, (void *)ID_FastTimer); // ~60fps
-//	slowTimer = wl_TimerCreate(1000, (void *)ID_SlowTimer);
-//
+	fastTimer = wl_TimerCreate(16, (void *)ID_FastTimer); // ~60fps
+	slowTimer = wl_TimerCreate(1000, (void *)ID_SlowTimer);
+
 //	wl_WindowEnableDrops(mainWindow, true);
 //
 //	platformCreateThreads(bgThreadFunc, NUM_THREADS);
@@ -544,9 +544,9 @@ int main(int argc, const char * argv[]) {
 
 	wl_Runloop();
 
-//	wl_TimerDestroy(fastTimer);
-//	wl_TimerDestroy(slowTimer);
-//
+	wl_TimerDestroy(fastTimer);
+	wl_TimerDestroy(slowTimer);
+
 //	wl_ClipboardFlush();
 //
 //	platformJoinThreads();

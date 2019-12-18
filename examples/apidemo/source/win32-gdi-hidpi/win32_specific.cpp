@@ -77,6 +77,9 @@ void platformDraw(wl_PlatformContext *platformContext) {
 	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
 	graphics.SetTextRenderingHint(TextRenderingHintAntiAlias);
 
+	//SolidBrush blueBG(Color::DarkBlue);
+	//auto bgRect = RectF(0, 0, width2, height2);
+	//graphics.FillRectangle(&blueBG, bgRect);
 	graphics.DrawImage(bgBitmap, Rect(0, 0, DPIUP(MAX_WIDTH), DPIUP(MAX_HEIGHT)));
 
 	// draw crossed lines
@@ -99,18 +102,18 @@ void platformDraw(wl_PlatformContext *platformContext) {
 	drawTextRect(platformContext->dpi, graphics, font, L"Drop Target", DROP_TARGET_X, DROP_TARGET_Y, DROP_TARGET_W, DROP_TARGET_H);
 	drawTextRect(platformContext->dpi, graphics, font, L"Hover Here", HOVER_HERE_X, HOVER_HERE_Y, HOVER_HERE_W, HOVER_HERE_H);
 
-	//RectF frameRect((float)(width - 260), (float)(height - 50), (float)260, (float)50);
-	//RectF exts;
-	//graphics.MeasureString(L"FRAME 999 (999)", -1, &font, frameRect, &exts);
-	//auto tx = frameRect.X + (frameRect.Width - exts.Width) / 2;
-	//auto ty = frameRect.Y + (frameRect.Height - exts.Height) / 2;
+	RectF frameRect((float)DPIUP(width - 260), (float)DPIUP(height - 50), (float)DPIUP(260), (float)DPIUP(50));
+	RectF exts;
+	graphics.MeasureString(L"FRAME 999 (999)", -1, &font, frameRect, &exts);
+	auto tx = (frameRect.X + (frameRect.Width - exts.Width) / 2);
+	auto ty = (frameRect.Y + (frameRect.Height -exts.Height) / 2);
 
-	//WCHAR text[1024];
-	//wsprintf(text, L"FRAME %d (%d)", lastFrame, totalFrames);
-	//SolidBrush blackBrush(Color::White);
-	//graphics.DrawString(text, -1, &font, PointF(tx, ty), &blackBrush);
+	WCHAR text[1024];
+	wsprintf(text, L"FRAME %d (%d)", lastFrame, totalFrames);
+	SolidBrush blackBrush(Color::White);
+	graphics.DrawString(text, -1, &font, PointF(tx, ty), &blackBrush);
 
-	//lastFrame++;
+	lastFrame++;
 
 	target.DrawImage(&offScreenBuffer, Rect(0, 0, width2, height2));
 }

@@ -159,6 +159,22 @@ void wl_Window::show()
 	UpdateWindow(hWnd);
 }
 
+void wl_Window::invalidate(int x, int y, int width, int height)
+{
+	DECLSF(dpi);
+	if (width > 0 && height > 0) {
+		RECT r;
+		r.left = DPIUP(x);
+		r.top = DPIUP(y);
+		r.right = DPIUP(x + width);
+		r.bottom = DPIUP(y + height);
+		InvalidateRect(hWnd, &r, FALSE);
+	}
+	else {
+		InvalidateRect(hWnd, nullptr, FALSE); // entire window
+	}
+}
+
 // win32 wndproc handling ==========================================================
 
 void wl_Window::onClose(wl_Event& event)

@@ -5,9 +5,10 @@
 
 #include "wndproc.h" // topLevelWindowProc, appGlobalWindowProc
 #include "unicodestuff.h"
+#include "comstuff.h"
 
 #include "window.h"
-#include "comstuff.h"
+#include "timer.h"
 
 #include <stdio.h>
 #include <assert.h>
@@ -32,6 +33,10 @@ OPENWL_API int CDECL wl_Init(wl_EventCallback callback, struct wl_PlatformOption
 			options->outParams.factory = d2dFactory;
 		}
 	}
+
+	// essential info for timers
+	QueryPerformanceFrequency(&perfCounterTicksPerSecond);
+	printf("perf counter freq: %lld\n", perfCounterTicksPerSecond.QuadPart);
 
 	// for receiving messages that don't belong to any window:
 	// see: https://devblogs.microsoft.com/oldnewthing/20050426-18/?p=35783 "Thread messages are eaten by modal loops"
@@ -97,4 +102,21 @@ OPENWL_API void CDECL wl_WindowDestroy(wl_WindowRef window)
 OPENWL_API void CDECL wl_WindowShow(wl_WindowRef window)
 {
 	window->show();
+}
+
+OPENWL_API void CDECL wl_WindowInvalidate(wl_WindowRef window, int x, int y, int width, int height)
+{
+	window->invalidate(x, y, width, height);
+}
+
+/* timer API */
+
+OPENWL_API wl_TimerRef CDECL wl_TimerCreate(unsigned int msTimeout, void* userData)
+{
+	return wl_Timer::create(msTimeout, userData);
+}
+
+OPENWL_API void CDECL wl_TimerDestroy(wl_TimerRef timer)
+{
+	delete timer;
 }

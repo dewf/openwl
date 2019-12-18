@@ -13,9 +13,22 @@ extern DWORD mainThreadID;
 
 extern HWND appGlobalWindow; // for receiving messages that don't belong to any window (see comments at point of creation for more)
 
-// client-supplied callback
-extern wl_EventCallback eventCallback;
+// custom wndproc messages (currently just for our app-global messages)
+enum Win32MessageEnum : UINT {
+	Nothing = WM_USER,
+	// custom window messages here
+	AppGlobalMsgBegin = Nothing + 0x500,
+	// custom app (main thread) messages here
+	WM_WLTimerMessage,
+	WM_WLMainThreadExecMsg,
+};
+
+// timer stuff
+extern LARGE_INTEGER perfCounterTicksPerSecond;
 
 // direct2D stuff
 extern bool useDirect2D;
 extern ID2D1Factory1* d2dFactory;
+
+// client-supplied callback
+extern wl_EventCallback eventCallback;
