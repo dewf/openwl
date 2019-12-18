@@ -69,9 +69,9 @@ float pointDist(int x1, int y1, int x2, int y2) {
 	return (float)sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
 }
 
-//inline bool strEqual(const char *a, const char *b) {
-//	return !strcmp(a, b);
-//}
+inline bool strEqual(const char *a, const char *b) {
+	return !strcmp(a, b);
+}
 
 int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 	event->handled = true;
@@ -97,29 +97,29 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 			wl_WindowDestroy(window); // app will close when destroy message received (see above)
 		}
 		else if (event->actionEvent.action == copyAction) {
-			//auto clipData = wl_DragDataCreate(window);
-			//wl_DragAddFormat(clipData, wl_kDragFormatUTF8);
-			//wl_ClipboardSet(clipData);
-			//printf("clipboard copy done\n");
-			//wl_DragDataRelease(&clipData);
+			auto clipData = wl_DragDataCreate(window);
+			wl_DragAddFormat(clipData, wl_kDragFormatUTF8);
+			wl_ClipboardSet(clipData);
+			printf("clipboard copy done\n");
+			wl_DragDataRelease(&clipData);
 		}
 		else if (event->actionEvent.action == pasteAction) {
-			//auto clipData = wl_ClipboardGet();
-			//if (wl_DropHasFormat(clipData, wl_kDragFormatFiles)) {
-			//	const wl_Files *files;
-			//	wl_DropGetFiles(clipData, &files);
-			//	for (int i = 0; i < files->numFiles; i++) {
-			//		printf("Got file: [%s]\n", files->filenames[i]);
-			//	}
-			//}
-			//else if (wl_DropHasFormat(clipData, wl_kDragFormatUTF8)) {
-			//	const char *text;
-			//	size_t textSize;
-			//	if (wl_DropGetFormat(clipData, wl_kDragFormatUTF8, (const void **)&text, &textSize)) {
-			//		printf("got clipboard text: [%s]\n", text);
-			//	}
-			//}
-			//wl_ClipboardRelease(clipData);
+			auto clipData = wl_ClipboardGet();
+			if (wl_DropHasFormat(clipData, wl_kDragFormatFiles)) {
+				const wl_Files *files;
+				wl_DropGetFiles(clipData, &files);
+				for (int i = 0; i < files->numFiles; i++) {
+					printf("Got file: [%s]\n", files->filenames[i]);
+				}
+			}
+			else if (wl_DropHasFormat(clipData, wl_kDragFormatUTF8)) {
+				const char *text;
+				size_t textSize;
+				if (wl_DropGetFormat(clipData, wl_kDragFormatUTF8, (const void **)&text, &textSize)) {
+					printf("got clipboard text: [%s]\n", text);
+				}
+			}
+			wl_ClipboardRelease(clipData);
 		}
 		break;
 
@@ -196,19 +196,19 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 		else if (event->mouseEvent.eventType == wl_kMouseEventTypeMouseMove) {
 			// if dragging ...
 			if (dragging) {
-				//if (pointDist(dragStartX, dragStartY, event->mouseEvent.x, event->mouseEvent.y) > 4.0) {
-				//	auto dragData = wl_DragDataCreate(window);
+				if (pointDist(dragStartX, dragStartY, event->mouseEvent.x, event->mouseEvent.y) > 4.0) {
+					auto dragData = wl_DragDataCreate(window);
 
-				//	wl_DragAddFormat(dragData, wl_kDragFormatUTF8);
-				//	//                    wl_DragAddFormat(dragData, wlDragFormatFiles);
+					wl_DragAddFormat(dragData, wl_kDragFormatUTF8);
+					// wl_DragAddFormat(dragData, wlDragFormatFiles);
 
-				//	printf("starting drag ...\n");
-				//	auto whichAction = wl_DragExec(dragData, wl_kDropEffectCopy | wl_kDropEffectMove | wl_kDropEffectLink, event);
-				//	printf("selected dragexec action: %d\n", whichAction);
-    //                dragging = false;
-				//	wl_DragDataRelease(&dragData);
-				//	printf("drag complete\n");
-				//}
+					printf("starting drag ...\n");
+					auto whichAction = wl_DragExec(dragData, wl_kDropEffectCopy | wl_kDropEffectMove | wl_kDropEffectLink, event);
+					printf("selected dragexec action: %d\n", whichAction);
+                    dragging = false;
+					wl_DragDataRelease(&dragData);
+					printf("drag complete\n");
+				}
 			} else if (grabbed) {
 			    // just print coords to verify grab
 			    printf("(grabbed) move event: %d,%d\n", event->mouseEvent.x, event->mouseEvent.y);
@@ -262,21 +262,6 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 					(event->keyEvent.location == wl_kKeyLocationNumPad ? "Numpad" : "Unknown")));
 			printf("Key down: %d [%s] (mods %02X) (loc %s)\n", event->keyEvent.key, event->keyEvent.string, event->keyEvent.modifiers, loc);
 
-			//if (event->keyEvent.key == wl_kKeyZ) {
-			//	printf("fuckin Z!!\n");
-			//	if (!framelessWindowVisible) {
-			//		auto x2 = HOVER_HERE_X - POPUP_WIDTH / 2;
-			//		auto y2 = HOVER_HERE_Y - 50;
-			//		wl_WindowShowRelative(framelessWindow, mainWindow, x2, y2, 0, 0);
-			//		framelessWindowVisible = true;
-			//		printf("showing window!\n");
-			//	}
-			//	else {
-			//		wl_WindowHide(framelessWindow);
-			//		framelessWindowVisible = false;
-			//		printf("hiding window!\n");
-			//	}
-			//}
 			break;
 		}
 		case wl_kKeyEventTypeUp:
@@ -288,81 +273,81 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 		}
 		break;
 
-//	case wl_kEventTypeDragRender:
-//		if (platformProvidesDragFormat(event->dragRenderEvent.dragFormat)) {
-//			platformRenderDragFormat(event->dragRenderEvent.payload, event->dragRenderEvent.dragFormat);
-//		}
-//		else if (strEqual(event->dragRenderEvent.dragFormat, wl_kDragFormatUTF8)) {
-//			wl_DragRenderUTF8(event->dragRenderEvent.payload, u8"<<Here's your ad-hoc generated text, woooot!!>>");
-//		}
-//		else if (strEqual(event->dragRenderEvent.dragFormat, wl_kDragFormatFiles)) {
-//			wl_Files files;
-//			files.numFiles = 3;
-//			files.filenames = new const char*[3];
-//			files.filenames[0] = "/boot/home/Desktop/cool_bitmap";
-//			files.filenames[1] = "/boot/home/Desktop/text_file";
-//			files.filenames[2] = "/boot/home/Desktop/dragme";
-//			//
-//			wl_DragRenderFiles(event->dragRenderEvent.payload, &files);
-//			// safe to delete
-//			delete files.filenames;
-//		}
-//		else {
-//			printf("#### drag source render - unhandled mime type");
-//			event->handled = false;
-//		}
-//		break;
-//
-//	case wl_kEventTypeDrop:
-//		switch (event->dropEvent.eventType) {
-//		case wl_kDropEventTypeFeedback:
-//			if (pointInRect(event->dropEvent.x, event->dropEvent.y, DROP_TARGET_X, DROP_TARGET_Y, DROP_TARGET_W, DROP_TARGET_H))
-//			{
-//				if (wl_DropHasFormat(event->dropEvent.data, wl_kDragFormatUTF8) ||
-//					wl_DropHasFormat(event->dropEvent.data, wl_kDragFormatFiles) ||
-//					platformCheckDropFormats(event->dropEvent.data))
-//				{
-//					event->dropEvent.allowedEffectMask &= event->dropEvent.defaultModifierAction; // use platform-specific suggestion based on mod keys
-//				}
-//			}
-//			else {
-//				event->dropEvent.allowedEffectMask = wl_kDropEffectNone;
-//			}
-//			break;
-//		case wl_kDropEventTypeDrop:
-//			// check final modifiers?
-//			event->dropEvent.allowedEffectMask &= event->dropEvent.defaultModifierAction; // why is this here?
-//
-//			if (platformCheckDropFormats(event->dropEvent.data)) {
-//				// check the platform-specific stuff first, otherwise sometimes the wlDragFormatUTF8 handler grabs it first
-//				// (eg, haiku's translation kit offers to convert all kinds of things to text, which is silly)
-//				platformHandleDrop(event->dropEvent.data);
-//			}
-//			else if (wl_DropHasFormat(event->dropEvent.data, wl_kDragFormatFiles)) {
-//				const wl_Files *files;
-//				if (wl_DropGetFiles(event->dropEvent.data, &files)) {
-//					for (int i = 0; i < files->numFiles; i++) {
-//						printf("Got file: [%s]\n", files->filenames[i]);
-//					}
-//				}
-//			}
-//			else if (wl_DropHasFormat(event->dropEvent.data, wl_kDragFormatUTF8)) {
-//				const char *text;
-//				size_t textSize;
-//				if (wl_DropGetFormat(event->dropEvent.data, wl_kDragFormatUTF8, (const void **)&text, &textSize)) {
-//					printf("got text: [%s]\n", text);
-//				}
-//				else {
-//					printf("did NOT get text - wlDropGetText failed\n");
-//				}
-//			}
-//			else {
-//				printf("unhandled format in wl_kDropEventTypeDrop\n");
-//			}
-//
-//			break;
-//		}
-//		break; // case wl_kEventTypeDragEvent
+	case wl_kEventTypeDragRender:
+		if (platformProvidesDragFormat(event->dragRenderEvent.dragFormat)) {
+			platformRenderDragFormat(event->dragRenderEvent.payload, event->dragRenderEvent.dragFormat);
+		}
+		else if (strEqual(event->dragRenderEvent.dragFormat, wl_kDragFormatUTF8)) {
+			wl_DragRenderUTF8(event->dragRenderEvent.payload, u8"<<Here's your ad-hoc generated text, woooot!!>>");
+		}
+		else if (strEqual(event->dragRenderEvent.dragFormat, wl_kDragFormatFiles)) {
+			wl_Files files;
+			files.numFiles = 3;
+			files.filenames = new const char*[3];
+			files.filenames[0] = "/boot/home/Desktop/cool_bitmap";
+			files.filenames[1] = "/boot/home/Desktop/text_file";
+			files.filenames[2] = "/boot/home/Desktop/dragme";
+			//
+			wl_DragRenderFiles(event->dragRenderEvent.payload, &files);
+			// safe to delete
+			delete files.filenames;
+		}
+		else {
+			printf("#### drag source render - unhandled mime type");
+			event->handled = false;
+		}
+		break;
+
+	case wl_kEventTypeDrop:
+		switch (event->dropEvent.eventType) {
+		case wl_kDropEventTypeFeedback:
+			if (pointInRect(event->dropEvent.x, event->dropEvent.y, DROP_TARGET_X, DROP_TARGET_Y, DROP_TARGET_W, DROP_TARGET_H))
+			{
+				if (wl_DropHasFormat(event->dropEvent.data, wl_kDragFormatUTF8) ||
+					wl_DropHasFormat(event->dropEvent.data, wl_kDragFormatFiles) ||
+					platformCheckDropFormats(event->dropEvent.data))
+				{
+					event->dropEvent.allowedEffectMask &= event->dropEvent.defaultModifierAction; // use platform-specific suggestion based on mod keys
+				}
+			}
+			else {
+				event->dropEvent.allowedEffectMask = wl_kDropEffectNone;
+			}
+			break;
+		case wl_kDropEventTypeDrop:
+			// check final modifiers?
+			event->dropEvent.allowedEffectMask &= event->dropEvent.defaultModifierAction; // why is this here?
+
+			if (platformCheckDropFormats(event->dropEvent.data)) {
+				// check the platform-specific stuff first, otherwise sometimes the wlDragFormatUTF8 handler grabs it first
+				// (eg, haiku's translation kit offers to convert all kinds of things to text, which is silly)
+				platformHandleDrop(event->dropEvent.data);
+			}
+			else if (wl_DropHasFormat(event->dropEvent.data, wl_kDragFormatFiles)) {
+				const wl_Files *files;
+				if (wl_DropGetFiles(event->dropEvent.data, &files)) {
+					for (int i = 0; i < files->numFiles; i++) {
+						printf("Got file: [%s]\n", files->filenames[i]);
+					}
+				}
+			}
+			else if (wl_DropHasFormat(event->dropEvent.data, wl_kDragFormatUTF8)) {
+				const char *text;
+				size_t textSize;
+				if (wl_DropGetFormat(event->dropEvent.data, wl_kDragFormatUTF8, (const void **)&text, &textSize)) {
+					printf("got text: [%s]\n", text);
+				}
+				else {
+					printf("did NOT get text - wlDropGetText failed\n");
+				}
+			}
+			else {
+				printf("unhandled format in wl_kDropEventTypeDrop\n");
+			}
+
+			break;
+		}
+		break; // case wl_kEventTypeDragEvent
 
 	default:
 		printf("unhandled wl callback event type: %d\n", event->eventType);
@@ -534,7 +519,7 @@ int main(int argc, const char * argv[]) {
 	fastTimer = wl_TimerCreate(16, (void *)ID_FastTimer); // ~60fps
 	slowTimer = wl_TimerCreate(1000, (void *)ID_SlowTimer);
 
-//	wl_WindowEnableDrops(mainWindow, true);
+	wl_WindowEnableDrops(mainWindow, true);
 
 	platformCreateThreads(bgThreadFunc, NUM_THREADS);
 
@@ -547,7 +532,7 @@ int main(int argc, const char * argv[]) {
 	wl_TimerDestroy(fastTimer);
 	wl_TimerDestroy(slowTimer);
 
-//	wl_ClipboardFlush();
+	wl_ClipboardFlush();
 
 	platformJoinThreads();
 	platformShutdown();

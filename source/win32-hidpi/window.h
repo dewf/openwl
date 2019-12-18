@@ -35,6 +35,9 @@ private:
 	wl_Window();
     void unregisterDropWindow();
     void direct2DCreateTarget();
+
+    static void RegisterDropWindow(wl_WindowRef window, IDropTarget** ppDropTarget);
+    static void UnregisterDropWindow(wl_WindowRef window, IDropTarget* pDropTarget);
 public:
     ~wl_Window();
 	static wl_WindowRef create(int width, int height, const char* title, void* userData, wl_WindowProperties* props);
@@ -44,13 +47,22 @@ public:
     void hide();
     void invalidate(int x, int y, int width, int height);
 
+    void setMenuBar(wl_MenuBarRef menuBar);
+
     void grab();
     static void ungrab();
 
     void setCursor(wl_CursorRef cursor);
 
     void showContextMenu(int x, int y, wl_MenuRef menu, struct wl_Event* fromEvent);
-    void setMenuBar(wl_MenuBarRef menuBar);
+
+    void enableDrops(bool enabled);
+    void setFocus();
+
+    void screenToClient(LPPOINT p);
+
+    // misc
+    void sendEvent(wl_Event& event); // send a prepared event to this window
 
     // wndproc handlers
     void onClose(wl_Event& event);

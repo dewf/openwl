@@ -17,6 +17,11 @@
 #include "action.h"
 #include "keystuff.h"
 
+// DnD stuff
+#include <Ole2.h>
+#include "dragdrop/dropsource.h"
+#include "MyDropTarget.h"
+
 #include <stdio.h>
 #include <assert.h>
 
@@ -225,6 +230,130 @@ OPENWL_API wl_MenuBarRef CDECL wl_MenuBarCreate()
 OPENWL_API void CDECL wl_WindowSetMenuBar(wl_WindowRef window, wl_MenuBarRef menuBar)
 {
 	window->setMenuBar(menuBar);
+}
+
+// DnD etc ============================================
+
+OPENWL_API const char* wl_kDragFormatUTF8 = "application/vnd.openwl-utf8"; // doesn't matter what these are on win32, we don't use them directly
+OPENWL_API const char* wl_kDragFormatFiles = "application/vnd.openwl-files";
+
+// drag source methods
+OPENWL_API wl_DragDataRef CDECL wl_DragDataCreate(wl_WindowRef forWindow)
+{
+	return new wl_DragData(forWindow);
+}
+
+OPENWL_API void CDECL wl_DragDataRelease(wl_DragDataRef* dragData)
+{
+	delete* dragData;
+	*dragData = nullptr;
+}
+
+OPENWL_API void CDECL wl_DragAddFormat(wl_DragDataRef dragData, const char* dragFormatMIME)
+{
+	// we are capable of being a source of these formats
+	// this should only be called one dragdata we're SENDING, because we're assuming a MyDataObject, not a base IDataObject given to us from outside
+	dragData->sendObject->addDragFormat(dragFormatMIME);
+}
+
+OPENWL_API enum wl_DropEffect CDECL wl_DragExec(wl_DragDataRef dragData, unsigned int dropActionsMask, struct wl_Event* fromEvent)
+{
+	auto dataObject = dragData->sendObject;
+	//auto dataObject = mimeToDataObject(dragData);
+	IDropSource* dropSource;
+	CreateDropSource(&dropSource);
+
+	DWORD okEffects =
+		((dropActionsMask & wl_kDropEffectCopy) ? DROPEFFECT_COPY : 0) |
+		((dropActionsMask & wl_kDropEffectMove) ? DROPEFFECT_MOVE : 0) |
+		((dropActionsMask & wl_kDropEffectLink) ? DROPEFFECT_LINK : 0);
+
+	wl_DropEffect result;
+	DWORD actualEffect;
+	if (DoDragDrop(dataObject, dropSource, okEffects, &actualEffect) == DRAGDROP_S_DROP) {
+		result =
+			(actualEffect == DROPEFFECT_COPY) ? wl_kDropEffectCopy :
+			((actualEffect == DROPEFFECT_MOVE) ? wl_kDropEffectMove :
+			((actualEffect == DROPEFFECT_LINK) ? wl_kDropEffectLink : wl_kDropEffectNone));
+	}
+	else {
+		result = wl_kDropEffectNone;
+	}
+	// ownership based on effect??
+	//dataObject->Release(); // let the wl_DragDataRef destructor take care of that, if need be
+	dropSource->Release();
+	return result;
+}
+
+// drop target methods
+OPENWL_API bool CDECL wl_DropHasFormat(wl_DropDataRef dropData, const char* dropFormatMIME)
+{
+	return dropData->hasFormat(dropFormatMIME);
+}
+
+OPENWL_API bool CDECL wl_DropGetFormat(wl_DropDataRef dropData, const char* dropFormatMIME, const void** data, size_t* dataSize)
+{
+	return dropData->getFormat(dropFormatMIME, data, dataSize);
+}
+
+OPENWL_API bool CDECL wl_DropGetFiles(wl_DropDataRef dropData, const struct wl_Files** files)
+{
+	return dropData->getFiles(files);
+}
+
+// clip/drop data rendering
+OPENWL_API void CDECL wl_DragRenderUTF8(wl_RenderPayloadRef payload, const char* text)
+{
+	// handle converting to the internal required clipboard format here (UTF-16)
+	// that way the data is ready to go in CDataOboject::renderFormat without any special format checks
+	auto wide = utf8_to_wstring(text);
+	auto size = (wcslen(wide.c_str()) + 1) * sizeof(wchar_t);
+	payload->data = malloc(size);
+	memcpy(payload->data, wide.c_str(), size); // includes null at end
+	payload->size = size;
+}
+
+OPENWL_API void CDECL wl_DragRenderFiles(wl_RenderPayloadRef payload, const struct wl_Files* files)
+{
+	// how ?
+}
+
+OPENWL_API void CDECL wl_DragRenderFormat(wl_RenderPayloadRef payload, const char* formatMIME, const void* data, size_t dataSize)
+{
+	payload->data = malloc(dataSize);
+	memcpy(payload->data, data, dataSize);
+	payload->size = dataSize;
+}
+
+OPENWL_API void wl_WindowEnableDrops(wl_WindowRef window, bool enabled)
+{
+	window->enableDrops(enabled);
+}
+
+/* CLIPBOARD API */
+OPENWL_API void CDECL wl_ClipboardSet(wl_DragDataRef dragData)
+{
+	OleSetClipboard(dragData->sendObject);
+}
+
+OPENWL_API wl_DropDataRef CDECL wl_ClipboardGet()
+{
+	IDataObject* obj;
+	if (OleGetClipboard(&obj) == S_OK) {
+		return new wl_DropData(obj);
+	}
+	return nullptr;
+}
+
+OPENWL_API void CDECL wl_ClipboardRelease(wl_DropDataRef dropData)
+{
+	delete dropData; // destructor releases contents
+}
+
+OPENWL_API void CDECL wl_ClipboardFlush()
+{
+	printf("flushing clipboard...\n");
+	OleFlushClipboard();
 }
 
 // misc ===============================================

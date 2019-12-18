@@ -9,6 +9,8 @@
 #include "keystuff.h"
 #include "action.h"
 
+#include "MyDropTarget.h"
+
 #include <ShellScalingApi.h>
 #include <windowsx.h> // for some macros (GET_X_LPARAM etc)
 #include <stdio.h>
@@ -162,6 +164,31 @@ void wl_Window::direct2DCreateTarget()
 	// don't care if it was handled or not
 }
 
+void wl_Window::RegisterDropWindow(wl_WindowRef window, IDropTarget** ppDropTarget)
+{
+	auto pDropTarget = new MyDropTarget(window);
+
+	// acquire a strong lock
+	CoLockObjectExternal(pDropTarget, TRUE, FALSE);
+
+	// tell OLE that the window is a drop target
+	RegisterDragDrop(window->hWnd, pDropTarget);
+
+	*ppDropTarget = pDropTarget;
+}
+
+void wl_Window::UnregisterDropWindow(wl_WindowRef window, IDropTarget* pDropTarget)
+{
+	// remove drag+drop
+	RevokeDragDrop(window->hWnd);
+
+	// remove the strong lock
+	CoLockObjectExternal(pDropTarget, FALSE, TRUE);
+
+	// release our own reference
+	pDropTarget->Release();
+}
+
 void wl_Window::wlDestroy()
 {
 	unregisterDropWindow();
@@ -273,6 +300,35 @@ void wl_Window::setMenuBar(wl_MenuBarRef menuBar)
 
 	// don't set the menu until the very end, otherwise it sends a WM_SIZE message that fucks our calculations up
 	SetMenu(hWnd, menuBar->hmenu);
+}
+
+void wl_Window::enableDrops(bool enabled)
+{
+	if (enabled) {
+		RegisterDropWindow(this, &dropTarget);
+	}
+	else {
+		UnregisterDropWindow(this, dropTarget);
+		dropTarget = nullptr;
+	}
+}
+
+void wl_Window::sendEvent(wl_Event& event)
+{
+	eventCallback(this, &event, userData);
+}
+
+void wl_Window::setFocus()
+{
+	SetFocus(hWnd);
+}
+
+void wl_Window::screenToClient(LPPOINT p)
+{
+	DECLSF(dpi);
+	ScreenToClient(hWnd, p); // screen is in actual pixels, but we're going to return DIPs
+	DPIDOWN_INPLACE(p->x);
+	DPIDOWN_INPLACE(p->y);
 }
 
 // win32 wndproc handling ==========================================================
