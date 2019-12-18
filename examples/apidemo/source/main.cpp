@@ -200,7 +200,7 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 					auto dragData = wl_DragDataCreate(window);
 
 					wl_DragAddFormat(dragData, wl_kDragFormatUTF8);
-					// wl_DragAddFormat(dragData, wlDragFormatFiles);
+					//                    wl_DragAddFormat(dragData, wlDragFormatFiles);
 
 					printf("starting drag ...\n");
 					auto whichAction = wl_DragExec(dragData, wl_kDropEffectCopy | wl_kDropEffectMove | wl_kDropEffectLink, event);
@@ -262,6 +262,21 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 					(event->keyEvent.location == wl_kKeyLocationNumPad ? "Numpad" : "Unknown")));
 			printf("Key down: %d [%s] (mods %02X) (loc %s)\n", event->keyEvent.key, event->keyEvent.string, event->keyEvent.modifiers, loc);
 
+			//if (event->keyEvent.key == wl_kKeyZ) {
+			//	printf("fuckin Z!!\n");
+			//	if (!framelessWindowVisible) {
+			//		auto x2 = HOVER_HERE_X - POPUP_WIDTH / 2;
+			//		auto y2 = HOVER_HERE_Y - 50;
+			//		wl_WindowShowRelative(framelessWindow, mainWindow, x2, y2, 0, 0);
+			//		framelessWindowVisible = true;
+			//		printf("showing window!\n");
+			//	}
+			//	else {
+			//		wl_WindowHide(framelessWindow);
+			//		framelessWindowVisible = false;
+			//		printf("hiding window!\n");
+			//	}
+			//}
 			break;
 		}
 		case wl_kKeyEventTypeUp:
@@ -359,8 +374,8 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 void createActions() {
 	auto icon1 = wl_IconLoadFromFile("_icons/tall.png", 64);
 	auto icon2 = wl_IconLoadFromFile("_icons/wide.png", 64);
-	//auto icon1 = wl_IconLoadFromFile("_icons/horse.png", 32);
-	//auto icon2 = wl_IconLoadFromFile("_icons/laptop.png", 32);
+	//auto icon1 = wl_IconLoadFromFile("_icons/horse.png", 16);
+	//auto icon2 = wl_IconLoadFromFile("_icons/laptop.png", 16);
 
 	fileAction1 = wl_ActionCreate(ID_FileAction1, "Something", icon1, 0);
 
