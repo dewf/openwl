@@ -16,6 +16,7 @@
 #include "cursor.h"
 #include "action.h"
 #include "keystuff.h"
+#include "win32util.h"
 
 // DnD stuff
 #include <Ole2.h>
@@ -59,6 +60,7 @@ OPENWL_API int CDECL wl_Init(wl_EventCallback callback, struct wl_PlatformOption
 	// various "module" inits ======
 	cursor_init();
 	keystuff_init();
+	win32util_init();
 
 	return 0;
 }

@@ -4,6 +4,8 @@
 
 #include <stdio.h>
 
+const WCHAR* posProbeWindowClass = L"OpenWLPosProbe";
+
 void registerWindowClass(const WCHAR* windowClass, WNDPROC windowProc) {
 	WNDCLASSEXW wcex;
 
@@ -24,3 +26,16 @@ void registerWindowClass(const WCHAR* windowClass, WNDPROC windowProc) {
 	RegisterClassExW(&wcex);
 }
 
+void probeDefaultWindowPos(int *x, int *y, UINT *dpi) {
+	auto hWnd = CreateWindow(posProbeWindowClass, L"none", WS_OVERLAPPED, CW_USEDEFAULT, SW_HIDE, 10, 10, NULL, NULL, hInstance, 0);
+	*dpi = GetDpiForWindow(hWnd);
+	RECT r;
+	GetWindowRect(hWnd, &r);
+	*x = r.left;
+	*y = r.top;
+	DestroyWindow(hWnd);
+}
+
+void win32util_init() {
+	registerWindowClass(posProbeWindowClass, DefWindowProc);
+}

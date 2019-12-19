@@ -9,6 +9,8 @@
 #include "keystuff.h"
 #include "action.h"
 
+#include "win32util.h"
+
 #include "MyDropTarget.h"
 
 #include <ShellScalingApi.h>
@@ -63,38 +65,43 @@ wl_WindowRef wl_Window::create(int dipWidth, int dipHeight, const char* title, v
 
 	auto dwStyle = getWindowStyle(props, isPluginWindow);
 
-	// DPI awareness
-	auto defaultMonitor = MonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY);
-	UINT dpiX, dpiY;
-	GetDpiForMonitor(defaultMonitor, MDT_DEFAULT, &dpiX, &dpiY);
-	UINT dpi = (dpiX + dpiY) / 2; // uhh, I guess?
-
-	DECLSF(dpi);
-	auto width = DPIUP(dipWidth);
-	auto height = DPIUP(dipHeight);
-
-	// note: we don't fix props -- the min/max/Width/Height all stay in DIPs, because we might get dragged between monitors of different DPI -- need to calc fresh
-	//DPIUP_INPLACE(props->minWidth);
-	//DPIUP_INPLACE(props->minHeight);
-	//DPIUP_INPLACE(props->maxWidth);
-	//DPIUP_INPLACE(props->maxHeight);
+	// these need to be set by either branch below
+	UINT dpi;
+	int width, height;
 
 	// create actual win32 window
 	HWND hWnd = NULL;
 	if (isPluginWindow)
 	{
+		dpi = GetDpiForWindow(props->nativeParent);
+		// for now just assume what was passed in was the correct pixel width (ie, not DIPs)
+		width = dipWidth;
+		height = dipHeight;
+
 		hWnd = CreateWindowW(topLevelWindowClass, wideTitle.c_str(), dwStyle,
 			0, 0,
 			width, height, props->nativeParent, nullptr, hInstance, nullptr);
 	}
 	else {
 		// normal top-level window (or frameless)
+
+		// get DPI and default position on whichever monitor Windows wants us on
+		int defaultX, defaultY;
+		probeDefaultWindowPos(&defaultX, &defaultY, &dpi);
+
+		DECLSF(dpi);
+		width = DPIUP(dipWidth);
+		height = DPIUP(dipHeight);
+		// note: we don't fix props -- the min/max/width/height all stay in DIPs, 
+		//   because window might get dragged between monitors of different DPI
+		// so just recalc (DPIUP) from props each time (wl_Window::onGetMinMaxInfo)
+
 		calcChromeExtra(&extraWidth, &extraHeight, dwStyle, FALSE, dpi); // FALSE = no menu for now ... will recalc when the time comes
 
 		auto exStyle = (dwStyle & WS_POPUP) ? WS_EX_TOOLWINDOW : 0; // no taskbar button plz
 
 		hWnd = CreateWindowExW(exStyle, topLevelWindowClass, wideTitle.c_str(), dwStyle,
-			CW_USEDEFAULT, CW_USEDEFAULT,
+			defaultX, defaultY,
 			width + extraWidth, height + extraHeight, nullptr, nullptr, hInstance, nullptr);
 	}
 
