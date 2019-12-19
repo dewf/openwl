@@ -5,6 +5,7 @@
 #include "globals.h"
 
 #include "private_defs.h"
+#include "window.h"
 
 #include <cstring>
 
@@ -38,7 +39,8 @@ bool MyDataObject::renderFormat(FORMATETC *pFormatEtc, STGMEDIUM *pMedium) {
             event.eventType = wl_kEventTypeDragRender;
             event.dragRenderEvent.dragFormat = dragFormat.c_str();
             event.dragRenderEvent.payload = &payload;
-            eventCallback(mWindow, &event, mWindow->userData);
+            //eventCallback(mWindow, &event, mWindow->userData);
+            mWindow->sendEvent(event);
             //
 			if (event.handled) {
 				pMedium->tymed = fmtetc.tymed;

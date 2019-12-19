@@ -3,8 +3,6 @@
 #include "private_defs.h"
 #include "globals.h"
 
-#include "window.h"
-
 #include <assert.h>
 
 void MyDropTarget::setEventFields(wl_Event &event, DWORD grfKeyState, POINTL pt, DWORD * pdwEffect) {
@@ -13,7 +11,7 @@ void MyDropTarget::setEventFields(wl_Event &event, DWORD grfKeyState, POINTL pt,
         ((grfKeyState & MK_ALT) ? wl_kModifierAlt : 0) |
         ((grfKeyState & MK_SHIFT) ? wl_kModifierShift : 0);
 
-    mWindow->screenToClient((LPPOINT)&pt);
+    ScreenToClient(mWindow->hwnd, (LPPOINT)&pt);
     event.dropEvent.x = pt.x;
     event.dropEvent.y = pt.y;
 
@@ -32,7 +30,7 @@ void MyDropTarget::updateEffect(wl_Event &event, DWORD *pdwEffect) {
             ((mask & wl_kDropEffectMove) ? DROPEFFECT_MOVE : 0) |
             ((mask & wl_kDropEffectLink) ? DROPEFFECT_LINK : 0);
 
-        mWindow->setFocus();
+        SetFocus(mWindow->hwnd);
     }
     else {
         *pdwEffect = DROPEFFECT_NONE;
@@ -60,7 +58,7 @@ void MyDropTarget::commonQueryClient(wl_Event &event, DWORD grfKeyState, POINTL 
         event.dropEvent.defaultModifierAction = wl_kDropEffectMove;
     }
 
-    mWindow->sendEvent(event);
+    eventCallback(mWindow, &event, mWindow->userData);
     updateEffect(event, pdwEffect);
 }
 

@@ -184,7 +184,3 @@ wl_KeyLocation locationForKey(wl_KeyEnum key, unsigned char scanCode, bool exten
 	return loc;
 }
 
-void keystuff_init()
-{
-	initKeyMap();
-}

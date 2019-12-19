@@ -14,25 +14,10 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="Source Files\dragdrop">
-      <UniqueIdentifier>{76abfdba-2c77-45a0-adfb-dde432a3a581}</UniqueIdentifier>
+      <UniqueIdentifier>{334e2359-9572-4d63-9340-eb214491100c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="cpp.hint" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\source\openwl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\source\win32\action.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\source\win32\comstuff.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\source\win32\cursor.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\source\win32\globals.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -51,16 +36,13 @@
     <ClInclude Include="..\..\..\source\win32\private_defs.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\source\win32\timer.h">
+    <ClInclude Include="..\..\..\source\win32\resource.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\win32\targetver.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\source\win32\unicodestuff.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\source\win32\win32util.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\source\win32\window.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\source\win32\wndproc.h">
@@ -81,14 +63,11 @@
     <ClInclude Include="..\..\..\source\win32\dragdrop\oledragdrop.h">
       <Filter>Source Files\dragdrop</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\source\openwl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\source\win32\action.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\source\win32\cursor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\source\win32\dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -104,7 +83,7 @@
     <ClCompile Include="..\..\..\source\win32\MyDropTarget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\source\win32\openwl.cpp">
+    <ClCompile Include="..\..\..\source\win32\OpenWL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\source\win32\pngloader.cpp">
@@ -113,16 +92,7 @@
     <ClCompile Include="..\..\..\source\win32\private_defs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\source\win32\timer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\source\win32\unicodestuff.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\source\win32\win32util.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\source\win32\window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\source\win32\wndproc.cpp">
@@ -143,5 +113,10 @@
     <ClCompile Include="..\..\..\source\win32\dragdrop\oledragdrop.cpp">
       <Filter>Source Files\dragdrop</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\..\source\win32\OpenWL.rc">
+      <Filter>Source Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

@@ -17,16 +17,6 @@ Gdiplus::Bitmap *bgBitmap;
 Gdiplus::Graphics *bgGraphics;
 unsigned int *data;
 
-// DPI macros
-#define DECLSF(dpi) double scaleFactor = dpi / 96.0;
-#define INT(x) ((int)(x))
-#define FLOAT(x) ((float)(x))
-#define DPIUP(x) INT((x) * scaleFactor)                // from device-independent pixels to physical res
-#define DPIUP_F(x) FLOAT((x) * scaleFactor)
-#define DPIDOWN(x) INT((x) / scaleFactor)              // from physical res to DIPs
-#define DPIUP_INPLACE(x) x = DPIUP(x);
-#define DPIDOWN_INPLACE(x) x = DPIDOWN(x);
-
 void platformInit() {
 	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
@@ -43,14 +33,11 @@ void platformInit() {
 	bgGraphics = new Graphics(bgBitmap);
 }
 
-static void drawTextRect(UINT dpi, Gdiplus::Graphics &g, Gdiplus::Font &font, const WCHAR *text, int x, int y, int width, int height, bool textOnly = false)
-{
-	DECLSF(dpi);
-
-	RectF rect(DPIUP_F(x), DPIUP_F(y), DPIUP_F(width), DPIUP_F(height));
+static void drawTextRect(Gdiplus::Graphics &g, Gdiplus::Font &font, const WCHAR *text, int x, int y, int width, int height, bool textOnly = false) {
+	RectF rect((float)x, (float)y, (float)width, (float)height);
 
 	if (!textOnly) {
-		Pen pen(Color::Black, DPIUP_F(2.0));
+		Pen pen(Color::Black, 2.0);
 		g.DrawRectangle(&pen, rect);
 
 		SolidBrush brush(Color::Gray);
@@ -59,8 +46,8 @@ static void drawTextRect(UINT dpi, Gdiplus::Graphics &g, Gdiplus::Font &font, co
 	RectF exts;
 	g.MeasureString(text, -1, &font, rect, &exts);
 
-	auto tx = DPIUP_F(x + (width - DPIDOWN(exts.Width)) / 2);     // inner DPIDOWN because exts already in physical space
-	auto ty = DPIUP_F(y + (height - DPIDOWN(exts.Height)) / 2);
+	auto tx = x + (width - exts.Width) / 2;
+	auto ty = y + (height - exts.Height) / 2;
 	SolidBrush black(Color::Black);
 	g.DrawString(text, -1, &font, PointF(tx, ty), &black);
 }
@@ -68,47 +55,35 @@ static void drawTextRect(UINT dpi, Gdiplus::Graphics &g, Gdiplus::Font &font, co
 void platformDraw(wl_PlatformContext *platformContext) {
 	Gdiplus::Graphics target(platformContext->gdi.hdc);
 
-	DECLSF(platformContext->dpi);
-
-	auto width2 = DPIUP(width);
-	auto height2 = DPIUP(height);
-
 	// double buffer ...
-	Gdiplus::Bitmap offScreenBuffer(width2, height2, &target);
+	Gdiplus::Bitmap offScreenBuffer(width, height, &target);
 	Gdiplus::Graphics graphics(&offScreenBuffer);
 	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
 	graphics.SetTextRenderingHint(TextRenderingHintAntiAlias);
 
-	//SolidBrush blueBG(Color::DarkBlue);
-	//auto bgRect = RectF(0, 0, width2, height2);
-	//graphics.FillRectangle(&blueBG, bgRect);
-	graphics.DrawImage(bgBitmap, Rect(0, 0, DPIUP(MAX_WIDTH), DPIUP(MAX_HEIGHT)));
+	graphics.DrawImage(bgBitmap, Rect(0, 0, MAX_WIDTH, MAX_HEIGHT));
 
 	// draw crossed lines
-	Gdiplus::Pen blackPen(Color::Black, DPIUP_F(4.0));
-	auto x1 = DPIUP(10);
-	auto y1 = DPIUP(10);
-	auto x2 = DPIUP(width - 10);
-	auto y2 = DPIUP(height - 10);
-	graphics.DrawLine(&blackPen, Point(x1, y1), Point(x2, y2));
-	graphics.DrawLine(&blackPen, Point(x1, y2), Point(x2, y1));
+	Gdiplus::Pen blackPen(Color::Black, 4.0);
+	graphics.DrawLine(&blackPen, Point(10, 10), Point(width - 10, height - 10));
+	graphics.DrawLine(&blackPen, Point(10, height - 10), Point(width - 10, 10));
 
 	// thin outer rect
-	blackPen.SetWidth(DPIUP_F(1.0));
-	graphics.DrawRectangle(&blackPen, Rect(DPIUP(3), DPIUP(3), DPIUP(width - 6), DPIUP(height - 6)));
+	blackPen.SetWidth(1.0);
+	graphics.DrawRectangle(&blackPen, Rect(3, 3, width - 6, height - 6));
 
 	// text stuff
-	Gdiplus::Font font(L"Arial", DPIUP_F(10.0));
+	Gdiplus::Font font(L"Arial", 20.0);
 
-	drawTextRect(platformContext->dpi, graphics, font, L"Drag Source", DRAG_SOURCE_X, DRAG_SOURCE_Y, DRAG_SOURCE_W, DRAG_SOURCE_H);
-	drawTextRect(platformContext->dpi, graphics, font, L"Drop Target", DROP_TARGET_X, DROP_TARGET_Y, DROP_TARGET_W, DROP_TARGET_H);
-	drawTextRect(platformContext->dpi, graphics, font, L"Hover Here", HOVER_HERE_X, HOVER_HERE_Y, HOVER_HERE_W, HOVER_HERE_H);
+	drawTextRect(graphics, font, L"Drag Source", DRAG_SOURCE_X, DRAG_SOURCE_Y, DRAG_SOURCE_W, DRAG_SOURCE_H);
+	drawTextRect(graphics, font, L"Drop Target", DROP_TARGET_X, DROP_TARGET_Y, DROP_TARGET_W, DROP_TARGET_H);
+	drawTextRect(graphics, font, L"Hover Here", HOVER_HERE_X, HOVER_HERE_Y, HOVER_HERE_W, HOVER_HERE_H);
 
-	RectF frameRect((float)DPIUP(width - 260), (float)DPIUP(height - 50), (float)DPIUP(260), (float)DPIUP(50));
+	RectF frameRect((float)(width - 260), (float)(height - 50), (float)260, (float)50);
 	RectF exts;
 	graphics.MeasureString(L"FRAME 999 (999)", -1, &font, frameRect, &exts);
-	auto tx = (frameRect.X + (frameRect.Width - exts.Width) / 2);
-	auto ty = (frameRect.Y + (frameRect.Height -exts.Height) / 2);
+	auto tx = frameRect.X + (frameRect.Width - exts.Width) / 2;
+	auto ty = frameRect.Y + (frameRect.Height - exts.Height) / 2;
 
 	WCHAR text[1024];
 	wsprintf(text, L"FRAME %d (%d)", lastFrame, totalFrames);
@@ -117,39 +92,33 @@ void platformDraw(wl_PlatformContext *platformContext) {
 
 	lastFrame++;
 
-	target.DrawImage(&offScreenBuffer, Rect(0, 0, width2, height2));
+	target.DrawImage(&offScreenBuffer, Rect(0, 0, width, height));
 }
 
 void platformDrawFrameless(wl_PlatformContext *platformContext)
 {
 	Gdiplus::Graphics target(platformContext->gdi.hdc);
 
-	DECLSF(platformContext->dpi);
-
-	int pWidth = DPIUP(POPUP_WIDTH);
-	int pHeight = DPIUP(POPUP_HEIGHT);
-
 	// double buffer ...
-	Gdiplus::Bitmap offScreenBuffer(pWidth, pHeight, &target);
+	Gdiplus::Bitmap offScreenBuffer(POPUP_WIDTH, POPUP_HEIGHT, &target);
 	Gdiplus::Graphics graphics(&offScreenBuffer);
 	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
 	graphics.SetTextRenderingHint(TextRenderingHintAntiAlias);
 
 	//// ==========================
-	RectF rect(0, 0, (float)pWidth, (float)pHeight);
+	RectF rect(0, 0, POPUP_WIDTH, POPUP_HEIGHT);
 
 	SolidBrush brush(Color::White);
 	graphics.FillRectangle(&brush, rect);
 
-	Gdiplus::Font font(L"Arial", DPIUP_F(10.0));
-	drawTextRect(platformContext->dpi, graphics, font, L"HELLO!", 0, 0, POPUP_WIDTH, POPUP_HEIGHT, true);
+	Gdiplus::Font font(L"Arial", 20.0);
+	drawTextRect(graphics, font, L"HELLO!", (int)rect.X, (int)rect.Y, (int)rect.Width, (int)rect.Height, true);
 
 	// =============
-	target.DrawImage(&offScreenBuffer, Rect(0, 0, pWidth, pHeight));
+	target.DrawImage(&offScreenBuffer, Rect(0, 0, POPUP_WIDTH, POPUP_HEIGHT));
 }
 
 void platformDrawBox(RandomBox *box) {
-	// this is drawing in the background so doesn't need to be DPI-aware
 	Gdiplus::LinearGradientBrush boxBrush(
 		Point(box->x - 1, box->y - 1), // -1 to prevent little dot artifact ...
 		Point(box->x + box->width, box->y + box->height),

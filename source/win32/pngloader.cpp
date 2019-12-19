@@ -183,5 +183,3 @@ HBITMAP loadPngAndResize(const char *filename, int maxWidth, int maxHeight)
 	}
 	return result; // either NULL or HBITMAP (outBitmap)
 }
-
-

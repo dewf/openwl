@@ -1,11 +1,8 @@
 #include "private_defs.h"
 
 #include "unicodestuff.h"
-#include <map>
 
-wl_Window *lastGrabWindow = nullptr;
-
-static bool formatEtcFromDragFormat(const char *dragFormatMIME, FORMATETC *fmtetc) {
+static bool formatEtcFromDragFormat(const char* dragFormatMIME, FORMATETC* fmtetc) {
 	if (!strcmp(dragFormatMIME, wl_kDragFormatUTF8)) {
 		*fmtetc = { CF_UNICODETEXT, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
 	}
@@ -25,14 +22,14 @@ wl_DropData::~wl_DropData()
 
 	if (recvObject) recvObject->Release();
 	if (data) {
-		free(const_cast<void *>(data)); // we created it, so OK to free
+		free(const_cast<void*>(data)); // we created it, so OK to free
 	}
 	if (files) {
 		delete files;
 	}
 }
 
-bool wl_DropData::hasFormat(const char *dragFormatMIME)
+bool wl_DropData::hasFormat(const char* dragFormatMIME)
 {
 	// testing for existence, without triggering a render (or whatever might be required on the other end)
 	FORMATETC fmtetc;
@@ -44,7 +41,7 @@ bool wl_DropData::hasFormat(const char *dragFormatMIME)
 	return false;
 }
 
-bool wl_DropData::getFormat(const char *dropFormatMIME, const void ** outData, size_t * outSize)
+bool wl_DropData::getFormat(const char* dropFormatMIME, const void** outData, size_t* outSize)
 {
 	// force other end to generate data
 	if (!strcmp(dropFormatMIME, wl_kDragFormatFiles)) {
@@ -64,11 +61,11 @@ bool wl_DropData::getFormat(const char *dropFormatMIME, const void ** outData, s
 	if (recvObject->GetData(&fmtetc, &stgmed) == S_OK) {
 		auto ptr = GlobalLock(stgmed.hGlobal);
 
-		void *tempData;
+		void* tempData;
 		size_t tempSize;
 		if (!strcmp(dropFormatMIME, wl_kDragFormatUTF8)) {
 			// special handling for strings
-			auto utf8 = wstring_to_utf8((wchar_t *)ptr);
+			auto utf8 = wstring_to_utf8((wchar_t*)ptr);
 			tempSize = strlen(utf8.c_str()) + 1;
 			tempData = malloc(tempSize);
 			memcpy(tempData, utf8.c_str(), tempSize);
@@ -89,7 +86,7 @@ bool wl_DropData::getFormat(const char *dropFormatMIME, const void ** outData, s
 	return false;
 }
 
-bool wl_DropData::getFiles(const wl_Files **outFiles)
+bool wl_DropData::getFiles(const wl_Files** outFiles)
 {
 	FORMATETC fmtetc = { CF_HDROP, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
 	STGMEDIUM stgmed;
@@ -116,18 +113,9 @@ bool wl_DropData::getFiles(const wl_Files **outFiles)
 		GlobalUnlock(stgmed.hGlobal);
 		ReleaseStgMedium(&stgmed);
 
-		*outFiles = (const wl_Files *) files;
+		*outFiles = (const wl_Files*)files;
 
 		return true;
 	}
 	return false;
-}
-
-// loaded cursors map
-std::map<wl_CursorStyle, wl_CursorRef> cursorMap;
-HCURSOR defaultCursor = NULL;
-
-void private_defs_init()
-{
-	defaultCursor = LoadCursor(NULL, IDC_ARROW); // deprecated?
 }

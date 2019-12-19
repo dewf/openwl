@@ -18,7 +18,7 @@
     <ClCompile Include="..\..\..\source\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\source\win32-gdi-hidpi\win32_specific.cpp">
+    <ClCompile Include="..\..\..\source\win32-gdi\win32_specific.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -26,10 +26,8 @@
     <ClInclude Include="..\..\..\source\main.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Manifest Include="..\..\..\source\win32-gdi-hidpi\app.manifest">
-      <Filter>Resource Files</Filter>
-    </Manifest>
+    <ClInclude Include="..\..\..\source\unicodestuff.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

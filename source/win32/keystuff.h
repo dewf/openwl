@@ -21,5 +21,6 @@ struct KeyInfo {
 extern std::map<WPARAM, KeyInfo *> keyMap; // win32 virtual keys to WL key enums
 extern std::map<wl_KeyEnum, KeyInfo *> reverseKeyMap; // reverse
 
-void initKeyMap();
 wl_KeyLocation locationForKey(wl_KeyEnum key, unsigned char scanCode, bool extended);
+
+void keystuff_init();
