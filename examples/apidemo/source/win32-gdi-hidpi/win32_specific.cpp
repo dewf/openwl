@@ -98,7 +98,7 @@ void platformDraw(wl_PlatformContext *platformContext) {
 	graphics.DrawRectangle(&blackPen, Rect(DPIUP(3), DPIUP(3), DPIUP(width - 6), DPIUP(height - 6)));
 
 	// text stuff
-	Gdiplus::Font font(L"Arial", 20.0); // why doesn't this have to be scaled? is it already dpi-aware?
+	Gdiplus::Font font(L"Arial", DPIUP_F(10.0));
 
 	drawTextRect(platformContext->dpi, graphics, font, L"Drag Source", DRAG_SOURCE_X, DRAG_SOURCE_Y, DRAG_SOURCE_W, DRAG_SOURCE_H);
 	drawTextRect(platformContext->dpi, graphics, font, L"Drop Target", DROP_TARGET_X, DROP_TARGET_Y, DROP_TARGET_W, DROP_TARGET_H);
@@ -141,9 +141,8 @@ void platformDrawFrameless(wl_PlatformContext *platformContext)
 	SolidBrush brush(Color::White);
 	graphics.FillRectangle(&brush, rect);
 
-	Gdiplus::Font font(L"Arial", 20.0);
+	Gdiplus::Font font(L"Arial", DPIUP_F(10.0));
 	drawTextRect(platformContext->dpi, graphics, font, L"HELLO!", 0, 0, POPUP_WIDTH, POPUP_HEIGHT, true);
-		//(int)rect.X, (int)rect.Y, (int)rect.Width, (int)rect.Height, true);
 
 	// =============
 	target.DrawImage(&offScreenBuffer, Rect(0, 0, pWidth, pHeight));

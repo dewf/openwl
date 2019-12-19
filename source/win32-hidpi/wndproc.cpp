@@ -208,6 +208,11 @@ LRESULT CALLBACK topLevelWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
     //    //	printf("@@@ EXIT SIZE MOVE\n");
     //    //	break;
 
+	case WM_DPICHANGED: {
+		wlw->onDPIChanged(LOWORD(wParam), (RECT*)lParam);
+		break;
+	}
+
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }

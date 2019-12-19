@@ -73,11 +73,11 @@ wl_WindowRef wl_Window::create(int dipWidth, int dipHeight, const char* title, v
 	auto width = DPIUP(dipWidth);
 	auto height = DPIUP(dipHeight);
 
-	// fix props
-	DPIUP_INPLACE(props->minWidth);
-	DPIUP_INPLACE(props->minHeight);
-	DPIUP_INPLACE(props->maxWidth);
-	DPIUP_INPLACE(props->maxHeight);
+	// note: we don't fix props -- the min/max/Width/Height all stay in DIPs, because we might get dragged between monitors of different DPI -- need to calc fresh
+	//DPIUP_INPLACE(props->minWidth);
+	//DPIUP_INPLACE(props->minHeight);
+	//DPIUP_INPLACE(props->maxWidth);
+	//DPIUP_INPLACE(props->maxHeight);
 
 	// create actual win32 window
 	HWND hWnd = NULL;
@@ -378,20 +378,22 @@ void wl_Window::onSize(wl_Event& event) {
 
 void wl_Window::onGetMinMaxInfo(MINMAXINFO* mmi)
 {
+	DECLSF(dpi);
+
 	// min
 	if (props.usedFields & wl_kWindowPropMinWidth) {
-		mmi->ptMinTrackSize.x = props.minWidth + extraWidth;
+		mmi->ptMinTrackSize.x = DPIUP(props.minWidth) + extraWidth;
 	}
 	if (props.usedFields & wl_kWindowPropMinHeight) {
-		mmi->ptMinTrackSize.y = props.minHeight + extraHeight;
+		mmi->ptMinTrackSize.y = DPIUP(props.minHeight) + extraHeight;
 	}
 
 	// max
 	if (props.usedFields & wl_kWindowPropMaxWidth) {
-		mmi->ptMaxTrackSize.x = props.maxWidth + extraWidth;
+		mmi->ptMaxTrackSize.x = DPIUP(props.maxWidth) + extraWidth;
 	}
 	if (props.usedFields & wl_kWindowPropMaxHeight) {
-		mmi->ptMaxTrackSize.y = props.maxHeight + extraHeight;
+		mmi->ptMaxTrackSize.y = DPIUP(props.maxHeight) + extraHeight;
 	}
 }
 
@@ -623,6 +625,20 @@ void wl_Window::onAction(wl_Event& event, int actionID)
 		event.actionEvent.id = actionID;
 		eventCallback(this, &event, userData);
 	}
+}
+
+void wl_Window::onDPIChanged(UINT newDPI, RECT *suggestedRect)
+{
+	dpi = newDPI;
+
+	// recalc extraWidth/extraHeight for resize constraints
+	calcChromeExtra(&extraWidth, &extraHeight, dwStyle, hasMenu, dpi);
+
+	auto x = suggestedRect->left;
+	auto y = suggestedRect->top;
+	auto width = suggestedRect->right - suggestedRect->left;
+	auto height = suggestedRect->bottom - suggestedRect->top;
+	SetWindowPos(hWnd, HWND_TOP, x, y, width, height, 0);
 }
 
 // misc util funcs =================================================================
