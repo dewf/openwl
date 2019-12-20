@@ -647,7 +647,9 @@ void wl_Window::onDPIChanged(UINT newDPI, RECT *suggestedRect)
 	SetWindowPos(hWnd, HWND_TOP, x, y, width, height, 0);
 
 	// recreate target with new DPI
-	direct2DCreateTarget();
+	if (useDirect2D) {
+		direct2DCreateTarget();
+	}
 }
 
 // misc util funcs =================================================================
