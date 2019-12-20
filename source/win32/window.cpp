@@ -158,6 +158,8 @@ void wl_Window::direct2DCreateTarget()
 	}
 	// Create a Direct2D render target
 	auto rtprops = D2D1::RenderTargetProperties();
+	rtprops.dpiX = (FLOAT)dpi;
+	rtprops.dpiY = (FLOAT)dpi;
 	auto hrtprops = D2D1::HwndRenderTargetProperties(hWnd, D2D1::SizeU(clientWidth, clientHeight));
 	HR(d2dFactory->CreateHwndRenderTarget(&rtprops, &hrtprops, &d2dRenderTarget));
 
@@ -643,6 +645,9 @@ void wl_Window::onDPIChanged(UINT newDPI, RECT *suggestedRect)
 	auto width = suggestedRect->right - suggestedRect->left;
 	auto height = suggestedRect->bottom - suggestedRect->top;
 	SetWindowPos(hWnd, HWND_TOP, x, y, width, height, 0);
+
+	// recreate target with new DPI
+	direct2DCreateTarget();
 }
 
 // misc util funcs =================================================================
