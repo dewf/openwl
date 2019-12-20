@@ -460,11 +460,8 @@ void wl_Window::onMouseMove(wl_Event& event, WPARAM wParam, LPARAM lParam, bool 
 		// (otherwise we'll get random junk coming in from outside)
 		// note this also MUST happen before sending the synthetic enter event,
 		//  because said event might very well set the mouse cursor, and we'd just be negating it
-		setCursor(wl_Cursor::defaultCursor);
-		//wl_Cursor::setDefault();
-		//cursor = nullptr;
-		//SetCursor(defaultCursor);
-		//wlw->cursor = nullptr;
+		wl_Cursor::defaultCursor->set();
+		cursor = nullptr;
 
 		// set the mouse-in-window flag now because some API calls (eg wl_WindowSetCursor) called by event handlers may require it ASAP
 		mouseInWindow = true;
