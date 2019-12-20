@@ -397,3 +397,9 @@ OPENWL_API void CDECL wl_WindowSetCursor(wl_WindowRef window, wl_CursorRef curso
 {
 	window->setCursor(cursor);
 }
+
+OPENWL_API size_t CDECL wl_SystemMillis()
+{
+	// probably no need for the high res perf timer here
+	return (size_t)GetTickCount64();
+}
