@@ -166,6 +166,7 @@
     <ClInclude Include="..\..\..\source\win32\action.h" />
     <ClInclude Include="..\..\..\source\win32\comstuff.h" />
     <ClInclude Include="..\..\..\source\win32\cursor.h" />
+    <ClInclude Include="..\..\..\source\win32\dpimacros.h" />
     <ClInclude Include="..\..\..\source\win32\dragdrop\dataobject.h" />
     <ClInclude Include="..\..\..\source\win32\dragdrop\dropsource.h" />
     <ClInclude Include="..\..\..\source\win32\dragdrop\droptarget.h" />

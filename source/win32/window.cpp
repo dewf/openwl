@@ -19,13 +19,7 @@
 
 #include <set>
 
-// DPI macros
-#define DECLSF(dpi) double scaleFactor = (dpi) / 96.0;
-#define INT(x) ((int)(x))
-#define DPIUP(x) INT((x) * scaleFactor)                // from device-independent pixels to physical res
-#define DPIDOWN(x) INT((x) / scaleFactor)              // from physical res to DIPs
-#define DPIUP_INPLACE(x) x = DPIUP(x);
-#define DPIDOWN_INPLACE(x) x = DPIDOWN(x);
+#include "dpimacros.h"
 
 // fwd decls
 long getWindowStyle(wl_WindowProperties* props, bool isPluginWindow);
@@ -34,8 +28,8 @@ unsigned int getKeyModifiers();
 unsigned int getMouseModifiers(WPARAM wParam);
 
 // static variables
-wl_WindowRef wl_Window::lastGrabWindow = nullptr;
-std::set<unsigned char> suppressedScanCodes;
+wl_WindowRef wl_Window::lastGrabWindow = nullptr; // TODO: make static (remove from class) ?
+static std::set<unsigned char> suppressedScanCodes;
 
 // methods ============================================================
 
@@ -73,7 +67,7 @@ wl_WindowRef wl_Window::create(int dipWidth, int dipHeight, const char* title, v
 	HWND hWnd = NULL;
 	if (isPluginWindow)
 	{
-		dpi = GetDpiForWindow(props->nativeParent);
+		dpi = COMPAT_GetDpiForWindow(props->nativeParent);
 		// for now just assume what was passed in was the correct pixel width (ie, not DIPs)
 		width = dipWidth;
 		height = dipHeight;
@@ -647,7 +641,9 @@ void wl_Window::onDPIChanged(UINT newDPI, RECT *suggestedRect)
 	SetWindowPos(hWnd, HWND_TOP, x, y, width, height, 0);
 
 	// recreate target with new DPI
-	direct2DCreateTarget();
+	if (useDirect2D) {
+		direct2DCreateTarget();
+	}
 }
 
 // misc util funcs =================================================================
@@ -681,7 +677,7 @@ void calcChromeExtra(int* extraWidth, int* extraHeight, DWORD dwStyle, BOOL hasM
 	rect.right = arbitraryExtent; // just some arbitrary extents -- it's the difference we're interested in
 	rect.bottom = arbitraryExtent;
 
-	AdjustWindowRectExForDpi(&rect, dwStyle, hasMenu, 0, dpi);
+	COMPAT_AdjustWindowRectExForDpi(&rect, dwStyle, hasMenu, 0, dpi);
 
 	*extraWidth = (rect.right - rect.left) - arbitraryExtent;  // left and top will be negative, hence the subtraction (right - left) = outer width
 	*extraHeight = (rect.bottom - rect.top) - arbitraryExtent; // bottom - top = outer height
