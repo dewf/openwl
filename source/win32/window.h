@@ -73,6 +73,7 @@ public:
     void onMouseMove(wl_Event& event, WPARAM wParam, LPARAM lParam, bool* ignored); // 'ignored' is OUT parameter - named for clarity, instead of a bool return value
     void onMouseLeave(wl_Event& event);
     void onMouseButton(wl_Event& event, UINT message, WPARAM wParam, LPARAM lParam);
+    void onMouseWheel(wl_Event& event, UINT message, WPARAM wParam, LPARAM lParam);
     void onChar(wl_Event& event, WPARAM wParam, LPARAM lParam);
     void onKey(wl_Event& event, UINT message, WPARAM wParam, LPARAM lParam);
     void onAction(wl_Event& event, int actionID);

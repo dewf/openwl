@@ -539,6 +539,28 @@ void wl_Window::onMouseButton(wl_Event& event, UINT message, WPARAM wParam, LPAR
 	eventCallback(this, &event, userData);
 }
 
+void wl_Window::onMouseWheel(wl_Event& event, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	DECLSF(dpi);
+
+	event.eventType = wl_kEventTypeMouse;
+	event.mouseEvent.eventType = wl_kMouseEventTypeMouseWheel;
+	event.mouseEvent.wheelAxis = (message == WM_MOUSEWHEEL) ? wl_kMouseWheelAxisVertical : wl_kMouseWheelAxisHorizontal;
+	event.mouseEvent.wheelDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+
+	// x,y are screen coords, convert to window space
+	POINT p;
+	p.x = GET_X_LPARAM(lParam);
+	p.y = GET_Y_LPARAM(lParam);
+	ScreenToClient(hWnd, &p);
+
+	event.mouseEvent.x = DPIDOWN(p.x); // only do this AFTER translating to client space!
+	event.mouseEvent.y = DPIDOWN(p.y);
+	event.mouseEvent.modifiers = getMouseModifiers(wParam);
+
+	eventCallback(this, &event, userData);
+}
+
 void wl_Window::onChar(wl_Event& event, WPARAM wParam, LPARAM lParam)
 {
 	unsigned char scanCode = (lParam >> 16) & 0xFF;

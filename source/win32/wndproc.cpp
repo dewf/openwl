@@ -163,26 +163,13 @@ LRESULT CALLBACK topLevelWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
         break;
     }
 
-    //case WM_MOUSEWHEEL:
-    //case WM_MOUSEHWHEEL: // handle horizontal wheel as well
-    //    event.eventType = wl_kEventTypeMouse;
-    //    event.mouseEvent.eventType = wl_kMouseEventTypeMouseWheel;
-    //    event.mouseEvent.wheelAxis = (message == WM_MOUSEWHEEL) ? wl_kMouseWheelAxisVertical : wl_kMouseWheelAxisHorizontal;
-    //    event.mouseEvent.wheelDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-    //    // x,y are screen coords, convert to window space
-    //    POINT p;
-    //    p.x = GET_X_LPARAM(lParam);
-    //    p.y = GET_Y_LPARAM(lParam);
-    //    ScreenToClient(hWnd, &p);
-    //    event.mouseEvent.x = p.x;
-    //    event.mouseEvent.y = p.y;
-    //    event.mouseEvent.modifiers = getMouseModifiers(wParam);
-
-    //    eventCallback(wlw, &event, wlw->userData);
-    //    if (!event.handled) {
-    //        return DefWindowProc(hWnd, message, wParam, lParam);
-    //    }
-    //    break;
+    case WM_MOUSEWHEEL:
+    case WM_MOUSEHWHEEL: // handle horizontal wheel as well
+        wlw->onMouseWheel(event, message, wParam, lParam);
+        if (!event.handled) {
+            return DefWindowProc(hWnd, message, wParam, lParam);
+        }
+        break;
 
     case WM_MOUSELEAVE:
         wlw->onMouseLeave(event);
