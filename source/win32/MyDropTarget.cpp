@@ -79,20 +79,42 @@ HRESULT __stdcall MyDropTarget::DragEnter(IDataObject * pDataObject, DWORD grfKe
     event.dropEvent.eventType = wl_kDropEventTypeFeedback;
     event.dropEvent.data = mDropData;
 
+	// save last drop feedback state before commonQueryClient() has a chance to alter *pdwEffect
+	//  -- we need the initial value
+	lastDropState = FeedbackState{ grfKeyState, pt, *pdwEffect };
+
     commonQueryClient(event, grfKeyState, pt, pdwEffect);
+
+	// and also save the changed value, which will be returned again if necessary
+	lastDropState.postPdwEffect = *pdwEffect;
 
     return S_OK;
 }
 
 HRESULT __stdcall MyDropTarget::DragOver(DWORD grfKeyState, POINTL pt, DWORD * pdwEffect) {
-    //printf("Hello from DragOver!\n");
+
+	if (FeedbackState{ grfKeyState, pt, *pdwEffect } == lastDropState) {
+		*pdwEffect = lastDropState.postPdwEffect; // re-use whatever we returned last time, too
+		return S_OK;
+	}
+
     // event fields same as those in DragEnter
     wl_Event event;
     event._private = nullptr;
     event.eventType = wl_kEventTypeDrop;
     event.dropEvent.eventType = wl_kDropEventTypeFeedback;
     event.dropEvent.data = mDropData;
-    commonQueryClient(event, grfKeyState, pt, pdwEffect);
+
+	// but if we made it this far, once again:
+	// save last drop feedback state before commonQueryClient() has a chance to alter *pdwEffect
+	//  -- we need the initial value
+	lastDropState = FeedbackState{ grfKeyState, pt, *pdwEffect };
+
+	commonQueryClient(event, grfKeyState, pt, pdwEffect);
+
+	// and also save the changed value, which will be returned again if necessary
+	lastDropState.postPdwEffect = *pdwEffect;
+
     return S_OK;
 }
 

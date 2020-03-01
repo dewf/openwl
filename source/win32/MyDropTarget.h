@@ -11,6 +11,24 @@ private:
     void setEventFields(wl_Event &event, DWORD grfKeyState, POINTL pt, DWORD * pdwEffect);
     void updateEffect(wl_Event &event, DWORD *pdwEffect);
 
+	// save the parameters provided for drop feedback,
+	//   to see if it's even a new event - don't know why win32 keeps sending duplicate events
+	//   when nothing else has changed. perhaps a lazy way of checking for changing modifier keys?
+	struct FeedbackState {
+		DWORD grfKeyState;
+		POINTL pt;
+		DWORD initPdwEffect;
+		bool operator==(const FeedbackState &other) {
+			return (
+				grfKeyState == other.grfKeyState &&
+				pt.x == other.pt.x &&
+				pt.y == other.pt.y &&
+				initPdwEffect == other.initPdwEffect);
+		}
+		// not included in comparison:
+		DWORD postPdwEffect;
+	} lastDropState;
+
 public:
     MyDropTarget(wl_WindowRef window);
     ~MyDropTarget();
