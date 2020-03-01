@@ -120,7 +120,17 @@ HRESULT __stdcall MyDropTarget::DragOver(DWORD grfKeyState, POINTL pt, DWORD * p
 
 HRESULT __stdcall MyDropTarget::DragLeave(void) {
     printf("Goodbye from DragLeave :( \n");
-    //event.dropEvent.data = nullptr;
+
+	wl_Event event;
+	event._private = nullptr;
+	event.eventType = wl_kEventTypeDrop;
+	event.dropEvent.eventType = wl_kDropEventTypeLeave;
+	event.dropEvent.data = nullptr;
+	// doesn't carry any other useful data
+
+	mWindow->sendEvent(event);
+
+	
     // can we free mDragData without destroying the COM object it's wrapping? seems to crash things if that happens...
     mDropData->recvObject = nullptr; // let COM deal with freeing it...
     delete mDropData;

@@ -248,7 +248,8 @@ extern "C" {
 	};
 
 	enum wl_DropEventType {
-		wl_kDropEventTypeFeedback,
+		wl_kDropEventTypeFeedback, // first one is an implicit 'enter'
+		wl_kDropEventTypeLeave,
 		wl_kDropEventTypeDrop
 	};
 

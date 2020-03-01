@@ -432,6 +432,18 @@
     return [self dragCommonEvent:sender dropEventType:wl_kDropEventTypeFeedback];
 }
 
+- (void)draggingExited:(id<NSDraggingInfo>)sender {
+    printf("dragging exited\n");
+    
+    wl_Event event;
+    event.handled = false;
+    event.eventType = wl_kEventTypeDrop;
+    event.dropEvent.eventType = wl_kDropEventTypeLeave;
+    event.dropEvent.data = nullptr;
+    
+    eventCallback((wl_WindowRef)parentWindowObj, &event, parentWindowObj.userData);
+}
+
 - (BOOL) performDragOperation:(id<NSDraggingInfo>)sender {
     printf("performDragOperation...\n");
     [self dragCommonEvent:sender dropEventType:wl_kDropEventTypeDrop];

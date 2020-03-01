@@ -417,6 +417,14 @@ bool wl_Window::on_drawArea_dragDrop(const Glib::RefPtr<Gdk::DragContext>& conte
 
 void wl_Window::on_drawArea_dragLeave(const Glib::RefPtr<Gdk::DragContext>& context, guint time) {
     printf("=== drag leave\n");
+
+    EventFrame ef(nullptr);
+    auto event = &ef.wlEvent;
+    event->eventType = wl_kEventTypeDrop;
+    event->dropEvent.eventType = wl_kDropEventTypeLeave;
+    event->dropEvent.data = nullptr;
+    // no other meaningful data
+    dispatchEvent(event);
 }
 
 void wl_Window::on_drawArea_dragDataReceived(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& selection_data, guint info, guint time) {

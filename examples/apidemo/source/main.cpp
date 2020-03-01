@@ -329,6 +329,9 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 				event->dropEvent.allowedEffectMask = wl_kDropEffectNone;
 			}
 			break;
+		case wl_kDropEventTypeLeave:
+			printf("*** drop has left the window! ***\n");
+			break;
 		case wl_kDropEventTypeDrop:
 			// check final modifiers?
 			event->dropEvent.allowedEffectMask &= event->dropEvent.defaultModifierAction; // why is this here?
