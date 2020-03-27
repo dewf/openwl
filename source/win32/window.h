@@ -79,4 +79,10 @@ public:
     void onAction(wl_Event& event, int actionID);
 	
 	void onDPIChanged(UINT newDPI, RECT *suggestedRect);
+
+    HWND getHWND() {
+        // use with care - anything involving coords needs DPI awareness (ie, should be handled internally)
+        // currently this is just for the messagebox code, quick and dirty HWND access
+        return hWnd;
+    }
 };

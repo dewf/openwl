@@ -24,6 +24,11 @@
 #define POPUP_WIDTH 200
 #define POPUP_HEIGHT 200
 
+#define MSG_CLICK_X 500
+#define MSG_CLICK_Y 320
+#define MSG_CLICK_W 100
+#define MSG_CLICK_H 100
+
 extern int width, height;
 extern int lastFrame, totalFrames;
 
