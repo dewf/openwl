@@ -9,6 +9,7 @@ This is a cross-platform (win/mac/linux) library for:
 - native menus
 - events (mouse, keyboard, etc)
 - clipboard / DnD
+- win/mac hidpi support (requires app manifest/bundle)
 - basic alerts / messageboxes
 
 It's meant to be a foundation for new GUIs, in any language that can interface with a C API. 
