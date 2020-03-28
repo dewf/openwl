@@ -420,11 +420,11 @@ extern "C" {
 	struct wl_MessageBoxParams {
 		const char* message;
 		const char* title;
+        bool withHelpButton;
 		enum Buttons {
 			kButtonsDefault = 0,
 			kButtonsAbortRetryIgnore,
 			kButtonsCancelTryContinue,
-			kButtonsHelp,
 			kButtonsOk,
 			kButtonsOkCancel,
 			kButtonsRetryCancel,
@@ -442,19 +442,19 @@ extern "C" {
 			kIconError,
 			kIconHand,
 		} icon;
-		enum DefButton {
-			kDefButtonDefault = 0,
-			kDefButton1,
-			kDefButton2,
-			kDefButton3,
-			kDefButton4
-		} defButton;
-		enum ModalType {
-			kModalDefault = 0,
-			kModalApp,
-			kModalSystem,
-			kModalTask
-		} modalType;
+//		enum DefButton {
+//			kDefButtonDefault = 0,
+//			kDefButton1,
+//			kDefButton2,
+//			kDefButton3,
+//			kDefButton4
+//		} defButton;
+//		enum ModalType {
+//			kModalDefault = 0,
+//			kModalApp,
+//			kModalSystem,
+//			kModalTask
+//		} modalType;
 
 		// result type for wl_MessageBox()
 		enum Result {

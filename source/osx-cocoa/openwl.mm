@@ -673,6 +673,121 @@ OPENWL_API void CDECL wl_ClipboardFlush()
     printf("clipboard flushing not yet implemented on OSX\n");
 }
 
+OPENWL_API wl_MessageBoxParams::Result CDECL wl_MessageBox(wl_WindowRef window, struct wl_MessageBoxParams* params)
+{
+    NSAlert *alert = [[NSAlert alloc] init];
+    
+    alert.informativeText = [NSString stringWithUTF8String:params->message]; // autorelease seemed to crash
+    alert.messageText = [NSString stringWithUTF8String:params->title];
+    alert.showsHelp = params->withHelpButton;
+    
+    wl_MessageBoxParams::Result buttonRetVals[3];
+    switch (params->buttons) {
+        case wl_MessageBoxParams::kButtonsAbortRetryIgnore:
+            [alert addButtonWithTitle:@"Ignore"];
+            [alert addButtonWithTitle:@"Retry"];
+            [alert addButtonWithTitle:@"Abort"];
+            buttonRetVals[0] = wl_MessageBoxParams::Result::kResultIgnore;
+            buttonRetVals[1] = wl_MessageBoxParams::Result::kResultRetry;
+            buttonRetVals[2] = wl_MessageBoxParams::Result::kResultAbort;
+            break;
+        case wl_MessageBoxParams::kButtonsCancelTryContinue:
+            [alert addButtonWithTitle:@"Continue"];
+            [alert addButtonWithTitle:@"Try Again"];
+            [alert addButtonWithTitle:@"Cancel"];
+            buttonRetVals[0] = wl_MessageBoxParams::Result::kResultContinue;
+            buttonRetVals[1] = wl_MessageBoxParams::Result::kResultTryAgain;
+            buttonRetVals[2] = wl_MessageBoxParams::Result::kResultCancel;
+            break;
+        case wl_MessageBoxParams::kButtonsOk:
+            [alert addButtonWithTitle:@"OK"]; // even though it's default, if we don't add it, we don't get the positional value (ends up being 'Cancel' by default)
+            buttonRetVals[0] = wl_MessageBoxParams::Result::kResultOk;
+            break;
+        case wl_MessageBoxParams::kButtonsOkCancel:
+            [alert addButtonWithTitle:@"Cancel"];
+            [alert addButtonWithTitle:@"OK"];
+            buttonRetVals[0] = wl_MessageBoxParams::Result::kResultCancel;
+            buttonRetVals[1] = wl_MessageBoxParams::Result::kResultOk;
+            break;
+        case wl_MessageBoxParams::kButtonsRetryCancel:
+            [alert addButtonWithTitle:@"Cancel"];
+            [alert addButtonWithTitle:@"Retry"];
+            buttonRetVals[0] = wl_MessageBoxParams::Result::kResultCancel;
+            buttonRetVals[1] = wl_MessageBoxParams::Result::kResultRetry;
+            break;
+        case wl_MessageBoxParams::kButtonsYesNo:
+            [alert addButtonWithTitle:@"No"];
+            [alert addButtonWithTitle:@"Yes"];
+            buttonRetVals[0] = wl_MessageBoxParams::Result::kResultNo;
+            buttonRetVals[1] = wl_MessageBoxParams::Result::kResultYes;
+            break;
+        case wl_MessageBoxParams::kButtonsYesNoCancel:
+            [alert addButtonWithTitle:@"Cancel"];
+            [alert addButtonWithTitle:@"No"];
+            [alert addButtonWithTitle:@"Yes"];
+            buttonRetVals[0] = wl_MessageBoxParams::Result::kResultCancel;
+            buttonRetVals[1] = wl_MessageBoxParams::Result::kResultNo;
+            buttonRetVals[2] = wl_MessageBoxParams::Result::kResultYes;
+            break;
+        default:
+            break;
+    }
+    
+    switch (params->icon) {
+        case wl_MessageBoxParams::kIconHand:
+        case wl_MessageBoxParams::kIconStop:
+        case wl_MessageBoxParams::kIconError:
+            alert.alertStyle = NSAlertStyleCritical;
+            break;
+        case wl_MessageBoxParams::kIconExclamation:
+        case wl_MessageBoxParams::kIconWarning:
+            alert.alertStyle = NSAlertStyleWarning;
+            break;
+        default:
+            alert.alertStyle = NSAlertStyleInformational;
+    }
+    
+    // TODO:
+    // default button
+    // modal type
+ 
+    __block NSModalResponse resp;
+    if (window) {
+        auto obj = (WLWindowObject *)window;
+        [alert beginSheetModalForWindow:obj.nsWindow completionHandler:^(NSModalResponse returnCode) {
+            [NSApp stopModalWithCode:returnCode];
+        }];
+        resp = [NSApp runModalForWindow:obj.nsWindow];
+    } else {
+        resp = [alert runModal];
+    }
+    [alert release];
+    
+    // convert native 'resp' value to OpenWL messagebox result
+    wl_MessageBoxParams::Result retval;
+    switch (resp) {
+        case NSAlertFirstButtonReturn:
+        case NSAlertSecondButtonReturn:
+        case NSAlertThirdButtonReturn:
+            retval = buttonRetVals[resp - NSAlertFirstButtonReturn];
+            break;
+        case NSModalResponseContinue:
+            retval = wl_MessageBoxParams::Result::kResultContinue;
+            break;
+        case NSModalResponseStop:
+        case NSModalResponseAbort:
+            retval = wl_MessageBoxParams::Result::kResultAbort;
+            break;
+        case NSModalResponseCancel:
+            retval = wl_MessageBoxParams::Result::kResultCancel;
+            break;
+        case NSModalResponseOK:
+        default:
+            retval = wl_MessageBoxParams::Result::kResultOk;
+            break;
+    }
+    return retval;
+}
 
 /***** Misc Stuff ******/
 

@@ -1,4 +1,4 @@
-﻿#include <stdio.h>
+#include <stdio.h>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
@@ -177,8 +177,8 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 					wl_MessageBoxParams params = {};
 					params.title = "Uh-oh ...";
 					params.message = "Hello from the Message Box!";
-					params.icon = wl_MessageBoxParams::kIconWarning;
-					params.buttons = wl_MessageBoxParams::kButtonsRetryCancel;
+					params.icon = wl_MessageBoxParams::kIconError;
+					params.buttons = wl_MessageBoxParams::kButtonsYesNoCancel;
 					auto result = wl_MessageBox(mainWindow, &params);
 					printf("show message result: %d\n", result);
 				}
