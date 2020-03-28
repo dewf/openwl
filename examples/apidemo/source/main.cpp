@@ -177,7 +177,8 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 					wl_MessageBoxParams params = {};
 					params.title = "Message Box Title!";
 					params.message = "(message content woot doot)";
-					params.icon = wl_MessageBoxParams::kIconQuestion;
+					params.withHelpButton = true;
+					params.icon = wl_MessageBoxParams::kIconInformation;
 					params.buttons = wl_MessageBoxParams::kButtonsOk;
 					auto result = wl_MessageBox(mainWindow, &params);
 					printf("show message result: %d\n", result);
