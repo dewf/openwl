@@ -734,23 +734,17 @@ OPENWL_API wl_MessageBoxParams::Result CDECL wl_MessageBox(wl_WindowRef window, 
     }
     
     switch (params->icon) {
-        case wl_MessageBoxParams::kIconHand:
-        case wl_MessageBoxParams::kIconStop:
         case wl_MessageBoxParams::kIconError:
             alert.alertStyle = NSAlertStyleCritical;
             break;
-        case wl_MessageBoxParams::kIconExclamation:
         case wl_MessageBoxParams::kIconWarning:
             alert.alertStyle = NSAlertStyleWarning;
             break;
         default:
+            // info + question
             alert.alertStyle = NSAlertStyleInformational;
     }
     
-    // TODO:
-    // default button
-    // modal type
- 
     __block NSModalResponse resp;
     if (window) {
         auto obj = (WLWindowObject *)window;
