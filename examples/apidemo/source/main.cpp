@@ -1,4 +1,4 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
@@ -175,10 +175,10 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 				}
 				else if (pointInRect(event->mouseEvent.x, event->mouseEvent.y, MSG_CLICK_X, MSG_CLICK_Y, MSG_CLICK_W, MSG_CLICK_H)) {
 					wl_MessageBoxParams params = {};
-					params.title = "Uh-oh ...";
-					params.message = "Hello from the Message Box!";
-					params.icon = wl_MessageBoxParams::kIconError;
-					params.buttons = wl_MessageBoxParams::kButtonsYesNoCancel;
+					params.title = "Message Box Title!";
+					params.message = "(message content woot doot)";
+					params.icon = wl_MessageBoxParams::kIconQuestion;
+					params.buttons = wl_MessageBoxParams::kButtonsOk;
 					auto result = wl_MessageBox(mainWindow, &params);
 					printf("show message result: %d\n", result);
 				}

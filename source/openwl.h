@@ -421,40 +421,25 @@ extern "C" {
 		const char* message;
 		const char* title;
         bool withHelpButton;
+
 		enum Buttons {
 			kButtonsDefault = 0,
 			kButtonsAbortRetryIgnore,
 			kButtonsCancelTryContinue,
-			kButtonsOk,
+			kButtonsOk, // default
 			kButtonsOkCancel,
 			kButtonsRetryCancel,
 			kButtonsYesNo,
 			kButtonsYesNoCancel
 		} buttons;
+
 		enum Icon {
 			kIconDefault = 0,
-			kIconExclamation,
+			kIconInformation, // default
 			kIconWarning,
-			kIconInformation,
-			kIconAsterisk,
 			kIconQuestion,
-			kIconStop,
 			kIconError,
-			kIconHand,
 		} icon;
-//		enum DefButton {
-//			kDefButtonDefault = 0,
-//			kDefButton1,
-//			kDefButton2,
-//			kDefButton3,
-//			kDefButton4
-//		} defButton;
-//		enum ModalType {
-//			kModalDefault = 0,
-//			kModalApp,
-//			kModalSystem,
-//			kModalTask
-//		} modalType;
 
 		// result type for wl_MessageBox()
 		enum Result {
