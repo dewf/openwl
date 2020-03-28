@@ -12,7 +12,7 @@
 
 static CGContextRef bitmapContext;
 static CTFontRef font;
-static CTLineRef dragSourceLine, dropTargetLine, hoverHereLine, helloLine;
+static CTLineRef dragSourceLine, dropTargetLine, hoverHereLine, helloLine, clickHereLine;
 static CGColorRef blackColor, whiteColor;
 
 CTLineRef createLineWithFont(CFStringRef str, CTFontRef font, CGColorRef color) {
@@ -54,6 +54,7 @@ void platformInit() {
     dropTargetLine = createLineWithFont(CFSTR("Drop Target"), font, blackColor);
     hoverHereLine = createLineWithFont(CFSTR("Hover Here"), font, blackColor);
     helloLine = createLineWithFont(CFSTR("Hello!"), font, blackColor);
+    clickHereLine = createLineWithFont(CFSTR("Click Here"), font, blackColor);
 }
 
 static void drawLineAt(CGContextRef context, CTLineRef line, int x, int y) {
@@ -134,6 +135,7 @@ void platformDraw(wl_PlatformContext *platformContext) {
 	drawTextRect(context, dragSourceLine, DRAG_SOURCE_X, DRAG_SOURCE_Y, DRAG_SOURCE_W, DRAG_SOURCE_H);
 	drawTextRect(context, dropTargetLine, DROP_TARGET_X, DROP_TARGET_Y, DROP_TARGET_W, DROP_TARGET_H);
     drawTextRect(context, hoverHereLine, HOVER_HERE_X, HOVER_HERE_Y, HOVER_HERE_W, HOVER_HERE_H);
+    drawTextRect(context, clickHereLine, MSG_CLICK_X, MSG_CLICK_Y, MSG_CLICK_W, MSG_CLICK_H);
     
     char buffer[1024];
     snprintf(buffer, 1024, "FRAME %d (%d)", lastFrame, totalFrames);

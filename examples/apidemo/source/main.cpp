@@ -172,7 +172,18 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 					dragStartX = event->mouseEvent.x;
 					dragStartY = event->mouseEvent.y;
 					printf("(potentially) starting drag...\n");
-				} else {
+				}
+				else if (pointInRect(event->mouseEvent.x, event->mouseEvent.y, MSG_CLICK_X, MSG_CLICK_Y, MSG_CLICK_W, MSG_CLICK_H)) {
+					wl_MessageBoxParams params = {};
+					params.title = "Message Box Title!";
+					params.message = "(message content woot doot)";
+					params.withHelpButton = true;
+					params.icon = wl_MessageBoxParams::kIconInformation;
+					params.buttons = wl_MessageBoxParams::kButtonsOk;
+					auto result = wl_MessageBox(mainWindow, &params);
+					printf("show message result: %d\n", result);
+				}
+				else {
 				    // begin grab
 				    wl_MouseGrab(mainWindow);
 				    grabbed = true;

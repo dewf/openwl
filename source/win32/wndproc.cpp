@@ -200,6 +200,10 @@ LRESULT CALLBACK topLevelWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 		break;
 	}
 
+    case WM_HELP:
+        printf("received window-level WM_HELP\n");
+        break;
+
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }

@@ -103,6 +103,7 @@ void platformDraw(wl_PlatformContext *platformContext) {
 	drawTextRect(platformContext->dpi, graphics, font, L"Drag Source", DRAG_SOURCE_X, DRAG_SOURCE_Y, DRAG_SOURCE_W, DRAG_SOURCE_H);
 	drawTextRect(platformContext->dpi, graphics, font, L"Drop Target", DROP_TARGET_X, DROP_TARGET_Y, DROP_TARGET_W, DROP_TARGET_H);
 	drawTextRect(platformContext->dpi, graphics, font, L"Hover Here", HOVER_HERE_X, HOVER_HERE_Y, HOVER_HERE_W, HOVER_HERE_H);
+	drawTextRect(platformContext->dpi, graphics, font, L"Click Here", MSG_CLICK_X, MSG_CLICK_Y, MSG_CLICK_W, MSG_CLICK_H);
 
 	RectF frameRect((float)DPIUP(width - 260), (float)DPIUP(height - 50), (float)DPIUP(260), (float)DPIUP(50));
 	RectF exts;

@@ -417,6 +417,44 @@ extern "C" {
 		int numFiles;
 	};
 
+	struct wl_MessageBoxParams {
+		const char* message;
+		const char* title;
+        bool withHelpButton;
+
+		enum Buttons {
+			kButtonsDefault = 0,
+			kButtonsAbortRetryIgnore,
+			kButtonsCancelTryContinue,
+			kButtonsOk, // default
+			kButtonsOkCancel,
+			kButtonsRetryCancel,
+			kButtonsYesNo,
+			kButtonsYesNoCancel
+		} buttons;
+
+		enum Icon {
+			kIconDefault = 0,
+			kIconInformation, // default
+			kIconWarning,
+			kIconQuestion,
+			kIconError,
+		} icon;
+
+		// result type for wl_MessageBox()
+		enum Result {
+			kResultAbort,
+			kResultCancel,
+			kResultContinue,
+			kResultIgnore,
+			kResultNo,
+			kResultOk,
+			kResultRetry,
+			kResultTryAgain,
+			kResultYes,
+		};
+	};
+
 	typedef int(CDECL *wl_EventCallback)(wl_WindowRef window, struct wl_Event *event, void *userData); // akin to win32 wndproc, handles everything
 	typedef void (CDECL *wl_VoidCallback)(void *data);
 
@@ -512,6 +550,9 @@ extern "C" {
 	OPENWL_API wl_DropDataRef CDECL wl_ClipboardGet();
 	OPENWL_API void CDECL wl_ClipboardRelease(wl_DropDataRef dropData);
 	OPENWL_API void CDECL wl_ClipboardFlush();
+
+	/* MESSAGEBOX / ALERT */
+	OPENWL_API wl_MessageBoxParams::Result CDECL wl_MessageBox(wl_WindowRef window, struct wl_MessageBoxParams* params);
 
 	/* MISC */
 	OPENWL_API void CDECL wl_ExecuteOnMainThread(wl_VoidCallback callback, void *data);

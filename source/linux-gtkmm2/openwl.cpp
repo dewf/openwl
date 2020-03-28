@@ -483,6 +483,85 @@ OPENWL_API void CDECL wl_ClipboardFlush()
     gtkClipboard->store();
 }
 
+/*************************/
+/**** MESSAGE BOX API ****/
+/*************************/
+
+OPENWL_API wl_MessageBoxParams::Result CDECL wl_MessageBox(wl_WindowRef window, struct wl_MessageBoxParams* params)
+{
+    Gtk::MessageType msgType = Gtk::MessageType::MESSAGE_INFO;
+    switch (params->icon) {
+        case wl_MessageBoxParams::kIconDefault:
+        case wl_MessageBoxParams::kIconInformation:
+            msgType = Gtk::MessageType::MESSAGE_INFO;
+            break;
+        case wl_MessageBoxParams::kIconWarning:
+            msgType = Gtk::MessageType::MESSAGE_WARNING;
+            break;
+        case wl_MessageBoxParams::kIconQuestion:
+            msgType = Gtk::MessageType::MESSAGE_QUESTION;
+            break;
+        case wl_MessageBoxParams::kIconError:
+            msgType = Gtk::MessageType::MESSAGE_ERROR;
+            break;
+        default:
+            printf("wl_MessageBox() - unknown icon type\n");
+    }
+    Gtk::MessageDialog dialog(*window, params->title, false, msgType, Gtk::ButtonsType::BUTTONS_NONE, true);
+    dialog.set_secondary_text(params->message);
+
+    if (params->withHelpButton) {
+        dialog.add_button("Help", GTK_RESPONSE_HELP);
+    }
+
+    // add buttons
+    switch (params->buttons) {
+        case wl_MessageBoxParams::kButtonsAbortRetryIgnore:
+            dialog.add_button("Abort", wl_MessageBoxParams::kResultAbort);
+            dialog.add_button("Retry", wl_MessageBoxParams::kResultRetry);
+            dialog.add_button("Ignore", wl_MessageBoxParams::kResultIgnore);
+            break;
+        case wl_MessageBoxParams::kButtonsCancelTryContinue:
+            dialog.add_button("Cancel", wl_MessageBoxParams::kResultCancel);
+            dialog.add_button("Try Again", wl_MessageBoxParams::kResultTryAgain);
+            dialog.add_button("Continue", wl_MessageBoxParams::kResultContinue);
+            break;
+        case wl_MessageBoxParams::kButtonsDefault:
+        case wl_MessageBoxParams::kButtonsOk:
+            dialog.add_button("OK", wl_MessageBoxParams::kResultOk);
+            break;
+        case wl_MessageBoxParams::kButtonsOkCancel:
+            dialog.add_button("OK", wl_MessageBoxParams::kResultOk);
+            dialog.add_button("Cancel", wl_MessageBoxParams::kResultCancel);
+            break;
+        case wl_MessageBoxParams::kButtonsRetryCancel:
+            dialog.add_button("Retry", wl_MessageBoxParams::kResultRetry);
+            dialog.add_button("Cancel", wl_MessageBoxParams::kResultCancel);
+            break;
+        case wl_MessageBoxParams::kButtonsYesNo:
+            dialog.add_button("Yes", wl_MessageBoxParams::kResultYes);
+            dialog.add_button("No", wl_MessageBoxParams::kResultNo);
+            break;
+        case wl_MessageBoxParams::kButtonsYesNoCancel:
+            dialog.add_button("Yes", wl_MessageBoxParams::kResultYes);
+            dialog.add_button("No", wl_MessageBoxParams::kResultNo);
+            dialog.add_button("Cancel", wl_MessageBoxParams::kResultCancel);
+            break;
+        default:
+            printf("wl_MessageBox() - unknown button set type");
+            break;
+    }
+    while (true) {
+        auto res = dialog.run();
+        if (res == GTK_RESPONSE_HELP) {
+            // need some kind of WM_HELP equivalent in our message handler?
+            printf("uhhh how to launch help?\n");
+        } else {
+            return (wl_MessageBoxParams::Result) res;
+        }
+    }
+}
+
 /*******************/
 /**** MISC API *****/
 /*******************/

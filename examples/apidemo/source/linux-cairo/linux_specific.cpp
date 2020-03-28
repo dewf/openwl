@@ -74,6 +74,7 @@ void platformDraw(wl_PlatformContext *platformContext) {
 	drawTextRect(cr, "Drag Source", DRAG_SOURCE_X, DRAG_SOURCE_Y, DRAG_SOURCE_W, DRAG_SOURCE_H);
 	drawTextRect(cr, "Drop Target", DROP_TARGET_X, DROP_TARGET_Y, DROP_TARGET_W, DROP_TARGET_H);
 	drawTextRect(cr, "Hover Here", HOVER_HERE_X, HOVER_HERE_Y, HOVER_HERE_W, HOVER_HERE_H);
+	drawTextRect(cr, "Click Here", MSG_CLICK_X, MSG_CLICK_Y, MSG_CLICK_W, MSG_CLICK_H);
 
 	// large text
 	cairo_set_source_rgb(cr, 1, 1, 1);
