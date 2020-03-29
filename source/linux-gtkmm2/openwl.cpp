@@ -30,17 +30,16 @@ OPENWL_API int CDECL wl_Init(wl_EventCallback callback, struct wl_PlatformOption
 }
 
 OPENWL_API int CDECL wl_Runloop() {
-    appMain->run();
+    Gtk::Main::run();
 }
 
 OPENWL_API void CDECL wl_ExitRunloop() {
-    appMain->quit();
+    Gtk::Main::quit();
 }
 
 OPENWL_API void CDECL wl_Shutdown() {
     delete appMain;
 }
-
 
 /****************/
 /** WINDOW API **/
