@@ -16,6 +16,8 @@
 #include "wlWindow.h"
 #include "keystuff.h"
 
+#include <cstring> // strdup
+
 /**************************/
 /** MAIN/APPLICATION API **/
 /**************************/
@@ -480,6 +482,112 @@ OPENWL_API wl_DropDataRef CDECL wl_ClipboardGet()
 OPENWL_API void CDECL wl_ClipboardFlush()
 {
     gtkClipboard->store();
+}
+
+/*************************/
+/**** FILE DIALOG API ****/
+/*************************/
+
+static std::string withDefaultExt(const char *fname, const char *defaultExt) {
+    if (endswith(fname, defaultExt)) {
+        return std::string(fname);
+    } else {
+        return std::string(fname) + std::string(".") + std::string(defaultExt);
+    }
+}
+
+static bool fileDlgCommon(const wl_FileDialogOpts *opts, wl_FileResults **results, const Gtk::FileChooserAction &action,
+                   const char *acceptLabel, bool saveMode)
+{
+    Gtk::FileChooserDialog *chooser;
+    if (opts->owner) {
+        chooser = new Gtk::FileChooserDialog(*opts->owner, acceptLabel, action);
+    } else {
+        chooser = new Gtk::FileChooserDialog(acceptLabel, action);
+    }
+    chooser->add_button("Cancel", GTK_RESPONSE_CANCEL);
+    chooser->add_button(acceptLabel, GTK_RESPONSE_ACCEPT);
+
+    chooser->set_local_only(true); // too dumb to handle network stuff for the moment
+
+    if (!saveMode && opts->mode == wl_FileDialogOpts::kModeMultiFile) {
+        chooser->set_select_multiple(true);
+    }
+
+    if (opts->mode != wl_FileDialogOpts::kModeFolder) {
+        for (int i=0; i< opts->numFilters; i++) {
+            Gtk::FileFilter filter;
+            // split on semicolons and add pattern
+            auto parts = g_strsplit(opts->filters[i].exts, ";", -1);
+            for (auto p = parts; *p != nullptr; p++) {
+                filter.add_pattern(*p);
+            }
+            filter.set_name(opts->filters[i].desc);
+            chooser->add_filter(filter);
+            g_strfreev(parts);
+        }
+    }
+
+    auto retval = false;
+    *results = nullptr;
+
+    if (chooser->run() == GTK_RESPONSE_ACCEPT) {
+        auto files = chooser->get_filenames();
+
+        *results = new wl_FileResults;
+        (*results)->numResults = files.size();
+        (*results)->results = new const char *[files.size()];
+
+        int i = 0;
+        for (auto fname : files) {
+            // verify default extension, if required
+            if (saveMode && opts->defaultExt) {
+                auto withExt = withDefaultExt(fname.data(), opts->defaultExt);
+                (*results)->results[i++] = strdup(withExt.data());
+            } else {
+                (*results)->results[i++] = strdup(fname.data());
+            }
+        }
+
+        retval = true;
+    } // else canceled
+
+    delete chooser;
+    return retval;
+}
+
+OPENWL_API bool CDECL wl_FileOpenDialog(struct wl_FileDialogOpts* opts, struct wl_FileResults** results)
+{
+    auto action = (opts->mode == wl_FileDialogOpts::kModeFolder) ? Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER : Gtk::FILE_CHOOSER_ACTION_OPEN;
+
+    auto acceptLabel =
+            (opts->mode == wl_FileDialogOpts::kModeFile) ? "Select File" :
+            ((opts->mode == wl_FileDialogOpts::kModeMultiFile) ? "Select File(s)" : "Select Folder");
+
+    return fileDlgCommon(opts, results, action, acceptLabel, false);
+}
+
+OPENWL_API bool CDECL wl_FileSaveDialog(struct wl_FileDialogOpts* opts, struct wl_FileResults** results)
+{
+    // these two are subtly different from open mode
+    auto action = (opts->mode == wl_FileDialogOpts::kModeFolder) ? Gtk::FILE_CHOOSER_ACTION_CREATE_FOLDER : Gtk::FILE_CHOOSER_ACTION_SAVE;
+    auto acceptLabel =
+            (opts->mode == wl_FileDialogOpts::kModeFolder) ? "Create Folder" : "Create File";
+
+    return fileDlgCommon(opts, results, action, acceptLabel, true);
+}
+
+OPENWL_API void CDECL wl_FileResultsFree(struct wl_FileResults** results)
+{
+    auto x = *results;
+    if (x) {
+        for (int i = 0; i < x->numResults; i++) {
+            free((void *)x->results[i]);
+        }
+        delete[] x->results;
+        delete x;
+    }
+    *results = nullptr;
 }
 
 /*************************/

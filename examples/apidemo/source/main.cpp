@@ -108,6 +108,9 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 			};
 			wl_FileDialogOpts opts = {};
 			opts.mode = wl_FileDialogOpts::kModeMultiFile;
+			        //wl_FileDialogOpts::kModeFolder;
+			        //wl_FileDialogOpts::kModeFile;
+			        //wl_FileDialogOpts::kModeMultiFile;
 			opts.numFilters = sizeof(specs) / sizeof(wl_FileDialogOpts::FilterSpec);
 			opts.filters = specs;
 
@@ -117,6 +120,8 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 					printf("opened file: [%s]\n", results->results[i]);
 				}
 				wl_FileResultsFree(&results);
+			} else {
+			    printf("(user canceled)\n");
 			}
 		}
 		else if (event->actionEvent.action == saveAsAction) {
@@ -127,9 +132,10 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 				{"All Files", "*.*"}
 			};
 			wl_FileDialogOpts opts = {};
+			opts.mode = wl_FileDialogOpts::kModeFile;
 			opts.numFilters = sizeof(specs) / sizeof(wl_FileDialogOpts::FilterSpec);
 			opts.filters = specs;
-			opts.defaultExt = "derp";
+			opts.defaultExt = "png";
 			
 			wl_FileResults* results;
 			if (wl_FileSaveDialog(&opts, &results)) {
