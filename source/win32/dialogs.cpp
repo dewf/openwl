@@ -1,16 +1,18 @@
-#include "messagebox.h"
+#include "dialogs.h"
 
 #include <map>
 #include "unicodestuff.h"
 #include "window.h"
 
+// file open/save stuff
+#include <shobjidl_core.h>
+#include "comstuff.h"
+
 static std::map<wl_MessageBoxParams::Buttons, UINT> mbButtonMap;
 static std::map<wl_MessageBoxParams::Icon, UINT> mbIconMap;
-//static std::map<wl_MessageBoxParams::DefButton, UINT> mbDefButtonMap;
-//static std::map<wl_MessageBoxParams::ModalType, UINT> mbModalMap;
 static std::map<int, wl_MessageBoxParams::Result> mbResultMap;
 
-void messagebox_init() {
+void dialogs_init() {
 	// buttons
 	mbButtonMap[wl_MessageBoxParams::kButtonsDefault] = MB_OK;
 	mbButtonMap[wl_MessageBoxParams::kButtonsAbortRetryIgnore] = MB_ABORTRETRYIGNORE;
@@ -28,18 +30,7 @@ void messagebox_init() {
 	mbIconMap[wl_MessageBoxParams::kIconQuestion] = MB_ICONQUESTION;
 	mbIconMap[wl_MessageBoxParams::kIconError] = MB_ICONERROR;
 
-	//// default buttons
-	//mbDefButtonMap[wl_MessageBoxParams::kDefButtonDefault] = 0;
-	//mbDefButtonMap[wl_MessageBoxParams::kDefButton1] = MB_DEFBUTTON1;
-	//mbDefButtonMap[wl_MessageBoxParams::kDefButton2] = MB_DEFBUTTON2;
-	//mbDefButtonMap[wl_MessageBoxParams::kDefButton3] = MB_DEFBUTTON3;
-	//mbDefButtonMap[wl_MessageBoxParams::kDefButton4] = MB_DEFBUTTON4;
-
-	//// modality
-	//mbModalMap[wl_MessageBoxParams::kModalDefault] = 0;
-	//mbModalMap[wl_MessageBoxParams::kModalApp] = MB_APPLMODAL;
-	//mbModalMap[wl_MessageBoxParams::kModalSystem] = MB_SYSTEMMODAL;
-	//mbModalMap[wl_MessageBoxParams::kModalTask] = MB_TASKMODAL;
+	// TODO maybe someday: button order, modal options
 
 	// results
 	mbResultMap[IDABORT] = wl_MessageBoxParams::kResultAbort;
@@ -58,8 +49,6 @@ OPENWL_API wl_MessageBoxParams::Result CDECL wl_MessageBox(wl_WindowRef window, 
 	UINT mbType =
 		mbButtonMap[params->buttons] |
 		mbIconMap[params->icon];
-	//mbDefButtonMap[params->defButton] |
-	//mbModalMap[params->modalType];
 
 	if (params->withHelpButton) {
 		mbType |= MB_HELP;
@@ -77,4 +66,69 @@ OPENWL_API wl_MessageBoxParams::Result CDECL wl_MessageBox(wl_WindowRef window, 
 			);
 
 	return mbResultMap[rawResult];
+}
+
+OPENWL_API bool CDECL wl_FileOpenDialog(wl_WindowRef owner)
+{
+	IFileOpenDialog* dialog = NULL;
+	HR(CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&dialog))); // IID_PPV_ARGS is a macro that handles final 2 args
+
+	// get existing options
+	DWORD dwFlags;
+	HR(dialog->GetOptions(&dwFlags));
+
+	// multi select if wanted
+	dwFlags |= FOS_ALLOWMULTISELECT;
+
+	// file system items only
+	HR(dialog->SetOptions(dwFlags | FOS_FORCEFILESYSTEM));
+
+	// file types
+	COMDLG_FILTERSPEC rgSpec[] = {
+		{ L"JPEG Images", L"*.jpg;*.jpeg" },
+		{ L"PNG Images", L"*.png" },
+		{ L"All Files", L"*.*" }
+	};
+	HR(dialog->SetFileTypes(3, rgSpec));
+	HR(dialog->SetFileTypeIndex(1)); // 1-based index
+	HR(dialog->SetDefaultExtension(L"jpg;jpeg"));
+
+	auto hwnd = owner ? owner->getHWND() : NULL;
+
+	auto hr = dialog->Show(hwnd);
+	if (SUCCEEDED(hr)) {
+		IShellItemArray* results;
+		HR(dialog->GetResults(&results));
+
+		DWORD numItems;
+		HR(results->GetCount(&numItems));
+
+		for (auto i = 0; i < numItems; i++) {
+			IShellItem* item;
+			HR(results->GetItemAt(i, &item));
+
+			PWSTR filePath = NULL;
+			HR(item->GetDisplayName(SIGDN_FILESYSPATH, &filePath));
+			printf("you opened: [%ls]\n", filePath);
+
+			CoTaskMemFree(filePath);
+			SafeRelease(&item);
+		}
+
+		SafeRelease(&results);
+	}
+	else if (hr == 0x800704C7) {
+		printf("file open canceled by user\n");
+	}
+	else {
+		printf("file open dialog - some unknown error %08X\n", hr);
+	}
+
+	SafeRelease(&dialog);
+	return false;
+}
+
+OPENWL_API bool CDECL wl_FileSaveDialog()
+{
+	return false;
 }

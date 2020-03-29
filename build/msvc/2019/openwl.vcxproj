@@ -173,7 +173,7 @@
     <ClInclude Include="..\..\..\source\win32\dragdrop\oledragdrop.h" />
     <ClInclude Include="..\..\..\source\win32\globals.h" />
     <ClInclude Include="..\..\..\source\win32\keystuff.h" />
-    <ClInclude Include="..\..\..\source\win32\messagebox.h" />
+    <ClInclude Include="..\..\..\source\win32\dialogs.h" />
     <ClInclude Include="..\..\..\source\win32\MyDataObject.h" />
     <ClInclude Include="..\..\..\source\win32\MyDropTarget.h" />
     <ClInclude Include="..\..\..\source\win32\pngloader.h" />
@@ -195,7 +195,7 @@
     <ClCompile Include="..\..\..\source\win32\dragdrop\oledragdrop.cpp" />
     <ClCompile Include="..\..\..\source\win32\globals.cpp" />
     <ClCompile Include="..\..\..\source\win32\keystuff.cpp" />
-    <ClCompile Include="..\..\..\source\win32\messagebox.cpp" />
+    <ClCompile Include="..\..\..\source\win32\dialogs.cpp" />
     <ClCompile Include="..\..\..\source\win32\MyDataObject.cpp" />
     <ClCompile Include="..\..\..\source\win32\MyDropTarget.cpp" />
     <ClCompile Include="..\..\..\source\win32\openwl.cpp" />
