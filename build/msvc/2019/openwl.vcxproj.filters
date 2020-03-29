@@ -81,6 +81,9 @@
     <ClInclude Include="..\..\..\source\win32\dragdrop\oledragdrop.h">
       <Filter>Source Files\dragdrop</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\source\win32\messagebox.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\source\win32\action.cpp">
@@ -142,6 +145,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\source\win32\dragdrop\oledragdrop.cpp">
       <Filter>Source Files\dragdrop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\source\win32\messagebox.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
