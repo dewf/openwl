@@ -76,38 +76,49 @@ struct filterSpecTemp {
 
 static void fileDialogCommon(IFileDialog* dialog, struct wl_FileDialogOpts* opts, bool isSave)
 {
-	// get existing options
+	// get default options
 	DWORD dwFlags;
 	HR(dialog->GetOptions(&dwFlags));
 
-	if (!isSave && opts->multiSelect) {
-		dwFlags |= FOS_ALLOWMULTISELECT;
+	if (!isSave) {
+		if (opts->mode == wl_FileDialogOpts::kModeMultiFile) {
+			dwFlags |= FOS_ALLOWMULTISELECT;
+		}
+		else if (opts->mode == wl_FileDialogOpts::kModeFolder) {
+			dwFlags |= FOS_PICKFOLDERS;
+		}
 	}
 
 	// file system items only
-	HR(dialog->SetOptions(dwFlags | FOS_FORCEFILESYSTEM));
+	dwFlags |= FOS_FORCEFILESYSTEM;
 
-	// file types
-	filterSpecTemp* temps = new filterSpecTemp[opts->numFilters];
-	COMDLG_FILTERSPEC* specs = new COMDLG_FILTERSPEC[opts->numFilters];
-	for (int i = 0; i < opts->numFilters; i++) {
-		temps[i].name = utf8_to_wstring(opts->filters[i].desc);
-		temps[i].spec = utf8_to_wstring(opts->filters[i].exts);
-		specs[i].pszName = temps[i].name.c_str();
-		specs[i].pszSpec = temps[i].spec.c_str();
+	HR(dialog->SetOptions(dwFlags));
+
+	if (opts->mode != wl_FileDialogOpts::kModeFolder) {
+		// file stuff only:
+
+		// file types
+		filterSpecTemp* temps = new filterSpecTemp[opts->numFilters];
+		COMDLG_FILTERSPEC* specs = new COMDLG_FILTERSPEC[opts->numFilters];
+		for (int i = 0; i < opts->numFilters; i++) {
+			temps[i].name = utf8_to_wstring(opts->filters[i].desc);
+			temps[i].spec = utf8_to_wstring(opts->filters[i].exts);
+			specs[i].pszName = temps[i].name.c_str();
+			specs[i].pszSpec = temps[i].spec.c_str();
+		}
+		HR(dialog->SetFileTypes(opts->numFilters, specs));
+		HR(dialog->SetFileTypeIndex(1)); // 1-based index
+
+		if (opts->defaultExt) {
+			std::wstring defExts;
+			defExts = utf8_to_wstring(opts->defaultExt);
+			HR(dialog->SetDefaultExtension(defExts.c_str()));
+		}
+
+		// safe to do this before showing? guess we'll find out ...
+		delete[] specs;
+		delete[] temps;
 	}
-	HR(dialog->SetFileTypes(opts->numFilters, specs));
-	HR(dialog->SetFileTypeIndex(1)); // 1-based index
-
-	if (opts->defaultExt) {
-		std::wstring defExts;
-		defExts = utf8_to_wstring(opts->defaultExt);
-		HR(dialog->SetDefaultExtension(defExts.c_str()));
-	}
-
-	// safe to do this before showing? guess we'll find out ...
-	delete[] specs;
-	delete[] temps;
 }
 
 OPENWL_API bool CDECL wl_FileOpenDialog(struct wl_FileDialogOpts* opts, struct wl_FileResults** results)

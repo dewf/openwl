@@ -457,7 +457,12 @@ extern "C" {
 
 	struct wl_FileDialogOpts {
 		wl_WindowRef owner;
-		bool multiSelect; // only applies to file open
+		enum Mode {
+			kModeFile,
+			kModeMultiFile,
+			kModeFolder
+		} mode;
+		// below only matter for files (not folders)
 		struct FilterSpec {
 			const char* desc;
 			const char* exts; // semicolon-delimited list

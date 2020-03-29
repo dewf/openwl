@@ -100,13 +100,14 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 		printf("action %p chosen\n", (void *)event->actionEvent.action);
 		if (event->actionEvent.action == openAction) {
 			wl_FileDialogOpts::FilterSpec specs[] = {
-				{"Derp Werp", "*.derp;*.woot"},
+				{"Image Formats", "*.jpg;*.jpeg;*.png;*.gif"},
 				{"JPEG images", "*.jpg;*.jpeg"},
 				{"PNG images", "*.png"},
+				{"GIF images", "*.gif"},
 				{"All Files", "*.*"}
 			};
 			wl_FileDialogOpts opts = {};
-			opts.multiSelect = true;
+			opts.mode = wl_FileDialogOpts::kModeMultiFile;
 			opts.numFilters = sizeof(specs) / sizeof(wl_FileDialogOpts::FilterSpec);
 			opts.filters = specs;
 
