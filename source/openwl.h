@@ -551,6 +551,10 @@ extern "C" {
 	OPENWL_API void CDECL wl_ClipboardRelease(wl_DropDataRef dropData);
 	OPENWL_API void CDECL wl_ClipboardFlush();
 
+	/* FILE OPEN / SAVE */
+	OPENWL_API bool CDECL wl_FileOpenDialog(wl_WindowRef owner);
+	OPENWL_API bool CDECL wl_FileSaveDialog();
+
 	/* MESSAGEBOX / ALERT */
 	OPENWL_API wl_MessageBoxParams::Result CDECL wl_MessageBox(wl_WindowRef window, struct wl_MessageBoxParams* params);
 

@@ -23,6 +23,9 @@
 #include "dragdrop/dropsource.h"
 #include "MyDropTarget.h"
 
+// file open/save stuff
+#include <shobjidl_core.h>
+
 #include <stdio.h>
 #include <assert.h>
 
@@ -363,6 +366,75 @@ OPENWL_API void CDECL wl_ClipboardFlush()
 	printf("flushing clipboard...\n");
 	OleFlushClipboard();
 }
+
+/* FILE OPEN / SAVE */
+
+OPENWL_API bool CDECL wl_FileOpenDialog(wl_WindowRef owner)
+{
+	IFileOpenDialog* dialog = NULL;
+	HR(CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&dialog))); // IID_PPV_ARGS is a macro that handles final 2 args
+
+	// get existing options
+	DWORD dwFlags;
+	HR(dialog->GetOptions(&dwFlags));
+
+	// multi select if wanted
+	dwFlags |= FOS_ALLOWMULTISELECT;
+
+	// file system items only
+	HR(dialog->SetOptions(dwFlags | FOS_FORCEFILESYSTEM));
+
+	// file types
+	COMDLG_FILTERSPEC rgSpec[] = {
+		{ L"JPEG Images", L"*.jpg;*.jpeg" },
+		{ L"PNG Images", L"*.png" },
+		{ L"All Files", L"*.*" }
+	};
+	HR(dialog->SetFileTypes(3, rgSpec));
+	HR(dialog->SetFileTypeIndex(1)); // 1-based index
+	HR(dialog->SetDefaultExtension(L"jpg;jpeg"));
+
+	auto hwnd = owner ? owner->getHWND() : NULL;
+
+	auto hr = dialog->Show(hwnd);
+	if (SUCCEEDED(hr)) {
+		IShellItemArray* results;
+		HR(dialog->GetResults(&results));
+
+		DWORD numItems;
+		HR(results->GetCount(&numItems));
+
+		for (auto i = 0; i < numItems; i++) {
+			IShellItem* item;
+			HR(results->GetItemAt(i, &item));
+
+			PWSTR filePath = NULL;
+			HR(item->GetDisplayName(SIGDN_FILESYSPATH, &filePath));
+			printf("you opened: [%ls]\n", filePath);
+
+			CoTaskMemFree(filePath);
+			SafeRelease(&item);
+		}
+
+		SafeRelease(&results);
+	}
+	else if (hr == 0x800704C7) {
+		printf("file open canceled by user\n");
+	}
+	else {
+		printf("file open dialog - some unknown error %08X\n", hr);
+	}
+
+	SafeRelease(&dialog);
+	return false;
+}
+
+OPENWL_API bool CDECL wl_FileSaveDialog()
+{
+	return false;
+}
+
+// === MESSAGEBOX API =================================
 
 static std::map<wl_MessageBoxParams::Buttons, UINT> mbButtonMap;
 static std::map<wl_MessageBoxParams::Icon, UINT> mbIconMap;

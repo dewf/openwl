@@ -12,6 +12,8 @@ enum IDsEnum {
     // action IDs
     ID_FileAction1,
     ID_FileAction2,
+	ID_FileAction3, // Open
+	ID_FileAction4, // Save
     ID_ExitAction,
     ID_CopyAction,
     ID_PasteAction,
@@ -28,6 +30,8 @@ enum IDsEnum {
 // file menu
 wl_ActionRef fileAction1;
 wl_ActionRef fileAction2;
+wl_ActionRef openAction;
+wl_ActionRef saveAsAction;
 wl_ActionRef exitAction;
 
 // edit menu
@@ -93,7 +97,13 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 		break;
 	case wl_kEventTypeAction:
 		printf("action %p chosen\n", (void *)event->actionEvent.action);
-		if (event->actionEvent.action == exitAction) {
+		if (event->actionEvent.action == openAction) {
+			wl_FileOpenDialog(nullptr);
+		}
+		else if (event->actionEvent.action == saveAsAction) {
+			printf("=== file save! ===\n");
+		}
+		else if (event->actionEvent.action == exitAction) {
 			wl_WindowDestroy(window); // app will close when destroy message received (see above)
 		}
 		else if (event->actionEvent.action == copyAction) {
@@ -398,6 +408,14 @@ void createActions() {
 	auto fa2Accel = wl_AccelCreate(wl_kKeyK, wl_kModifierAlt);
 	fileAction2 = wl_ActionCreate(ID_FileAction2, "SubMenuItem", 0, fa2Accel);
 
+	// open
+	auto openAccel = wl_AccelCreate(wl_kKeyO, wl_kModifierControl); // ctrl-o
+	openAction = wl_ActionCreate(ID_FileAction3, "&Open", 0, openAccel);
+
+	// save
+	auto saveAsAccel = wl_AccelCreate(wl_kKeyS, wl_kModifierControl | wl_kModifierShift); // ctrl-shift-s
+	saveAsAction = wl_ActionCreate(ID_FileAction4, "Save &As", 0, saveAsAccel);
+
 	auto exitAccel = wl_AccelCreate(wl_kKeyQ, wl_kModifierControl);
 	exitAction = wl_ActionCreate(ID_ExitAction, "Quit c-client", 0, exitAccel);
 
@@ -429,6 +447,10 @@ void createMenu() {
 #endif
 	/* file menu */
 	auto fileMenu = wl_MenuCreate();
+
+	wl_MenuAddAction(fileMenu, openAction); // open
+	wl_MenuAddAction(fileMenu, saveAsAction); // save
+
 	wl_MenuAddAction(fileMenu, fileAction1);
 
 	auto fileSubMenu = wl_MenuCreate();
