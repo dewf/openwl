@@ -1,6 +1,7 @@
 #include "dialogs.h"
 
 #include <map>
+#include <string>
 #include "unicodestuff.h"
 #include "window.h"
 
@@ -68,54 +69,89 @@ OPENWL_API wl_MessageBoxParams::Result CDECL wl_MessageBox(wl_WindowRef window, 
 	return mbResultMap[rawResult];
 }
 
-OPENWL_API bool CDECL wl_FileOpenDialog(wl_WindowRef owner)
-{
-	IFileOpenDialog* dialog = NULL;
-	HR(CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&dialog))); // IID_PPV_ARGS is a macro that handles final 2 args
+struct filterSpecTemp {
+	std::wstring name;
+	std::wstring spec;
+};
 
+static void fileDialogCommon(IFileDialog* dialog, struct wl_FileDialogOpts* opts, bool isSave)
+{
 	// get existing options
 	DWORD dwFlags;
 	HR(dialog->GetOptions(&dwFlags));
 
-	// multi select if wanted
-	dwFlags |= FOS_ALLOWMULTISELECT;
+	if (!isSave && opts->multiSelect) {
+		dwFlags |= FOS_ALLOWMULTISELECT;
+	}
 
 	// file system items only
 	HR(dialog->SetOptions(dwFlags | FOS_FORCEFILESYSTEM));
 
 	// file types
-	COMDLG_FILTERSPEC rgSpec[] = {
-		{ L"JPEG Images", L"*.jpg;*.jpeg" },
-		{ L"PNG Images", L"*.png" },
-		{ L"All Files", L"*.*" }
-	};
-	HR(dialog->SetFileTypes(3, rgSpec));
+	filterSpecTemp* temps = new filterSpecTemp[opts->numFilters];
+	COMDLG_FILTERSPEC* specs = new COMDLG_FILTERSPEC[opts->numFilters];
+	for (int i = 0; i < opts->numFilters; i++) {
+		temps[i].name = utf8_to_wstring(opts->filters[i].desc);
+		temps[i].spec = utf8_to_wstring(opts->filters[i].exts);
+		specs[i].pszName = temps[i].name.c_str();
+		specs[i].pszSpec = temps[i].spec.c_str();
+	}
+	HR(dialog->SetFileTypes(opts->numFilters, specs));
 	HR(dialog->SetFileTypeIndex(1)); // 1-based index
-	HR(dialog->SetDefaultExtension(L"jpg;jpeg"));
 
-	auto hwnd = owner ? owner->getHWND() : NULL;
+	if (opts->defaultExt) {
+		std::wstring defExts;
+		defExts = utf8_to_wstring(opts->defaultExt);
+		HR(dialog->SetDefaultExtension(defExts.c_str()));
+	}
 
+	// safe to do this before showing? guess we'll find out ...
+	delete[] specs;
+	delete[] temps;
+}
+
+OPENWL_API bool CDECL wl_FileOpenDialog(struct wl_FileDialogOpts* opts, struct wl_FileResults** results)
+{
+	IFileOpenDialog* dialog = NULL;
+	HR(CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&dialog))); // IID_PPV_ARGS is a macro that handles final 2 args
+
+	fileDialogCommon(dialog, opts, false);
+
+	// zero out the results in case of failure
+	*results = nullptr;
+	bool retval = false;
+
+	auto hwnd = opts->owner ? opts->owner->getHWND() : NULL;
 	auto hr = dialog->Show(hwnd);
 	if (SUCCEEDED(hr)) {
-		IShellItemArray* results;
-		HR(dialog->GetResults(&results));
+		IShellItemArray* itemArr;
+		HR(dialog->GetResults(&itemArr));
 
 		DWORD numItems;
-		HR(results->GetCount(&numItems));
+		HR(itemArr->GetCount(&numItems));
 
-		for (auto i = 0; i < numItems; i++) {
+		// allocate results
+		*results = new wl_FileResults;
+		(*results)->numResults = numItems;
+		(*results)->results = new const char* [numItems];
+
+		for (DWORD i = 0; i < numItems; i++) {
 			IShellItem* item;
-			HR(results->GetItemAt(i, &item));
+			HR(itemArr->GetItemAt(i, &item));
 
 			PWSTR filePath = NULL;
 			HR(item->GetDisplayName(SIGDN_FILESYSPATH, &filePath));
-			printf("you opened: [%ls]\n", filePath);
+
+			auto utf8 = wstring_to_utf8(filePath);
+			(*results)->results[i] = _strdup(utf8.c_str());
 
 			CoTaskMemFree(filePath);
 			SafeRelease(&item);
 		}
 
-		SafeRelease(&results);
+		retval = true;
+
+		SafeRelease(&itemArr);
 	}
 	else if (hr == 0x800704C7) {
 		printf("file open canceled by user\n");
@@ -125,10 +161,62 @@ OPENWL_API bool CDECL wl_FileOpenDialog(wl_WindowRef owner)
 	}
 
 	SafeRelease(&dialog);
-	return false;
+	return retval;
 }
 
-OPENWL_API bool CDECL wl_FileSaveDialog()
+OPENWL_API bool CDECL wl_FileSaveDialog(struct wl_FileDialogOpts* opts, struct wl_FileResults** results)
 {
-	return false;
+	IFileSaveDialog* dialog = NULL;
+	HR(CoCreateInstance(CLSID_FileSaveDialog, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&dialog))); // IID_PPV_ARGS is a macro that handles final 2 args
+
+	fileDialogCommon(dialog, opts, true);
+
+	// zero out the results in case of failure
+	*results = nullptr;
+	bool retval = false;
+
+	auto hwnd = opts->owner ? opts->owner->getHWND() : NULL;
+	auto hr = dialog->Show(hwnd);
+	if (SUCCEEDED(hr)) {
+		IShellItem* item;
+		HR(dialog->GetResult(&item));
+
+		PWSTR filePath = NULL;
+		HR(item->GetDisplayName(SIGDN_FILESYSPATH, &filePath));
+
+		// allocate results
+		*results = new wl_FileResults;
+		(*results)->numResults = 1;
+		(*results)->results = new const char* [1];
+
+		auto utf8 = wstring_to_utf8(filePath);
+		(*results)->results[0] = _strdup(utf8.c_str());
+
+		retval = true;
+
+		CoTaskMemFree(filePath);
+		SafeRelease(&item);
+	}
+	else if (hr == 0x800704C7) {
+		printf("file open/save canceled by user\n");
+	}
+	else {
+		printf("file dialog - some unknown error %08X\n", hr);
+	}
+
+	SafeRelease(&dialog);
+	return retval;
+}
+
+OPENWL_API void CDECL wl_FileResultsFree(struct wl_FileResults** results)
+{
+	auto x = *results;
+	if (x) {
+		for (int i = 0; i < x->numResults; i++) {
+			free((void *)x->results[i]); // allocated by strdup
+		}
+		delete[] x->results;
+		delete x;
+	}
+	*results = nullptr;
 }

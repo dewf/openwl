@@ -455,6 +455,23 @@ extern "C" {
 		};
 	};
 
+	struct wl_FileDialogOpts {
+		wl_WindowRef owner;
+		bool multiSelect; // only applies to file open
+		struct FilterSpec {
+			const char* desc;
+			const char* exts; // semicolon-delimited list
+		};
+		const char* defaultExt; // delimited as well
+		int numFilters;
+		FilterSpec* filters;
+	};
+
+	struct wl_FileResults {
+		int numResults;
+		const char** results;
+	};
+
 	typedef int(CDECL *wl_EventCallback)(wl_WindowRef window, struct wl_Event *event, void *userData); // akin to win32 wndproc, handles everything
 	typedef void (CDECL *wl_VoidCallback)(void *data);
 
@@ -552,8 +569,9 @@ extern "C" {
 	OPENWL_API void CDECL wl_ClipboardFlush();
 
 	/* FILE OPEN / SAVE */
-	OPENWL_API bool CDECL wl_FileOpenDialog(wl_WindowRef owner);
-	OPENWL_API bool CDECL wl_FileSaveDialog();
+	OPENWL_API bool CDECL wl_FileOpenDialog(struct wl_FileDialogOpts* opts, struct wl_FileResults** results);
+	OPENWL_API bool CDECL wl_FileSaveDialog(struct wl_FileDialogOpts* opts, struct wl_FileResults** results);
+	OPENWL_API void CDECL wl_FileResultsFree(struct wl_FileResults** results);
 
 	/* MESSAGEBOX / ALERT */
 	OPENWL_API wl_MessageBoxParams::Result CDECL wl_MessageBox(wl_WindowRef window, struct wl_MessageBoxParams* params);

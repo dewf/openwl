@@ -4,6 +4,7 @@
 #include <cstring>
 
 #include <time.h>
+#include <assert.h>
 #define NUM_THREADS 6
 
 #include "main.h"
@@ -98,10 +99,43 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 	case wl_kEventTypeAction:
 		printf("action %p chosen\n", (void *)event->actionEvent.action);
 		if (event->actionEvent.action == openAction) {
-			wl_FileOpenDialog(nullptr);
+			wl_FileDialogOpts::FilterSpec specs[] = {
+				{"Derp Werp", "*.derp;*.woot"},
+				{"JPEG images", "*.jpg;*.jpeg"},
+				{"PNG images", "*.png"},
+				{"All Files", "*.*"}
+			};
+			wl_FileDialogOpts opts = {};
+			opts.multiSelect = true;
+			opts.numFilters = sizeof(specs) / sizeof(wl_FileDialogOpts::FilterSpec);
+			opts.filters = specs;
+
+			wl_FileResults* results;
+			if (wl_FileOpenDialog(&opts, &results)) {
+				for (int i = 0; i < results->numResults; i++) {
+					printf("opened file: [%s]\n", results->results[i]);
+				}
+				wl_FileResultsFree(&results);
+			}
 		}
 		else if (event->actionEvent.action == saveAsAction) {
-			printf("=== file save! ===\n");
+			wl_FileDialogOpts::FilterSpec specs[] = {
+				{"Derp Werp", "*.derp;*.woot"},
+				{"JPEG images", "*.jpg;*.jpeg"},
+				{"PNG images", "*.png"},
+				{"All Files", "*.*"}
+			};
+			wl_FileDialogOpts opts = {};
+			opts.numFilters = sizeof(specs) / sizeof(wl_FileDialogOpts::FilterSpec);
+			opts.filters = specs;
+			opts.defaultExt = "derp";
+			
+			wl_FileResults* results;
+			if (wl_FileSaveDialog(&opts, &results)) {
+				assert(results->numResults == 1);
+				printf("saving to file: [%s]\n", results->results[0]);
+				wl_FileResultsFree(&results);
+			}
 		}
 		else if (event->actionEvent.action == exitAction) {
 			wl_WindowDestroy(window); // app will close when destroy message received (see above)
