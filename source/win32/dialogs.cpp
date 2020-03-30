@@ -8,6 +8,7 @@
 // file open/save stuff
 #include <shobjidl_core.h>
 #include "comstuff.h"
+#include <cassert>
 
 static std::map<wl_MessageBoxParams::Buttons, UINT> mbButtonMap;
 static std::map<wl_MessageBoxParams::Icon, UINT> mbIconMap;
@@ -110,9 +111,17 @@ static void fileDialogCommon(IFileDialog* dialog, struct wl_FileDialogOpts* opts
 		HR(dialog->SetFileTypeIndex(1)); // 1-based index
 
 		if (opts->defaultExt) {
+			// this seems not to work if defaultExt doesn't match whatever the selected file type filter is ...
+			// maybe it only selects which of a multiple set to use? (jpg vs jpeg)
 			std::wstring defExts;
 			defExts = utf8_to_wstring(opts->defaultExt);
 			HR(dialog->SetDefaultExtension(defExts.c_str()));
+		}
+
+		// set suggested filename when saving
+		if (isSave && opts->suggestedFilename) {
+			auto wfname = utf8_to_wstring(opts->suggestedFilename);
+			dialog->SetFileName(wfname.c_str());
 		}
 
 		// safe to do this before showing? guess we'll find out ...
@@ -177,6 +186,8 @@ OPENWL_API bool CDECL wl_FileOpenDialog(struct wl_FileDialogOpts* opts, struct w
 
 OPENWL_API bool CDECL wl_FileSaveDialog(struct wl_FileDialogOpts* opts, struct wl_FileResults** results)
 {
+	assert(opts->mode != wl_FileDialogOpts::kModeFolder); // we don't support folder 'saving' on windows (GTK seems fine with it)
+
 	IFileSaveDialog* dialog = NULL;
 	HR(CoCreateInstance(CLSID_FileSaveDialog, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&dialog))); // IID_PPV_ARGS is a macro that handles final 2 args
 

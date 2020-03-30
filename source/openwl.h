@@ -467,7 +467,8 @@ extern "C" {
 			const char* desc;
 			const char* exts; // semicolon-delimited list
 		};
-		const char* defaultExt; // delimited as well
+		const char* defaultExt; // delimited as well?
+		const char* suggestedFilename; // for saving, w/ extension
 		int numFilters;
 		FilterSpec* filters;
 	};
