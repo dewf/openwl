@@ -1,4 +1,4 @@
-﻿#include <stdio.h>
+#include <stdio.h>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
@@ -78,6 +78,14 @@ inline bool strEqual(const char *a, const char *b) {
 	return !strcmp(a, b);
 }
 
+wl_FileDialogOpts::FilterSpec specs[] = {
+    {"Image Formats", "*.jpg;*.jpeg;*.png;*.gif"},
+    {"JPEG images", "*.jpg;*.jpeg"},
+    {"PNG images", "*.png"},
+    {"GIF images", "*.gif"},
+    {"All Files", "*.*"} // hmm these probably need to be omitted on mac (there's a panel option for it)
+};
+
 int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 	event->handled = true;
 	switch (event->eventType) {
@@ -99,18 +107,9 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 	case wl_kEventTypeAction:
 		printf("action %p chosen\n", (void *)event->actionEvent.action);
 		if (event->actionEvent.action == openAction) {
-			wl_FileDialogOpts::FilterSpec specs[] = {
-				{"Image Formats", "*.jpg;*.jpeg;*.png;*.gif"},
-				{"JPEG images", "*.jpg;*.jpeg"},
-				{"PNG images", "*.png"},
-				{"GIF images", "*.gif"},
-				{"All Files", "*.*"}
-			};
 			wl_FileDialogOpts opts = {};
-			opts.mode = 
-			        //wl_FileDialogOpts::kModeFolder;
-			        wl_FileDialogOpts::kModeFile;
-			        //wl_FileDialogOpts::kModeMultiFile;
+            opts.owner = mainWindow;
+            opts.mode = wl_FileDialogOpts::kModeMultiFile;
 			opts.numFilters = sizeof(specs) / sizeof(wl_FileDialogOpts::FilterSpec);
 			opts.filters = specs;
 
@@ -125,16 +124,9 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 			}
 		}
 		else if (event->actionEvent.action == saveAsAction) {
-			wl_FileDialogOpts::FilterSpec specs[] = {
-				{"Image Formats", "*.jpg;*.jpeg;*.png;*.gif"},
-				{"JPEG images", "*.jpg;*.jpeg"},
-				{"PNG images", "*.png"},
-				{"GIF images", "*.gif"},
-				{"All Files", "*.*"}
-			};
 			wl_FileDialogOpts opts = {};
-			opts.mode = 
-				wl_FileDialogOpts::kModeFile;
+            opts.owner = mainWindow;
+			opts.mode = wl_FileDialogOpts::kModeFile;
 			opts.numFilters = sizeof(specs) / sizeof(wl_FileDialogOpts::FilterSpec);
 			opts.filters = specs;
 			opts.defaultExt = "png";
