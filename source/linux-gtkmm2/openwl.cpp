@@ -500,8 +500,8 @@ static bool fileDlgCommon(const wl_FileDialogOpts *opts, wl_FileResults **result
                    const char *acceptLabel, bool saveMode)
 {
     Gtk::FileChooserDialog *chooser;
-    if (opts->owner) {
-        chooser = new Gtk::FileChooserDialog(*opts->owner, acceptLabel, action);
+    if (opts->forWindow) {
+        chooser = new Gtk::FileChooserDialog(*opts->forWindow, acceptLabel, action);
     } else {
         chooser = new Gtk::FileChooserDialog(acceptLabel, action);
     }
@@ -510,11 +510,11 @@ static bool fileDlgCommon(const wl_FileDialogOpts *opts, wl_FileResults **result
 
     chooser->set_local_only(true); // too dumb to handle network stuff for the moment
 
-    if (!saveMode && opts->mode == wl_FileDialogOpts::kModeMultiFile) {
+    if (!saveMode && opts->allowMultiple) {
         chooser->set_select_multiple(true);
     }
 
-    if (opts->mode != wl_FileDialogOpts::kModeFolder) {
+    if (opts->mode == wl_FileDialogOpts::kModeFile) {
         for (int i=0; i< opts->numFilters; i++) {
             Gtk::FileFilter filter;
             // split on semicolons and add pattern
@@ -525,6 +525,17 @@ static bool fileDlgCommon(const wl_FileDialogOpts *opts, wl_FileResults **result
             filter.set_name(opts->filters[i].desc);
             chooser->add_filter(filter);
             g_strfreev(parts);
+        }
+
+        if (opts->allowAll) {
+            Gtk::FileFilter filter;
+            filter.set_name("All Files");
+            filter.add_pattern("*.*");
+            chooser->add_filter(filter);
+        }
+
+        if (saveMode && opts->suggestedFilename) {
+            chooser->set_current_name(opts->suggestedFilename);
         }
     }
 
@@ -560,19 +571,21 @@ OPENWL_API bool CDECL wl_FileOpenDialog(struct wl_FileDialogOpts* opts, struct w
 {
     auto action = (opts->mode == wl_FileDialogOpts::kModeFolder) ? Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER : Gtk::FILE_CHOOSER_ACTION_OPEN;
 
-    auto acceptLabel =
-            (opts->mode == wl_FileDialogOpts::kModeFile) ? "Select File" :
-            ((opts->mode == wl_FileDialogOpts::kModeMultiFile) ? "Select File(s)" : "Select Folder");
+    const char *acceptLabel;
+    if (opts->mode == wl_FileDialogOpts::kModeFile) {
+        acceptLabel = opts->allowMultiple ? "Select File(s)" : "Select File";
+    } else {
+        acceptLabel = "Select Folder";
+    }
 
     return fileDlgCommon(opts, results, action, acceptLabel, false);
 }
 
 OPENWL_API bool CDECL wl_FileSaveDialog(struct wl_FileDialogOpts* opts, struct wl_FileResults** results)
 {
-    // these two are subtly different from open mode
-    auto action = (opts->mode == wl_FileDialogOpts::kModeFolder) ? Gtk::FILE_CHOOSER_ACTION_CREATE_FOLDER : Gtk::FILE_CHOOSER_ACTION_SAVE;
-    auto acceptLabel =
-            (opts->mode == wl_FileDialogOpts::kModeFolder) ? "Create Folder" : "Create File";
+    assert(opts->mode == wl_FileDialogOpts::kModeFile); // technically GTK has a "create folder" mode but win/mac don't
+    auto action = Gtk::FILE_CHOOSER_ACTION_SAVE;
+    auto acceptLabel = "Save File";
 
     return fileDlgCommon(opts, results, action, acceptLabel, true);
 }
