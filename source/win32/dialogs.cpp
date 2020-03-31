@@ -82,7 +82,9 @@ static void fileDialogCommon(IFileDialog* dialog, struct wl_FileDialogOpts* opts
 	HR(dialog->GetOptions(&dwFlags));
 
 	if (!isSave) {
-		if (opts->mode == wl_FileDialogOpts::kModeMultiFile) {
+		if (opts->mode == wl_FileDialogOpts::kModeFile &&
+			opts->allowMultiple)
+		{
 			dwFlags |= FOS_ALLOWMULTISELECT;
 		}
 		else if (opts->mode == wl_FileDialogOpts::kModeFolder) {
@@ -95,19 +97,24 @@ static void fileDialogCommon(IFileDialog* dialog, struct wl_FileDialogOpts* opts
 
 	HR(dialog->SetOptions(dwFlags));
 
-	if (opts->mode != wl_FileDialogOpts::kModeFolder) {
-		// file stuff only:
-
+	if (opts->mode == wl_FileDialogOpts::kModeFile) {
 		// file types
+		int extraFilterCount = opts->allowAll ? 1 : 0;
+
 		filterSpecTemp* temps = new filterSpecTemp[opts->numFilters];
-		COMDLG_FILTERSPEC* specs = new COMDLG_FILTERSPEC[opts->numFilters];
+		COMDLG_FILTERSPEC* specs = new COMDLG_FILTERSPEC[opts->numFilters + extraFilterCount];
 		for (int i = 0; i < opts->numFilters; i++) {
 			temps[i].name = utf8_to_wstring(opts->filters[i].desc);
 			temps[i].spec = utf8_to_wstring(opts->filters[i].exts);
 			specs[i].pszName = temps[i].name.c_str();
 			specs[i].pszSpec = temps[i].spec.c_str();
 		}
-		HR(dialog->SetFileTypes(opts->numFilters, specs));
+		if (opts->allowAll) {
+			// extraFilterCount during alloc above allows for this last index
+			specs[opts->numFilters].pszName = L"All Files";
+			specs[opts->numFilters].pszSpec = L"*.*";
+		}
+		HR(dialog->SetFileTypes(opts->numFilters + extraFilterCount, specs));
 		HR(dialog->SetFileTypeIndex(1)); // 1-based index
 
 		if (opts->defaultExt) {
@@ -141,7 +148,7 @@ OPENWL_API bool CDECL wl_FileOpenDialog(struct wl_FileDialogOpts* opts, struct w
 	*results = nullptr;
 	bool retval = false;
 
-	auto hwnd = opts->owner ? opts->owner->getHWND() : NULL;
+	auto hwnd = opts->forWindow ? opts->forWindow->getHWND() : NULL;
 	auto hr = dialog->Show(hwnd);
 	if (SUCCEEDED(hr)) {
 		IShellItemArray* itemArr;
@@ -197,7 +204,7 @@ OPENWL_API bool CDECL wl_FileSaveDialog(struct wl_FileDialogOpts* opts, struct w
 	*results = nullptr;
 	bool retval = false;
 
-	auto hwnd = opts->owner ? opts->owner->getHWND() : NULL;
+	auto hwnd = opts->forWindow ? opts->forWindow->getHWND() : NULL;
 	auto hr = dialog->Show(hwnd);
 	if (SUCCEEDED(hr)) {
 		IShellItem* item;

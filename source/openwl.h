@@ -456,26 +456,29 @@ extern "C" {
 	};
 
 	struct wl_FileDialogOpts {
-		wl_WindowRef owner;
+		wl_WindowRef forWindow; // optional - otherwise is app-modal
 		enum Mode {
 			kModeFile,
-			kModeMultiFile,
 			kModeFolder
 		} mode;
-		// below only matter for files (not folders)
+		// below might be in a union eventually if we ever add folder options
 		struct FilterSpec {
 			const char* desc;
-			const char* exts; // semicolon-delimited list
+			const char* exts;			// delimited list, eg "*.jpg;*.jpeg"
 		};
-		const char* defaultExt; // delimited as well?
-		const char* suggestedFilename; // for saving, w/ extension
-		int numFilters;
 		FilterSpec* filters;
+		int numFilters;
+		bool allowAll;					// append *.* filter
+		//
+		const char* defaultExt;			// hard to explain, and only on windows at the moment (I think)
+		bool allowMultiple;				// only for open mode
+		const char* suggestedFilename;  // only for save mode
 	};
 
+	// why not just reuse wl_Files ?
 	struct wl_FileResults {
-		int numResults;
 		const char** results;
+		int numResults;
 	};
 
 	typedef int(CDECL *wl_EventCallback)(wl_WindowRef window, struct wl_Event *event, void *userData); // akin to win32 wndproc, handles everything

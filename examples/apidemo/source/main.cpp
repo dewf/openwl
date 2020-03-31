@@ -83,7 +83,7 @@ wl_FileDialogOpts::FilterSpec specs[] = {
     {"JPEG images", "*.jpg;*.jpeg"},
     {"PNG images", "*.png"},
     {"GIF images", "*.gif"},
-    {"All Files", "*.*"} // hmm these probably need to be omitted on mac (there's a panel option for it)
+	// {"All Files", "*.*"} // added via opts->allowAll flag (to match Mac behavior)
 };
 
 int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
@@ -108,10 +108,12 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 		printf("action %p chosen\n", (void *)event->actionEvent.action);
 		if (event->actionEvent.action == openAction) {
 			wl_FileDialogOpts opts = {};
-            opts.owner = mainWindow;
-            opts.mode = wl_FileDialogOpts::kModeMultiFile;
-			opts.numFilters = sizeof(specs) / sizeof(wl_FileDialogOpts::FilterSpec);
+			opts.forWindow = mainWindow;
+            opts.mode = wl_FileDialogOpts::kModeFile;
+			opts.allowMultiple = true;
 			opts.filters = specs;
+			opts.numFilters = sizeof(specs) / sizeof(wl_FileDialogOpts::FilterSpec);
+			opts.allowAll = true; // *.* option
 
 			wl_FileResults* results;
 			if (wl_FileOpenDialog(&opts, &results)) {
@@ -125,10 +127,10 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 		}
 		else if (event->actionEvent.action == saveAsAction) {
 			wl_FileDialogOpts opts = {};
-            opts.owner = mainWindow;
+            opts.forWindow = mainWindow;
 			opts.mode = wl_FileDialogOpts::kModeFile;
-			opts.numFilters = sizeof(specs) / sizeof(wl_FileDialogOpts::FilterSpec);
 			opts.filters = specs;
+			opts.numFilters = sizeof(specs) / sizeof(wl_FileDialogOpts::FilterSpec);
 			opts.defaultExt = "png";
 			opts.suggestedFilename = "hello1234.png";
 			
