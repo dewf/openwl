@@ -37,4 +37,6 @@ inline double timespecDiff(timespec newer, timespec older) {
     return (double) diff / ONE_BILLION;
 }
 
+bool endswith(const char *str, const char *suffix);
+
 #endif //C_CLIENT_UTIL_H

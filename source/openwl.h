@@ -455,6 +455,32 @@ extern "C" {
 		};
 	};
 
+	struct wl_FileDialogOpts {
+		wl_WindowRef forWindow; // optional - otherwise is app-modal
+		enum Mode {
+			kModeFile,
+			kModeFolder
+		} mode;
+		// below might be in a union eventually if we ever add folder options
+		struct FilterSpec {
+			const char* desc;
+			const char* exts;			// delimited list, eg "*.jpg;*.jpeg"
+		};
+		FilterSpec* filters;
+		int numFilters;
+		bool allowAll;					// append *.* filter
+		//
+		const char* defaultExt;			// hard to explain, and only on windows at the moment (I think)
+		bool allowMultiple;				// only for open mode
+		const char* suggestedFilename;  // only for save mode
+	};
+
+	// why not just reuse wl_Files ?
+	struct wl_FileResults {
+		const char** results;
+		int numResults;
+	};
+
 	typedef int(CDECL *wl_EventCallback)(wl_WindowRef window, struct wl_Event *event, void *userData); // akin to win32 wndproc, handles everything
 	typedef void (CDECL *wl_VoidCallback)(void *data);
 
@@ -550,6 +576,11 @@ extern "C" {
 	OPENWL_API wl_DropDataRef CDECL wl_ClipboardGet();
 	OPENWL_API void CDECL wl_ClipboardRelease(wl_DropDataRef dropData);
 	OPENWL_API void CDECL wl_ClipboardFlush();
+
+	/* FILE OPEN / SAVE */
+	OPENWL_API bool CDECL wl_FileOpenDialog(struct wl_FileDialogOpts* opts, struct wl_FileResults** results);
+	OPENWL_API bool CDECL wl_FileSaveDialog(struct wl_FileDialogOpts* opts, struct wl_FileResults** results);
+	OPENWL_API void CDECL wl_FileResultsFree(struct wl_FileResults** results);
 
 	/* MESSAGEBOX / ALERT */
 	OPENWL_API wl_MessageBoxParams::Result CDECL wl_MessageBox(wl_WindowRef window, struct wl_MessageBoxParams* params);

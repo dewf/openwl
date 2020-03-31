@@ -11,6 +11,7 @@ This is a cross-platform (win/mac/linux) library for:
 - clipboard / DnD
 - win/mac hidpi support (requires app manifest/bundle)
 - basic alerts / messageboxes
+- basic file open / save dialogs
 
 It's meant to be a foundation for new GUIs, in any language that can interface with a C API. 
 

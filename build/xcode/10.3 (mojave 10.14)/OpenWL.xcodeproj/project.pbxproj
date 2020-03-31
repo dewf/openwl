@@ -28,6 +28,8 @@
 		6560E02C226E9FB50026362F /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6560E02B226E9FB50026362F /* AppKit.framework */; };
 		6566427E226F033900BF029E /* OpenWLTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6566427D226F033900BF029E /* OpenWLTests.m */; };
 		65664280226F033900BF029E /* OpenWL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65C56BC1226E9E97005D362A /* OpenWL.framework */; };
+		6595A8EC2432B67800F6B2B0 /* dialogs.h in Headers */ = {isa = PBXBuildFile; fileRef = 6595A8EA2432B67800F6B2B0 /* dialogs.h */; };
+		6595A8ED2432B67800F6B2B0 /* dialogs.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6595A8EB2432B67800F6B2B0 /* dialogs.mm */; };
 		65A8B2362368902000520263 /* NSCustomWindow.h in Headers */ = {isa = PBXBuildFile; fileRef = 65A8B2342368902000520263 /* NSCustomWindow.h */; };
 		65A8B2372368902000520263 /* NSCustomWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 65A8B2352368902000520263 /* NSCustomWindow.m */; };
 /* End PBXBuildFile section */
@@ -66,6 +68,8 @@
 		6566427B226F033900BF029E /* OpenWLTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OpenWLTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6566427D226F033900BF029E /* OpenWLTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OpenWLTests.m; sourceTree = "<group>"; };
 		6566427F226F033900BF029E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6595A8EA2432B67800F6B2B0 /* dialogs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dialogs.h; path = "../../../../source/osx-cocoa/dialogs.h"; sourceTree = "<group>"; };
+		6595A8EB2432B67800F6B2B0 /* dialogs.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = dialogs.mm; path = "../../../../source/osx-cocoa/dialogs.mm"; sourceTree = "<group>"; };
 		65A8B2342368902000520263 /* NSCustomWindow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NSCustomWindow.h; path = "../../../../source/osx-cocoa/NSCustomWindow.h"; sourceTree = "<group>"; };
 		65A8B2352368902000520263 /* NSCustomWindow.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = NSCustomWindow.m; path = "../../../../source/osx-cocoa/NSCustomWindow.m"; sourceTree = "<group>"; };
 		65C56BC1226E9E97005D362A /* OpenWL.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OpenWL.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -103,6 +107,8 @@
 		6560E003226E9EFF0026362F /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				6595A8EA2432B67800F6B2B0 /* dialogs.h */,
+				6595A8EB2432B67800F6B2B0 /* dialogs.mm */,
 				6560E00B226E9F260026362F /* globals.h */,
 				6560E015226E9F270026362F /* globals.mm */,
 				6560E011226E9F270026362F /* keystuff.h */,
@@ -183,6 +189,7 @@
 				6560E024226E9F270026362F /* WLWindowObject.h in Headers */,
 				6560E017226E9F270026362F /* private_defs.h in Headers */,
 				6560E022226E9F270026362F /* keystuff.h in Headers */,
+				6595A8EC2432B67800F6B2B0 /* dialogs.h in Headers */,
 				6560E01C226E9F270026362F /* globals.h in Headers */,
 				6560E023226E9F270026362F /* miscutil.h in Headers */,
 				6560E01A226E9F270026362F /* WLAppDelegate.h in Headers */,
@@ -326,6 +333,7 @@
 				6560E01D226E9F270026362F /* keystuff.mm in Sources */,
 				6560E01F226E9F270026362F /* WLContentView.mm in Sources */,
 				6560E021226E9F270026362F /* openwl.mm in Sources */,
+				6595A8ED2432B67800F6B2B0 /* dialogs.mm in Sources */,
 				6560E01E226E9F270026362F /* private_defs.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

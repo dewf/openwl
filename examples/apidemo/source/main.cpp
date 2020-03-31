@@ -1,9 +1,10 @@
-﻿#include <stdio.h>
+#include <stdio.h>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
 
 #include <time.h>
+#include <assert.h>
 #define NUM_THREADS 6
 
 #include "main.h"
@@ -12,6 +13,8 @@ enum IDsEnum {
     // action IDs
     ID_FileAction1,
     ID_FileAction2,
+	ID_FileAction3, // Open
+	ID_FileAction4, // Save
     ID_ExitAction,
     ID_CopyAction,
     ID_PasteAction,
@@ -28,6 +31,8 @@ enum IDsEnum {
 // file menu
 wl_ActionRef fileAction1;
 wl_ActionRef fileAction2;
+wl_ActionRef openAction;
+wl_ActionRef saveAsAction;
 wl_ActionRef exitAction;
 
 // edit menu
@@ -73,6 +78,14 @@ inline bool strEqual(const char *a, const char *b) {
 	return !strcmp(a, b);
 }
 
+wl_FileDialogOpts::FilterSpec specs[] = {
+    {"Image Formats", "*.jpg;*.jpeg;*.png;*.gif"},
+    {"JPEG images", "*.jpg;*.jpeg"},
+    {"PNG images", "*.png"},
+    {"GIF images", "*.gif"},
+	// {"All Files", "*.*"} // added via opts->allowAll flag (to match Mac behavior)
+};
+
 int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 	event->handled = true;
 	switch (event->eventType) {
@@ -93,7 +106,42 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 		break;
 	case wl_kEventTypeAction:
 		printf("action %p chosen\n", (void *)event->actionEvent.action);
-		if (event->actionEvent.action == exitAction) {
+		if (event->actionEvent.action == openAction) {
+			wl_FileDialogOpts opts = {};
+			opts.forWindow = mainWindow;
+            opts.mode = wl_FileDialogOpts::kModeFile;
+			opts.allowMultiple = true;
+			opts.filters = specs;
+			opts.numFilters = sizeof(specs) / sizeof(wl_FileDialogOpts::FilterSpec);
+			opts.allowAll = true; // *.* option
+
+			wl_FileResults* results;
+			if (wl_FileOpenDialog(&opts, &results)) {
+				for (int i = 0; i < results->numResults; i++) {
+					printf("opened file: [%s]\n", results->results[i]);
+				}
+				wl_FileResultsFree(&results);
+			} else {
+			    printf("(user canceled)\n");
+			}
+		}
+		else if (event->actionEvent.action == saveAsAction) {
+			wl_FileDialogOpts opts = {};
+            opts.forWindow = mainWindow;
+			opts.mode = wl_FileDialogOpts::kModeFile;
+			opts.filters = specs;
+			opts.numFilters = sizeof(specs) / sizeof(wl_FileDialogOpts::FilterSpec);
+			opts.defaultExt = "png";
+			opts.suggestedFilename = "hello1234.png"; // hmm on mac this is defaulting to the first filter listed (jpg instead)
+			
+			wl_FileResults* results;
+			if (wl_FileSaveDialog(&opts, &results)) {
+				assert(results->numResults == 1);
+				printf("saving to file: [%s]\n", results->results[0]);
+				wl_FileResultsFree(&results);
+			}
+		}
+		else if (event->actionEvent.action == exitAction) {
 			wl_WindowDestroy(window); // app will close when destroy message received (see above)
 		}
 		else if (event->actionEvent.action == copyAction) {
@@ -398,6 +446,14 @@ void createActions() {
 	auto fa2Accel = wl_AccelCreate(wl_kKeyK, wl_kModifierAlt);
 	fileAction2 = wl_ActionCreate(ID_FileAction2, "SubMenuItem", 0, fa2Accel);
 
+	// open
+	auto openAccel = wl_AccelCreate(wl_kKeyO, wl_kModifierControl); // ctrl-o
+	openAction = wl_ActionCreate(ID_FileAction3, "&Open", 0, openAccel);
+
+	// save
+	auto saveAsAccel = wl_AccelCreate(wl_kKeyS, wl_kModifierControl | wl_kModifierShift); // ctrl-shift-s
+	saveAsAction = wl_ActionCreate(ID_FileAction4, "Save &As", 0, saveAsAccel);
+
 	auto exitAccel = wl_AccelCreate(wl_kKeyQ, wl_kModifierControl);
 	exitAction = wl_ActionCreate(ID_ExitAction, "Quit c-client", 0, exitAccel);
 
@@ -429,6 +485,10 @@ void createMenu() {
 #endif
 	/* file menu */
 	auto fileMenu = wl_MenuCreate();
+
+	wl_MenuAddAction(fileMenu, openAction); // open
+	wl_MenuAddAction(fileMenu, saveAsAction); // save
+
 	wl_MenuAddAction(fileMenu, fileAction1);
 
 	auto fileSubMenu = wl_MenuCreate();
