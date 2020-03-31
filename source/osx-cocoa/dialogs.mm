@@ -15,10 +15,9 @@ static bool fileDialogCommon(NSSavePanel *panel, struct wl_FileDialogOpts* opts,
         auto openPanel = (NSOpenPanel *)panel;
         switch (opts->mode) {
             case wl_FileDialogOpts::kModeFile:
-                // already the default
-                break;
-            case wl_FileDialogOpts::kModeMultiFile:
-                [openPanel setAllowsMultipleSelection:YES];
+                if (opts->allowMultiple) {
+                    [openPanel setAllowsMultipleSelection:YES];
+                }
                 break;
             case wl_FileDialogOpts::kModeFolder:
                 [openPanel setCanChooseFiles:NO];
@@ -27,7 +26,7 @@ static bool fileDialogCommon(NSSavePanel *panel, struct wl_FileDialogOpts* opts,
         }
     }
     
-    if (opts->mode != wl_FileDialogOpts::kModeFolder) {
+    if (opts->mode == wl_FileDialogOpts::kModeFile) {
         // file-only stuff:
         NSMutableArray<NSString*> *allowed = [NSMutableArray array];
         for (int i=0; i< opts->numFilters; i++) {
@@ -39,7 +38,14 @@ static bool fileDialogCommon(NSSavePanel *panel, struct wl_FileDialogOpts* opts,
             }
         }
         [panel setAllowedFileTypes:allowed];
-        [panel setAllowsOtherFileTypes:YES];
+        
+        if (opts->allowAll) {
+            [panel setAllowsOtherFileTypes:YES];
+        }
+        
+        if (isSave && opts->suggestedFilename) {
+            [panel setNameFieldStringValue:[NSString stringWithUTF8String:opts->suggestedFilename]];
+        }
     }
     
     // default return values
@@ -76,8 +82,8 @@ static bool fileDialogCommon(NSSavePanel *panel, struct wl_FileDialogOpts* opts,
         }
     };
     
-    if (opts->owner) {
-        auto obj = (WLWindowObject *)opts->owner;
+    if (opts->forWindow) {
+        auto obj = (WLWindowObject *)opts->forWindow;
         // window sheet
         [panel beginSheetModalForWindow:obj.nsWindow completionHandler:handler];
         [NSApp runModalForWindow:obj.nsWindow];

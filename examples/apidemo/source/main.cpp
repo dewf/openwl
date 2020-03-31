@@ -132,7 +132,7 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 			opts.filters = specs;
 			opts.numFilters = sizeof(specs) / sizeof(wl_FileDialogOpts::FilterSpec);
 			opts.defaultExt = "png";
-			opts.suggestedFilename = "hello1234.png";
+			opts.suggestedFilename = "hello1234.png"; // hmm on mac this is defaulting to the first filter listed (jpg instead)
 			
 			wl_FileResults* results;
 			if (wl_FileSaveDialog(&opts, &results)) {
