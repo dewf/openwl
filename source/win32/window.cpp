@@ -35,13 +35,15 @@ unsigned int getMouseModifiers(WPARAM wParam);
 
 // static variables
 wl_WindowRef wl_Window::lastGrabWindow = nullptr;
-std::set<unsigned char> suppressedScanCodes;
+static std::set<unsigned char> suppressedScanCodes;
+static std::set<wl_WindowRef> allWindows; // need to know for modal windows (enable/disable all other windows)
 
 // methods ============================================================
 
 wl_Window::wl_Window()
 {
-	// nothing yet, all the work done in static ::create
+	// everything else done in static ::create
+	allWindows.insert(this);
 }
 
 wl_Window::~wl_Window()
@@ -49,6 +51,7 @@ wl_Window::~wl_Window()
 	if (d2dRenderTarget) {
 		d2dRenderTarget->Release();
 	}
+	allWindows.erase(this);
 }
 
 wl_WindowRef wl_Window::create(int dipWidth, int dipHeight, const char* title, void* userData, wl_WindowProperties* props)
@@ -223,6 +226,62 @@ void wl_Window::showRelative(wl_WindowRef relativeTo, int x, int y, int newWidth
 	auto doSize = (newWidth > 0 && newHeight > 0);
 	auto flags = (doSize ? 0 : SWP_NOSIZE) | SWP_SHOWWINDOW | SWP_NOACTIVATE;
 	SetWindowPos(hWnd, HWND_TOP, p.x, p.y, newWidth, newHeight, flags);
+	//SetWindowPos(hWnd, HWND_TOPMOST, p.x, p.y, newWidth, newHeight, flags); // TOPMOST so that it's always on top - would we ever not want this? useful for modal dialogs
+}
+
+void wl_Window::showModal(wl_WindowRef parent)
+{
+	std::vector<wl_WindowRef> disabled;
+
+	// show as normal ...
+	if (parent) {
+		// window-modal ====
+		// center on parent
+		RECT r, pr;
+		GetWindowRect(hWnd, &r); // outer frame of us
+		GetClientRect(parent->hWnd, &pr); // inner frame of parent
+		auto x = ((pr.right - pr.left) - (r.right - r.left)) / 2;
+		auto y = ((pr.bottom - pr.top) - (r.bottom - r.top)) / 2;
+		showRelative(parent, x, y, 0, 0);
+
+		// disable only parent
+		EnableWindow(parent->hWnd, FALSE);
+		disabled.push_back(parent);
+	}
+	else {
+		// app-modal ===
+		// center on screen? (hmm but how do we know which monitor?)
+		// disable all other windows
+		for (auto other : allWindows) {
+			if (other != this) {
+				EnableWindow(other->hWnd, FALSE);
+				disabled.push_back(other);
+			}
+		}
+		show();
+	}
+	setFocus();
+
+	// nested runloop =====
+	wl_Runloop();
+
+	// re-enable all disabled windows
+	for (auto other : disabled) {
+		EnableWindow(other->hWnd, TRUE);
+	}
+	if (parent) {
+		parent->setFocus();
+	}
+	else {
+		// TODO: use last focused window
+	}
+}
+
+void wl_Window::endModal()
+{
+	printf("(quitting modal loop)\n");
+	PostQuitMessage(0); // exit showModal()
+	hide();
 }
 
 void wl_Window::hide()

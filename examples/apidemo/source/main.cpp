@@ -7,6 +7,9 @@
 #include <assert.h>
 #define NUM_THREADS 6
 
+#include <map>
+
+
 #include "main.h"
 
 enum IDsEnum {
@@ -23,6 +26,7 @@ enum IDsEnum {
     ID_ContextAction2,
     ID_ContextAction3,
     ID_ContextAction4,
+	ID_ShowModal,
     // timer IDs
     ID_FastTimer,
     ID_SlowTimer
@@ -47,6 +51,7 @@ wl_ActionRef contextAction1;
 wl_ActionRef contextAction2;
 wl_ActionRef contextAction3;
 wl_ActionRef contextAction4;
+wl_ActionRef showModalAction;
 wl_MenuRef contextMenu;
 
 int lastFrame = 0;
@@ -58,6 +63,7 @@ wl_TimerRef fastTimer, slowTimer;
 
 wl_WindowRef mainWindow;
 wl_WindowRef framelessWindow;
+wl_WindowRef modalWindow;
 bool framelessWindowVisible = false;
 
 wl_CursorRef customCursor;
@@ -94,6 +100,9 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 			printf("main window closing ... or is it?\n");
 			//event->closeRequestEvent.cancelClose = true;
 		}
+		else if (window == modalWindow) {
+			printf("modal window got close request - not interfering ...\n");
+		}
 		else {
 			printf("closed something else, staying\n");
 		}
@@ -102,6 +111,10 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 		if (window == mainWindow) {
 			printf("main window destroyed! exiting runloop\n");
 			wl_ExitRunloop();
+		}
+		else if (window == modalWindow) {
+			printf("modal window destroyed, exiting modal loop\n");
+			wl_WindowEndModal(modalWindow);
 		}
 		break;
 	case wl_kEventTypeAction:
@@ -168,6 +181,11 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 				}
 			}
 			wl_ClipboardRelease(clipData);
+		} 
+		else if (event->actionEvent.action == showModalAction) {
+			modalWindow = wl_WindowCreate(300, 200, "modal!!!", nullptr, nullptr);
+			wl_WindowShowModal(modalWindow, mainWindow);
+			printf("=== exited!\n");
 		}
 		break;
 
@@ -321,6 +339,11 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 					(event->keyEvent.location == wl_kKeyLocationNumPad ? "Numpad" : "Unknown")));
 			printf("Key down: %d [%s] (mods %02X) (loc %s)\n", event->keyEvent.key, event->keyEvent.string, event->keyEvent.modifiers, loc);
 
+			if (window == modalWindow && event->keyEvent.key == wl_kKeyEscape) {
+				printf("ESC: closing modal, woot!\n");
+				wl_WindowDestroy(modalWindow);
+			}
+
 			//if (event->keyEvent.key == wl_kKeyZ) {
 			//	printf("fuckin Z!!\n");
 			//	if (!framelessWindowVisible) {
@@ -469,6 +492,8 @@ void createActions() {
 	auto c3Accel = wl_AccelCreate(wl_kKeyN, wl_kModifierShift);
 	contextAction3 = wl_ActionCreate(ID_ContextAction3, "Context 03", 0, c3Accel);
 
+	showModalAction = wl_ActionCreate(ID_ShowModal, "Show Modal", 0, 0);
+
 	//auto c4Accel = wl_AccelCreate(wl_kKeyOEM_4, wl_kModifierControl);
 	//contextAction4 = wl_ActionCreate(CONTEXT_ACTION_4, "Context WAT", 0, c4Accel);
 }
@@ -520,6 +545,10 @@ void createMenu() {
 	auto contextSubMenu = wl_MenuCreate();
 	wl_MenuAddAction(contextSubMenu, contextAction3);
 	wl_MenuAddSubmenu(contextMenu, "Su&bmenu", contextSubMenu);
+
+	wl_MenuAddSeparator(contextMenu);
+	wl_MenuAddAction(contextMenu, showModalAction);
+
 	/* end context menu*/
 
 	wl_MenuBarAddMenu(menuBar, "&Context", contextMenu);

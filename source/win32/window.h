@@ -2,6 +2,8 @@
 
 #include "../openwl.h"
 
+#include <set>
+
 struct wl_Window {
 private:
     static wl_WindowRef lastGrabWindow;
@@ -44,6 +46,10 @@ public:
     void wlDestroy(); // OpenWL API method - the wndproc will be responsible for actual win32 / C++ deletion
     void show();
     void showRelative(wl_WindowRef relativeTo, int x, int y, int newWidth, int newHeight);
+    
+    void showModal(wl_WindowRef parent);
+    void endModal();
+
     void hide();
     void invalidate(int x, int y, int width, int height);
 
