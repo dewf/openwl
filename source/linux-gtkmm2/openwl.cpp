@@ -83,6 +83,39 @@ OPENWL_API void CDECL wl_WindowShowRelative(wl_WindowRef window, wl_WindowRef re
     window->show_all();
 }
 
+OPENWL_API void CDECL wl_WindowShowModal(wl_WindowRef window, wl_WindowRef parent)
+{
+    // according to a stackoverflow thing we're doing this backward,
+    // should be show, set modal, then set transient. but this works OK for now ...
+    if (parent) {
+        window->set_transient_for(*parent);
+        window->set_position(Gtk::WindowPosition::WIN_POS_CENTER_ON_PARENT);
+    } else {
+        // center on same screen as other windows?
+    }
+    window->set_modal(true);
+    window->show_all();
+
+    // enter nested runloop for modal
+    printf("=== before nested runloop\n");
+    wl_Runloop();
+    printf("=== after nested runloop\n");
+
+    // exiting
+    window->hide();
+    if (parent) {
+        parent->setFocus();
+        // (really need to set focus to whoever had it last)
+    } else {
+        // focus on last
+    }
+}
+
+OPENWL_API void CDECL wl_WindowEndModal(wl_WindowRef window)
+{
+    wl_ExitRunloop();
+}
+
 OPENWL_API void CDECL wl_WindowHide(wl_WindowRef window)
 {
     window->hide();
