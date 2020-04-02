@@ -655,6 +655,14 @@ void wl_Window::onAction(wl_Event& event, int actionID)
 	}
 }
 
+void wl_Window::onFocusChange(wl_Event& event, UINT message, WPARAM wParam)
+{
+	// wParam contains window that lost/took focus but we're not using that yet
+	event.eventType = wl_kEventTypeFocusChange;
+	event.focusChangeEvent.state = (message == WM_SETFOCUS); // else lost focus
+	eventCallback(this, &event, userData);
+}
+
 void wl_Window::onDPIChanged(UINT newDPI, RECT *suggestedRect)
 {
 	dpi = newDPI;

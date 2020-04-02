@@ -204,6 +204,14 @@ LRESULT CALLBACK topLevelWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
         printf("received window-level WM_HELP\n");
         break;
 
+    case WM_SETFOCUS:
+    case WM_KILLFOCUS:
+        wlw->onFocusChange(event, message, wParam);
+        if (!event.handled) {
+            return DefWindowProc(hWnd, message, wParam, lParam);
+        }
+        break;
+
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
