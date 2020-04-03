@@ -368,10 +368,10 @@ extern "C" {
 			struct wl_TimerEvent timerEvent;
 			struct wl_MouseEvent mouseEvent;
 			struct wl_KeyEvent keyEvent;
+			struct wl_FocusChangeEvent focusChangeEvent;
 			struct wl_DropEvent dropEvent;
 			struct wl_DragRenderEvent dragRenderEvent;
 			struct wl_ClipboardClearEvent clipboardClearEvent;
-			struct wl_FocusChangeEvent focusChangeEvent;
 #ifdef WL_PLATFORM_WINDOWS
 			struct wl_D2DTargetRecreatedEvent d2dTargetRecreatedEvent;
 #endif
