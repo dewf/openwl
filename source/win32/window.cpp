@@ -37,6 +37,7 @@ unsigned int getMouseModifiers(WPARAM wParam);
 wl_WindowRef wl_Window::lastGrabWindow = nullptr;
 static std::set<unsigned char> suppressedScanCodes;
 static std::set<wl_WindowRef> allWindows; // need to know for modal windows (enable/disable all other windows)
+static wl_WindowRef lastFocusedWindow = nullptr;
 
 // methods ============================================================
 
@@ -232,6 +233,7 @@ void wl_Window::showRelative(wl_WindowRef relativeTo, int x, int y, int newWidth
 void wl_Window::showModal(wl_WindowRef parent)
 {
 	std::vector<wl_WindowRef> disabled;
+	auto lastFocused = lastFocusedWindow; // make a copy of this because it gets overwritten the moment we're shown
 
 	// show as normal ...
 	if (parent) {
@@ -269,11 +271,15 @@ void wl_Window::showModal(wl_WindowRef parent)
 	for (auto other : disabled) {
 		EnableWindow(other->hWnd, TRUE);
 	}
+
+	// give focus back to whoever had it last
 	if (parent) {
 		parent->setFocus();
 	}
 	else {
-		// TODO: use last focused window
+		if (lastFocused) {
+			lastFocused->setFocus();
+		}
 	}
 }
 
@@ -717,8 +723,13 @@ void wl_Window::onAction(wl_Event& event, int actionID)
 void wl_Window::onFocusChange(wl_Event& event, UINT message, WPARAM wParam)
 {
 	// wParam contains window that lost/took focus but we're not using that yet
+	
+	bool state = (message == WM_SETFOCUS); // else lost focus
+	if (state) {
+		lastFocusedWindow = this;
+	}
 	event.eventType = wl_kEventTypeFocusChange;
-	event.focusChangeEvent.state = (message == WM_SETFOCUS); // else lost focus
+	event.focusChangeEvent.state = state; 
 	eventCallback(this, &event, userData);
 }
 
