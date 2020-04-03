@@ -149,6 +149,31 @@ void platformDrawFrameless(wl_PlatformContext *platformContext)
 	target.DrawImage(&offScreenBuffer, Rect(0, 0, pWidth, pHeight));
 }
 
+void platformDrawModal(wl_PlatformContext* platformContext)
+{
+	Gdiplus::Graphics target(platformContext->gdi.hdc);
+
+	DECLSF(platformContext->dpi);
+
+	// double buffer ...
+	Gdiplus::Bitmap offScreenBuffer(modalWidth, modalHeight, &target);
+	Gdiplus::Graphics graphics(&offScreenBuffer);
+	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
+	graphics.SetTextRenderingHint(TextRenderingHintAntiAlias);
+
+	//// ==========================
+	RectF rect(0, 0, (float)modalWidth, (float)modalHeight);
+
+	SolidBrush brush(Color::CornflowerBlue);
+	graphics.FillRectangle(&brush, rect);
+
+	Gdiplus::Font font(L"Arial", DPIUP_F(40.0));
+	drawTextRect(platformContext->dpi, graphics, font, L"MODAL!", 0, 0, modalWidth, modalHeight, true);
+
+	// =============
+	target.DrawImage(&offScreenBuffer, Rect(0, 0, modalWidth, modalHeight));
+}
+
 void platformDrawBox(RandomBox *box) {
 	// this is drawing in the background so doesn't need to be DPI-aware
 	Gdiplus::LinearGradientBrush boxBrush(

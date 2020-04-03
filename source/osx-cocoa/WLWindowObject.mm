@@ -16,6 +16,7 @@
 
 @synthesize nsWindow;
 @synthesize contentViewObj;
+@synthesize sheetModalParent;
 @synthesize userData;
 @synthesize width;
 @synthesize height;

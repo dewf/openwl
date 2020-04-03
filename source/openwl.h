@@ -514,6 +514,8 @@ extern "C" {
 	OPENWL_API void CDECL wl_WindowDestroy(wl_WindowRef window);
 	OPENWL_API void CDECL wl_WindowShow(wl_WindowRef window);
 	OPENWL_API void CDECL wl_WindowShowRelative(wl_WindowRef window, wl_WindowRef relativeTo, int x, int y, int newWidth, int newHeight); // for pop-up windows
+	OPENWL_API void CDECL wl_WindowShowModal(wl_WindowRef window, wl_WindowRef parent); // parent = null for app-modal - blocks until modal completes
+	OPENWL_API void CDECL wl_WindowEndModal(wl_WindowRef window); // call from 'within' the modal runloop to end it
 	OPENWL_API void CDECL wl_WindowHide(wl_WindowRef window);
 	OPENWL_API void CDECL wl_WindowInvalidate(wl_WindowRef window, int x, int y, int width, int height);
 	OPENWL_API size_t CDECL wl_WindowGetOSHandle(wl_WindowRef window);

@@ -30,11 +30,13 @@
 #define MSG_CLICK_H 100
 
 extern int width, height;
+extern int modalWidth, modalHeight;
 extern int lastFrame, totalFrames;
 
 void platformInit();
 void platformDraw(wl_PlatformContext *platformContext);
 void platformDrawFrameless(wl_PlatformContext *platformContext);
+void platformDrawModal(wl_PlatformContext* platformContext);
 
 #define BOXWIDTH 40
 struct RandomBox {

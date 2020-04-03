@@ -76,6 +76,8 @@ OPENWL_API void CDECL wl_Shutdown()
 
 OPENWL_API int CDECL wl_Runloop()
 {
+	// hmm, doesn't this mean that any actions/accelerators created after the runloop start, won't work?
+	// will we ever need that?
 	HACCEL hAccelTable = wl_Action::createAccelTable();
 
 	// Main message loop:
@@ -127,6 +129,16 @@ OPENWL_API void CDECL wl_WindowShow(wl_WindowRef window)
 OPENWL_API void CDECL wl_WindowShowRelative(wl_WindowRef window, wl_WindowRef relativeTo, int x, int y, int newWidth, int newHeight)
 {
 	window->showRelative(relativeTo, x, y, newWidth, newHeight);
+}
+
+OPENWL_API void CDECL wl_WindowShowModal(wl_WindowRef window, wl_WindowRef parent)
+{
+	window->showModal(parent);
+}
+
+OPENWL_API void CDECL wl_WindowEndModal(wl_WindowRef window)
+{
+	window->endModal();
 }
 
 OPENWL_API void CDECL wl_WindowHide(wl_WindowRef window)

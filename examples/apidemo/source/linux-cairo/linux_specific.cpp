@@ -101,6 +101,19 @@ void platformDrawFrameless(wl_PlatformContext *platformContext)
 	drawTextRect(cr, "Hello!", 0, 0, POPUP_WIDTH, POPUP_HEIGHT, true);
 }
 
+void platformDrawModal(wl_PlatformContext* platformContext)
+{
+    auto cr = platformContext->cr;
+
+    cairo_set_source_rgb(cr, 0.3, 0.3, 1);
+    cairo_rectangle(cr, 0, 0, modalWidth, modalHeight);
+    cairo_fill(cr);
+
+    cairo_select_font_face(cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_set_font_size(cr, 40);
+    drawTextRect(cr, "MODAL", 0, 0, modalWidth, modalHeight, true);
+}
+
 void platformDrawBox(RandomBox *box) {
 	// draw new box on background image
 	auto cr = cairo_create(imageSurface);
