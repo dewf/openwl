@@ -58,6 +58,7 @@ int lastFrame = 0;
 int totalFrames = 0;
 
 int width, height;
+int modalWidth, modalHeight;
 
 wl_TimerRef fastTimer, slowTimer;
 
@@ -184,6 +185,8 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 			wl_ClipboardRelease(clipData);
 		} 
 		else if (event->actionEvent.action == showModalAction) {
+			modalWidth = 300;
+			modalHeight = 200;
 			modalWindow = wl_WindowCreate(300, 200, "modal!!!", nullptr, nullptr);
 			wl_WindowShowModal(modalWindow, mainWindow);
 			printf("=== main.cpp modal exited!\n");
@@ -198,6 +201,9 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 		else if (window == framelessWindow) {
 			platformDrawFrameless(&event->repaintEvent.platformContext);
 		}
+		else if (window == modalWindow) {
+			platformDrawModal(&event->repaintEvent.platformContext);
+		}
 		break;
 
 	case wl_kEventTypeWindowResized:
@@ -211,6 +217,10 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 			//wl_WindowInvalidate(window, 0, 0, 0, 0);
 
 			lastFrame = 0;
+		}
+		else if (window == modalWindow) {
+			modalWidth = event->resizeEvent.newWidth;
+			modalHeight = event->resizeEvent.newHeight;
 		}
 		break;
 
