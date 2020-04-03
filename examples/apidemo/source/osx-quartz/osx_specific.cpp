@@ -12,7 +12,7 @@
 
 static CGContextRef bitmapContext;
 static CTFontRef font;
-static CTLineRef dragSourceLine, dropTargetLine, hoverHereLine, helloLine, clickHereLine;
+static CTLineRef dragSourceLine, dropTargetLine, hoverHereLine, helloLine, clickHereLine, modalLine;
 static CGColorRef blackColor, whiteColor;
 
 CTLineRef createLineWithFont(CFStringRef str, CTFontRef font, CGColorRef color) {
@@ -55,6 +55,7 @@ void platformInit() {
     hoverHereLine = createLineWithFont(CFSTR("Hover Here"), font, blackColor);
     helloLine = createLineWithFont(CFSTR("Hello!"), font, blackColor);
     clickHereLine = createLineWithFont(CFSTR("Click Here"), font, blackColor);
+    modalLine = createLineWithFont(CFSTR("MODAL"), font, blackColor);
 }
 
 static void drawLineAt(CGContextRef context, CTLineRef line, int x, int y) {
@@ -159,6 +160,18 @@ void platformDrawFrameless(wl_PlatformContext *platformContext)
     CGContextSetRGBFillColor(context, 1, 1, 1, 1);
     CGContextFillRect(context, CGRectMake(0, 0, POPUP_WIDTH, POPUP_HEIGHT));
     drawTextRect(context, helloLine, 0, 0, POPUP_WIDTH, POPUP_HEIGHT, true);
+    // ====
+    CGContextRestoreGState(context);
+}
+
+void platformDrawModal(wl_PlatformContext* platformContext)
+{
+    auto context = (CGContextRef)platformContext->context;
+    CGContextSaveGState(context);
+    // ====
+    CGContextSetRGBFillColor(context, 0.3, 0.3, 1, 1);
+    CGContextFillRect(context, CGRectMake(0, 0, modalWidth, modalHeight));
+    drawTextRect(context, modalLine, 0, 0, modalWidth, modalHeight, true);
     // ====
     CGContextRestoreGState(context);
 }

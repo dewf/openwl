@@ -243,6 +243,38 @@ OPENWL_API void CDECL wl_WindowShowRelative(wl_WindowRef window, wl_WindowRef re
     [obj.nsWindow makeKeyAndOrderFront:NSApp];
 }
 
+OPENWL_API void CDECL wl_WindowShowModal(wl_WindowRef window, wl_WindowRef parent)
+{
+    auto obj = (WLWindowObject *)window;
+    if (parent) {
+        // nested in parent, window-modal
+        auto parentObj = (WLWindowObject *)parent;
+        obj.sheetModalParent = parentObj; // need to know this to end the sheet
+        [parentObj.nsWindow beginSheet:obj.nsWindow completionHandler:^(NSModalResponse returnCode) {
+            // end the nested runloop below
+            [NSApp stopModalWithCode:0];
+        }];
+        // await ending
+        [NSApp runModalForWindow:parentObj.nsWindow];
+    } else {
+        // standalone window, app-modal
+        [obj.nsWindow makeKeyAndOrderFront:NSApp];
+        [NSApp runModalForWindow:obj.nsWindow];
+    }
+}
+
+OPENWL_API void CDECL wl_WindowEndModal(wl_WindowRef window)
+{
+    auto obj = (WLWindowObject *)window;
+    if (obj.sheetModalParent) { // window-modal
+        [obj.sheetModalParent.nsWindow endSheet:obj.nsWindow]; // modal runloop will actually be ended in the completion handler
+        obj.sheetModalParent = nullptr;
+    } else {
+        // app-modal
+        [NSApp stopModalWithCode:0];
+    }
+}
+
 OPENWL_API void CDECL wl_WindowHide(wl_WindowRef window)
 {
     WLWindowObject *obj = (WLWindowObject *)window;

@@ -16,6 +16,7 @@
 @interface WLWindowObject : NSObject <NSWindowDelegate>
 @property (assign) NSWindow *nsWindow;
 @property (assign) WLContentView *contentViewObj;
+@property (assign) WLWindowObject *sheetModalParent; // need for ending the sheet
 @property void *userData;
 @property int width;
 @property int height;

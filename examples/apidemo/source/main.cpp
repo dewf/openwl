@@ -188,7 +188,7 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 			modalWidth = 300;
 			modalHeight = 200;
 			modalWindow = wl_WindowCreate(300, 200, "modal!!!", nullptr, nullptr);
-			wl_WindowShowModal(modalWindow, mainWindow);
+			wl_WindowShowModal(modalWindow, mainWindow); // 2nd param - null or parent window
 			printf("=== main.cpp modal exited!\n");
 			wl_WindowDestroy(modalWindow);
 		}
