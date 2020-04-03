@@ -192,6 +192,7 @@ extern "C" {
 		wl_kEventTypeTimer,
 		wl_kEventTypeMouse,
 		wl_kEventTypeKey,
+		wl_kEventTypeFocusChange,
 		wl_kEventTypeDrop,
 		wl_kEventTypeDragRender, // generate drag/clip data right when it's needed
 		wl_kEventTypeClipboardClear, // let the app know it's safe to clear whatever it had copied
@@ -329,6 +330,9 @@ extern "C" {
 		unsigned int modifiers;
 		enum wl_KeyLocation location; // left / right / etc
 	};
+	struct wl_FocusChangeEvent {
+		bool state; // true = gained, false = lost
+	};
 	struct wl_DropEvent {
 		enum wl_DropEventType eventType; // all have the same data (so no union below)
 		wl_DropDataRef data;
@@ -367,6 +371,7 @@ extern "C" {
 			struct wl_DropEvent dropEvent;
 			struct wl_DragRenderEvent dragRenderEvent;
 			struct wl_ClipboardClearEvent clipboardClearEvent;
+			struct wl_FocusChangeEvent focusChangeEvent;
 #ifdef WL_PLATFORM_WINDOWS
 			struct wl_D2DTargetRecreatedEvent d2dTargetRecreatedEvent;
 #endif
