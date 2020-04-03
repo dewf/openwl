@@ -59,6 +59,7 @@ public:
     bool on_drawArea_enterNotify(GdkEventCrossing *gdkEvent);
     bool on_drawArea_leaveNotify(GdkEventCrossing *gdkEvent);
     bool on_drawArea_scroll(GdkEventScroll *gdkEvent);
+    bool on_drawArea_focusChange(GdkEventFocus *gdkEvent);
 
     // to get menu size (to adjust client area to requested size [and min/max sizes])
     void on_menuBar_allocate(Gtk::Allocation &allocation);

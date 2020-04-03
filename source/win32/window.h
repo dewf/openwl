@@ -83,6 +83,7 @@ public:
     void onChar(wl_Event& event, WPARAM wParam, LPARAM lParam);
     void onKey(wl_Event& event, UINT message, WPARAM wParam, LPARAM lParam);
     void onAction(wl_Event& event, int actionID);
+    void onFocusChange(wl_Event& event, UINT message, WPARAM wParam);
 	
 	void onDPIChanged(UINT newDPI, RECT *suggestedRect);
 

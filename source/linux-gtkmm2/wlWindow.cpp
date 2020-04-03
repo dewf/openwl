@@ -107,6 +107,12 @@ wl_Window::wl_Window(void *userData, wl_WindowProperties *props)
     drawArea.signal_leave_notify_event().connect(sigc::mem_fun1(*this, &wl_Window::on_drawArea_leaveNotify));
     drawArea.signal_scroll_event().connect(sigc::mem_fun1(*this, &wl_Window::on_drawArea_scroll));
 
+    // maybe these should apply to the window and not the draw area?
+    // doesn't seem to make any difference as long as the draw area is focusable
+    // also we lose focus no matter what (window or drawarea) when a context menu is shown - win32 doesn't have that problem
+    drawArea.signal_focus_in_event().connect(sigc::mem_fun1(*this, &wl_Window::on_drawArea_focusChange));
+    drawArea.signal_focus_out_event().connect(sigc::mem_fun1(*this, &wl_Window::on_drawArea_focusChange));
+
     // dnd, ughhh
     drawArea.signal_drag_begin().connect(sigc::mem_fun1(*this, &wl_Window::on_drawArea_dragBegin));
     drawArea.signal_drag_motion().connect(sigc::mem_fun4(*this, &wl_Window::on_drawArea_dragMotion));
@@ -333,6 +339,15 @@ bool wl_Window::on_drawArea_scroll(GdkEventScroll *gdkEvent) {
     event->mouseEvent.modifiers = gdkToWlModifiers(gdkEvent->state);
     event->mouseEvent.x = (int)gdkEvent->x;
     event->mouseEvent.y = (int)gdkEvent->y;
+    dispatchEvent(event);
+    return event->handled;
+}
+
+bool wl_Window::on_drawArea_focusChange(GdkEventFocus *gdkEvent) {
+    EventFrame ef((GdkEvent *)gdkEvent);
+    auto event = &ef.wlEvent;
+    event->eventType = wl_kEventTypeFocusChange;
+    event->focusChangeEvent.state = gdkEvent->in != 0;
     dispatchEvent(event);
     return event->handled;
 }
@@ -610,4 +625,5 @@ void wl_Window::setCursor(wl_CursorRef cursor) {
         gdk_window_set_cursor(gdkWindow, nullptr);
     }
 }
+
 

@@ -372,6 +372,10 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 		}
 		break;
 
+	case wl_kEventTypeFocusChange:
+		printf("window focus changed: focus %s\n", event->focusChangeEvent.state ? "gained" : "lost");
+		break;
+
 	case wl_kEventTypeDragRender:
 		if (platformProvidesDragFormat(event->dragRenderEvent.dragFormat)) {
 			platformRenderDragFormat(event->dragRenderEvent.payload, event->dragRenderEvent.dragFormat);
