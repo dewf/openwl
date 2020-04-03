@@ -20,6 +20,24 @@
 @synthesize width;
 @synthesize height;
 
+- (void)windowDidBecomeKey:(NSNotification *)notification {
+    wl_Event event;
+    event.handled = false;
+    event.eventType = wl_kEventTypeFocusChange;
+    event.focusChangeEvent.state = true;
+    eventCallback((wl_WindowRef)self, &event, userData);
+    // .handled not used
+}
+
+- (void)windowDidResignKey:(NSNotification *)notification {
+    wl_Event event;
+    event.handled = false;
+    event.eventType = wl_kEventTypeFocusChange;
+    event.focusChangeEvent.state = false;
+    eventCallback((wl_WindowRef)self, &event, userData);
+    // .handled not used
+}
+
 - (BOOL)windowShouldClose:(NSWindow *)sender {
     wl_Event event;
     event.handled = false;
