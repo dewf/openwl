@@ -15,15 +15,23 @@ VOID CALLBACK timerCallback(_In_ PVOID lpParameter, _In_ BOOLEAN TimerOrWaitFire
 static unsigned int nextTimerID = 0;
 static std::set<unsigned int> activeTimers;
 
+void wl_Timer::cancelTimer()
+{
+	if (!canceled) {
+		DeleteTimerQueueTimer(timerQueue, handle, INVALID_HANDLE_VALUE);
+		activeTimers.erase(id); // no further events from this timer will be processed, even if they are queued (especially if they are queued!)
+		canceled = true;
+		printf("timer %p canceled\n", this);
+	}
+}
+
 wl_Timer::~wl_Timer()
 {
+	cancelTimer();
 	//auto timerDeleted = CreateEvent(NULL, TRUE, FALSE, NULL);
 	//DeleteTimerQueueTimer(timer->timerQueue, timer->handle, timerDeleted);
 	//WaitForSingleObject(timerDeleted, INFINITE);
 	//CloseHandle(timerDeleted);
-	DeleteTimerQueueTimer(timerQueue, handle, INVALID_HANDLE_VALUE);
-
-	activeTimers.erase(id); // no further events from this timer will be processed, even if they are queued (especially if they are queued!)
 }
 
 wl_TimerRef wl_Timer::create(unsigned int msTimeout, void* userData)
@@ -77,6 +85,6 @@ void wl_Timer::onTimerMessage(UINT message, WPARAM wParam, LPARAM lParam)
 
 	// custom event so there's no defwindowproc handling
 	if (event.handled && event.timerEvent.stopTimer) {
-		delete this;
+		cancelTimer();
 	}
 }
