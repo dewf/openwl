@@ -21,17 +21,12 @@ void wl_Timer::cancelTimer()
 		DeleteTimerQueueTimer(timerQueue, handle, INVALID_HANDLE_VALUE);
 		activeTimers.erase(id); // no further events from this timer will be processed, even if they are queued (especially if they are queued!)
 		canceled = true;
-		printf("timer %p canceled\n", this);
 	}
 }
 
 wl_Timer::~wl_Timer()
 {
 	cancelTimer();
-	//auto timerDeleted = CreateEvent(NULL, TRUE, FALSE, NULL);
-	//DeleteTimerQueueTimer(timer->timerQueue, timer->handle, timerDeleted);
-	//WaitForSingleObject(timerDeleted, INFINITE);
-	//CloseHandle(timerDeleted);
 }
 
 wl_TimerRef wl_Timer::create(unsigned int msTimeout, void* userData)
