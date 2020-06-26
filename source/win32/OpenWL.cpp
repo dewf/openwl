@@ -151,6 +151,11 @@ OPENWL_API void CDECL wl_WindowInvalidate(wl_WindowRef window, int x, int y, int
 	window->invalidate(x, y, width, height);
 }
 
+OPENWL_API size_t CDECL wl_WindowGetOSHandle(wl_WindowRef window)
+{
+	return (size_t) window->getHWND();
+}
+
 /* timer API */
 
 OPENWL_API wl_TimerRef CDECL wl_TimerCreate(unsigned int msTimeout, void* userData)
