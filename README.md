@@ -15,6 +15,6 @@ This is a cross-platform (win/mac/linux) library for:
 
 It's meant to be a foundation for new GUIs, in any language that can interface with a C API. 
 
-See `examples/apidemo/source/main.cpp` for a demonstration of the API.
+Look at [this file](examples/apidemo/source/main.cpp) for a demonstration of the API.
 
 More soon!
