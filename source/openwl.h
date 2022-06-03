@@ -475,7 +475,7 @@ extern "C" {
 		int numFilters;
 		bool allowAll;					// append *.* filter
 		//
-		const char* defaultExt;			// hard to explain, and only on windows at the moment (I think)
+		const char* defaultExt;			// windows at the moment (I think): "sets the default extension to be added to file names"
 		bool allowMultiple;				// only for open mode
 		const char* suggestedFilename;  // only for save mode
 	};

@@ -397,6 +397,10 @@ OPENWL_API void CDECL wl_Sleep(unsigned int millis)
 	Sleep(millis);
 }
 
+OPENWL_API void CDECL wl_WindowSetFocus(wl_WindowRef window) {
+	window->setFocus();
+}
+
 OPENWL_API void CDECL wl_MouseGrab(wl_WindowRef window)
 {
 	window->grab();
