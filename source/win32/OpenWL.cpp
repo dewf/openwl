@@ -338,13 +338,20 @@ OPENWL_API void CDECL wl_DragRenderUTF8(wl_RenderPayloadRef payload, const char*
 OPENWL_API void CDECL wl_DragRenderFiles(wl_RenderPayloadRef payload, const struct wl_Files* files)
 {
 	// how ?
+	printf("!!! win32 wl_DragRenderFiles not yet implemented !!!\n");
 }
 
 OPENWL_API void CDECL wl_DragRenderFormat(wl_RenderPayloadRef payload, const char* formatMIME, const void* data, size_t dataSize)
 {
 	payload->data = malloc(dataSize);
-	memcpy(payload->data, data, dataSize);
-	payload->size = dataSize;
+	if (payload->data) {
+		memcpy(payload->data, data, dataSize);
+		payload->size = dataSize;
+	}
+	else {
+		printf("wl_DragRenderFormat: failed to malloc\n");
+		payload->size = 0;
+	}
 }
 
 OPENWL_API void wl_WindowEnableDrops(wl_WindowRef window, bool enabled)
