@@ -4,6 +4,7 @@
 #include <Application.h>
 #include <Locker.h>
 #include <stdio.h>
+#include <LayoutBuilder.h>
 
 class MyApp : public BApplication {
 public:
@@ -13,25 +14,51 @@ public:
 static MyApp app;
 
 static wl_EventCallback __appCallback = nullptr;
-static BLocker callbackMutex("callback mutex"); // should be recursive-friendly!
+static BLocker callbackMutex("callback mutex"); // should be recursive-friendly?
 
-class Window; //fwd decl
+class AppWindow; //fwd decl
 
-static int safeCallback(Window *win, wl_Event *event, void *data) {
+static int safeCallback(AppWindow *win, wl_Event *event, void *data) {
     callbackMutex.Lock();
     auto ret = __appCallback((wl_WindowRef)win, event, data);
     callbackMutex.Unlock();
     return ret;
 }
 
-class Window : public BWindow {
+class ContentView : public BView {
 private:
-    void *userData = nullptr;
+    AppWindow *win;
+    void *userData; // otherwise we'd need class information about AppWindow (vs. fwd decl), creating a circular dependency
+                    // too lazy to deal with interfaces or something to solve it
 public:
-    Window(const char *title, void *userData, int width, int height, wl_WindowProperties *props) :
-        BWindow(BRect(0, 0, width, height), title, B_TITLED_WINDOW, 0 /*B_QUIT_ON_WINDOW_CLOSE*/)
+    ContentView(AppWindow *win, void *userData):
+        BView("content-view", B_WILL_DRAW),
+        win(win),
+        userData(userData)
     {
-        this->userData = userData;
+        // derp
+    }
+    void Draw(BRect updateRect) override {
+        wl_Event event;
+        event.eventType = wl_kEventTypeWindowRepaint;
+        event.repaintEvent.platformContext.view = this;
+        event.repaintEvent.x = updateRect.left;
+        event.repaintEvent.y = updateRect.top;
+        event.repaintEvent.width = updateRect.Width();
+        event.repaintEvent.height = updateRect.Height();
+        safeCallback(win, &event, userData);
+    }
+};
+
+class AppWindow : public BWindow {
+protected:
+    void *userData = nullptr;
+    ContentView *content = nullptr;
+public:
+    AppWindow(const char *title, void *userData, int width, int height, wl_WindowProperties *props) :
+        BWindow(BRect(0, 0, width, height), title, B_TITLED_WINDOW, 0 /*B_QUIT_ON_WINDOW_CLOSE*/),
+        userData(userData)
+    {
         CenterOnScreen();
         if (props != nullptr) {
             int minWidth = (props->usedFields & wl_kWindowPropMinWidth) != 0 ? props->minWidth : 0.0f;
@@ -40,9 +67,18 @@ public:
             int maxHeight = (props->usedFields & wl_kWindowPropMaxHeight) != 0 ? props->maxHeight : 65535.0f;
             SetSizeLimits(minWidth, maxWidth, minHeight, maxHeight);
         }
+
+        content = new ContentView(this, userData);
+
+        BLayoutBuilder::Group<>(this, B_VERTICAL, 1)
+//            .Add(menuBar)
+//            .Add(BSpaceLayoutItem::CreateVerticalStrut(B_USE_HALF_ITEM_SPACING))
+            .AddGroup(B_VERTICAL)
+            .SetInsets(-2)
+            .Add(content);
     }
 
-    ~Window() override {
+    ~AppWindow() override {
         wl_Event event;
         event.eventType = wl_kEventTypeWindowDestroyed;
         safeCallback(this, &event, userData);
@@ -87,7 +123,7 @@ OPENWL_API void CDECL wl_Shutdown()
 /* window api */
 OPENWL_API wl_WindowRef CDECL wl_WindowCreate(int width, int height, const char *title, void *userData, struct wl_WindowProperties *props)
 {
-    auto window = new Window(title, userData, width, height, props);
+    auto window = new AppWindow(title, userData, width, height, props);
     return (wl_WindowRef)window;
 }
 
@@ -98,7 +134,7 @@ OPENWL_API void CDECL wl_WindowDestroy(wl_WindowRef window)
 
 OPENWL_API void CDECL wl_WindowShow(wl_WindowRef window)
 {
-    ((Window *)window)->Show();
+    ((AppWindow *)window)->Show();
     return;
 }
 

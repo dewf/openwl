@@ -1,11 +1,15 @@
 #include "../main.h"
 
+#include <stdio.h>
+
 void platformInit()
 {
 }
 
 void platformDraw(wl_PlatformContext *platformContext)
 {
+    platformContext->view->SetHighColor(0, 0, 0);
+    platformContext->view->FillRect(BRect(0, 0, 800, 600));
 }
 
 void platformDrawFrameless(wl_PlatformContext *platformContext)

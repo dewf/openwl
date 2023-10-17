@@ -36,6 +36,7 @@
 #elif defined WL_PLATFORM_HAIKU
 #   define OPENWL_API __attribute__((visibility("default")))
 #   define CDECL
+#   include <View.h> // for BView
 #endif
 
 #include <stddef.h>
@@ -291,6 +292,8 @@ extern "C" {
         CGContextRef context;
 #elif defined WL_PLATFORM_LINUX
         cairo_t *cr;
+#elif defined WL_PLATFORM_HAIKU
+        BView *view;
 #else
         int reserved;
 #endif
