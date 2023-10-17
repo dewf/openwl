@@ -2,6 +2,7 @@
 
 #include <InterfaceKit.h>
 #include <Application.h>
+#include <Locker.h>
 #include <stdio.h>
 
 class MyApp : public BApplication {
@@ -11,24 +12,40 @@ public:
 
 static MyApp *app = nullptr;
 
-// need a mutex for the callback!
-static wl_EventCallback _appCallback = nullptr;
+static wl_EventCallback __appCallback = nullptr;
+static BLocker callbackMutex("callback mutex"); // should be recursive-friendly!
+
+class Window; //fwd decl
+
+static int safeCallback(Window *win, wl_Event *event, void *data) {
+    callbackMutex.Lock();
+    auto ret = __appCallback((wl_WindowRef)win, event, data);
+    callbackMutex.Unlock();
+    return ret;
+}
 
 class Window : public BWindow {
 private:
     void *userData = nullptr;
 public:
-    Window(const char *title, void *userData, int width, int height) :
+    Window(const char *title, void *userData, int width, int height, wl_WindowProperties *props) :
         BWindow(BRect(0, 0, width, height), title, B_TITLED_WINDOW, 0 /*B_QUIT_ON_WINDOW_CLOSE*/)
     {
         this->userData = userData;
         CenterOnScreen();
+        if (props != nullptr) {
+            int minWidth = (props->usedFields & wl_kWindowPropMinWidth) != 0 ? props->minWidth : 0.0f;
+            int maxWidth = (props->usedFields & wl_kWindowPropMaxWidth) != 0 ? props->maxWidth : 65535.0f;
+            int minHeight = (props->usedFields & wl_kWindowPropMinHeight) != 0 ? props->minHeight : 0.0f;
+            int maxHeight = (props->usedFields & wl_kWindowPropMaxHeight) != 0 ? props->maxHeight : 65535.0f;
+            SetSizeLimits(minWidth, maxWidth, minHeight, maxHeight);
+        }
     }
 
     ~Window() override {
         wl_Event event;
         event.eventType = wl_kEventTypeWindowDestroyed;
-        _appCallback((wl_WindowRef)this, &event, userData);
+        safeCallback(this, &event, userData);
     }
 
     // events =======
@@ -38,14 +55,15 @@ public:
         wl_Event event;
         event.eventType = wl_kEventTypeWindowCloseRequest;
         event.closeRequestEvent.cancelClose = false;
-        _appCallback((wl_WindowRef)this, &event, userData);
+        safeCallback(this, &event, userData);
         return !event.closeRequestEvent.cancelClose;
     }
 };
 
+
 OPENWL_API int CDECL wl_Init(wl_EventCallback callback, struct wl_PlatformOptions *options)
 {
-    _appCallback = callback;
+    __appCallback = callback;
     app = new MyApp();
     return 0;
 }
@@ -72,7 +90,7 @@ OPENWL_API void CDECL wl_Shutdown()
 /* window api */
 OPENWL_API wl_WindowRef CDECL wl_WindowCreate(int width, int height, const char *title, void *userData, struct wl_WindowProperties *props)
 {
-    auto window = new Window(title, userData, width, height);
+    auto window = new Window(title, userData, width, height, props);
     return (wl_WindowRef)window;
 }
 
