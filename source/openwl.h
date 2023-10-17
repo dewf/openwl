@@ -7,6 +7,8 @@
 #   define WL_PLATFORM_LINUX
 #elif defined __APPLE__ // could also use TargetConditionals.h ?
 #   define WL_PLATFORM_MACOS
+#elif defined __HAIKU_OS__
+#   define WL_PLATFORM_HAIKU
 #endif
 
 #ifdef WL_PLATFORM_WINDOWS
@@ -31,6 +33,9 @@
 #   define OPENWL_API __attribute__((visibility("default")))
 #   define CDECL
 #   include <cairo/cairo.h> // for cairo_t
+#elif defined WL_PLATFORM_HAIKU
+#   define OPENWL_API __attribute__((visibility("default")))
+#   define CDECL
 #endif
 
 #include <stddef.h>
