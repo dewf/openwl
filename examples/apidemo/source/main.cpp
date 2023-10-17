@@ -99,15 +99,17 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 	case wl_kEventTypeWindowCloseRequest:
 		if (window == mainWindow) {
 			printf("main window closing ... or is it?\n");
+			// uncomment to test cancellation
 			//event->closeRequestEvent.cancelClose = true;
 		}
 		else if (window == modalWindow) {
 		    // don't allow window to actually be destroyed - just close the modal
 			event->closeRequestEvent.cancelClose = true;
 			wl_WindowEndModal(modalWindow);
-		}
-		else {
-			printf("closed something else, staying\n");
+		} else if (window == framelessWindow) {
+			printf("frameless window destroyed (normal on Haiku)\n");
+		} else {
+			printf("closed something else (window %08X ?), staying\n");
 		}
 		break;
 	case wl_kEventTypeWindowDestroyed:

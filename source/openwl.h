@@ -419,7 +419,8 @@ extern "C" {
 	enum wl_Platform {
 		wl_kPlatformWindows,
 		wl_kPlatformLinux,
-		wl_kPlatformMac
+		wl_kPlatformMac,
+		wl_kPlatformHaiku
 	};
 
 	struct wl_Files {

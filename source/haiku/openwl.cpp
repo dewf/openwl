@@ -1,29 +1,79 @@
 #include "../openwl.h"
 
+#include <InterfaceKit.h>
+#include <Application.h>
+#include <stdio.h>
+
+class MyApp : public BApplication {
+public:
+    MyApp() : BApplication("application/x-vnd.nobody-MyApp1234") {} // TODO: custom app name?
+};
+
+static MyApp *app = nullptr;
+
+// need a mutex for the callback!
+static wl_EventCallback _appCallback = nullptr;
+
+class Window : public BWindow {
+private:
+    void *userData = nullptr;
+public:
+    Window(const char *title, void *userData, int width, int height) :
+        BWindow(BRect(0, 0, width, height), title, B_TITLED_WINDOW, 0 /*B_QUIT_ON_WINDOW_CLOSE*/)
+    {
+        this->userData = userData;
+        CenterOnScreen();
+    }
+
+    ~Window() override {
+        wl_Event event;
+        event.eventType = wl_kEventTypeWindowDestroyed;
+        _appCallback((wl_WindowRef)this, &event, userData);
+    }
+
+    // events =======
+
+    // really a "close requested" event
+    bool QuitRequested() override {
+        wl_Event event;
+        event.eventType = wl_kEventTypeWindowCloseRequest;
+        event.closeRequestEvent.cancelClose = false;
+        _appCallback((wl_WindowRef)this, &event, userData);
+        return !event.closeRequestEvent.cancelClose;
+    }
+};
+
 OPENWL_API int CDECL wl_Init(wl_EventCallback callback, struct wl_PlatformOptions *options)
 {
+    _appCallback = callback;
+    app = new MyApp();
     return 0;
 }
 
 OPENWL_API int CDECL wl_Runloop()
 {
+    app->Run();
     return 0;
 }
 
 OPENWL_API void CDECL wl_ExitRunloop()
 {
+    app->PostMessage(B_QUIT_REQUESTED);
     return;
 }
 
 OPENWL_API void CDECL wl_Shutdown()
 {
+    delete app;
+    app = nullptr;
     return;
 }
 
 /* window api */
 OPENWL_API wl_WindowRef CDECL wl_WindowCreate(int width, int height, const char *title, void *userData, struct wl_WindowProperties *props)
 {
-    return nullptr;
+    auto window = new Window(title, userData, width, height);
+    return (wl_WindowRef)window;
 }
 
 OPENWL_API void CDECL wl_WindowDestroy(wl_WindowRef window)
@@ -33,6 +83,7 @@ OPENWL_API void CDECL wl_WindowDestroy(wl_WindowRef window)
 
 OPENWL_API void CDECL wl_WindowShow(wl_WindowRef window)
 {
+    ((Window *)window)->Show();
     return;
 }
 
