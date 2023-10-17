@@ -10,7 +10,7 @@ public:
     MyApp() : BApplication("application/x-vnd.nobody-MyApp1234") {} // TODO: custom app name?
 };
 
-static MyApp *app = nullptr;
+static MyApp app;
 
 static wl_EventCallback __appCallback = nullptr;
 static BLocker callbackMutex("callback mutex"); // should be recursive-friendly!
@@ -64,26 +64,23 @@ public:
 OPENWL_API int CDECL wl_Init(wl_EventCallback callback, struct wl_PlatformOptions *options)
 {
     __appCallback = callback;
-    app = new MyApp();
     return 0;
 }
 
 OPENWL_API int CDECL wl_Runloop()
 {
-    app->Run();
+    app.Run();
     return 0;
 }
 
 OPENWL_API void CDECL wl_ExitRunloop()
 {
-    app->PostMessage(B_QUIT_REQUESTED);
+    app.PostMessage(B_QUIT_REQUESTED);
     return;
 }
 
 OPENWL_API void CDECL wl_Shutdown()
 {
-    delete app;
-    app = nullptr;
     return;
 }
 
