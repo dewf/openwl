@@ -2,14 +2,31 @@
 
 #include <stdio.h>
 
+#include <Bitmap.h>
+
+BBitmap *background;
+unsigned int *data;
+BRect backgroundRect(0, 0, MAX_WIDTH-1, MAX_HEIGHT-1); // without the -1 the alignment is off ...
+
 void platformInit()
 {
+    // generate the gradient bitmap to use
+    data = new unsigned int[MAX_WIDTH * MAX_HEIGHT];
+    for (int i = 0; i < MAX_HEIGHT; i++) {
+        for (int j = 0; j < MAX_WIDTH; j++) {
+            unsigned char red = (j * 256) / MAX_WIDTH;
+            unsigned char green = (i * 256) / MAX_HEIGHT;
+            unsigned char blue = 255 - green;
+            data[i * MAX_WIDTH + j] = ((red << 16) + (green << 8) + blue) | 0xff000000;
+        }
+    }
+    background = new BBitmap(backgroundRect, B_RGBA32, true, true);
+    background->SetBits(data, MAX_WIDTH * MAX_HEIGHT * 4, 0, B_RGBA32);
 }
 
 void platformDraw(wl_PlatformContext *platformContext)
 {
-    platformContext->view->SetHighColor(0, 0, 0);
-    platformContext->view->FillRect(BRect(0, 0, 800, 600));
+    platformContext->view->DrawBitmap(background, backgroundRect);
 }
 
 void platformDrawFrameless(wl_PlatformContext *platformContext)

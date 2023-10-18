@@ -69,12 +69,11 @@ public:
         }
 
         content = new ContentView(this, userData);
-
         BLayoutBuilder::Group<>(this, B_VERTICAL, 1)
 //            .Add(menuBar)
 //            .Add(BSpaceLayoutItem::CreateVerticalStrut(B_USE_HALF_ITEM_SPACING))
             .AddGroup(B_VERTICAL)
-            .SetInsets(-2)
+//            .SetInsets(-2)
             .Add(content);
     }
 
