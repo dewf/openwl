@@ -62,6 +62,52 @@ public:
         event.repaintEvent.height = updateRect.Height() + 1;
         safeCallback(win, &event, userData);
     }
+    static wl_MouseButton beosToWlButton(int32 button) {
+        switch (button) {
+        case 0:
+            return wl_kMouseButtonNone;
+        case B_PRIMARY_MOUSE_BUTTON:
+            return wl_kMouseButtonLeft;
+        case B_SECONDARY_MOUSE_BUTTON:
+            return wl_kMouseButtonRight;
+        case B_TERTIARY_MOUSE_BUTTON:
+            return wl_kMouseButtonMiddle;
+        default:
+            return wl_kMouseButtonOther;
+        }
+    }
+    static void fillMouseInfo(BMessage *message, wl_MouseEvent *event) {
+        auto where = message->FindPoint("where");
+        auto modifiers = message->FindInt32("modifiers");
+        auto buttons = message->FindInt32("buttons");
+        event->x = (int)where.x;
+        event->y = (int)where.y;
+        event->modifiers =
+            ((modifiers & B_SHIFT_KEY) ? wl_kModifierShift : 0) |
+            ((modifiers & B_CONTROL_KEY) ? wl_kModifierControl : 0) |
+            ((modifiers & B_COMMAND_KEY) ? wl_kModifierAlt : 0);   // hmm maybe need to rethink the semantics of these for cross-platform ...
+        event->button = beosToWlButton(buttons);
+    }
+    void MessageReceived(BMessage *message) override {
+        wl_Event event;
+        event.handled = false;
+        switch (message->what) {
+        case B_MOUSE_DOWN:
+            event.eventType = wl_kEventTypeMouse;
+            event.mouseEvent.eventType = wl_kMouseEventTypeMouseDown;
+            fillMouseInfo(message, &event.mouseEvent);
+            safeCallback(win, &event, userData);
+            break;
+        case B_MOUSE_UP:
+            event.eventType = wl_kEventTypeMouse;
+            event.mouseEvent.eventType = wl_kMouseEventTypeMouseUp;
+            fillMouseInfo(message, &event.mouseEvent);
+            safeCallback(win, &event, userData);
+            break;
+        default:
+            BView::MessageReceived(message);
+        }
+    }
 };
 
 class AppWindow : public BWindow {

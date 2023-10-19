@@ -51,10 +51,6 @@ static void drawTextRect(BView *view, BFont *font, const char *text, int x, int 
     auto ty = y + ((height - fontHeight) / 2) + heightInfo.ascent;
     view->SetHighColor(black);
     view->DrawString(text, BPoint(tx, ty));
-//    auto tx = DPIUP_F(x + (width - DPIDOWN(exts.Width)) / 2);     // inner DPIDOWN because exts already in physical space
-//    auto ty = DPIUP_F(y + (height - DPIDOWN(exts.Height)) / 2);
-//    SolidBrush black(Color::Black);
-//    g.DrawString(text, -1, &font, PointF(tx, ty), &black);
 }
 
 void platformDraw(wl_PlatformContext *platformContext)
