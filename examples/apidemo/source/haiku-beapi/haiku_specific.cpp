@@ -4,9 +4,10 @@
 
 #include <Bitmap.h>
 
-BBitmap *background;
-unsigned int *data;
-BRect backgroundRect(0, 0, MAX_WIDTH-1, MAX_HEIGHT-1); // without the -1 the alignment is off ...
+static BBitmap *background;
+static unsigned int *data;
+static BRect backgroundRect(0, 0, MAX_WIDTH-1, MAX_HEIGHT-1); // without the -1 the alignment is off ...
+static rgb_color black { 0, 0, 0, 255 }, white { 255, 255, 255, 255 };
 
 void platformInit()
 {
@@ -26,7 +27,28 @@ void platformInit()
 
 void platformDraw(wl_PlatformContext *platformContext)
 {
-    platformContext->view->DrawBitmap(background, backgroundRect);
+    auto v = platformContext->view;
+    auto visible = BRect(0, 0, width, height);
+    v->DrawBitmap(background, visible);
+
+    // draw crossed lines
+    v->SetHighColor(black);
+    v->SetPenSize(3.0f);
+    v->StrokeLine(BPoint(10, 10), BPoint(width - 10, height - 10));
+    v->StrokeLine(BPoint(10, height - 10), BPoint(width - 10, 10));
+
+//    Gdiplus::Pen blackPen(Color::Black, DPIUP_F(4.0));
+//    auto x1 = DPIUP(10);
+//    auto y1 = DPIUP(10);
+//    auto x2 = DPIUP(width - 10);
+//    auto y2 = DPIUP(height - 10);
+//    graphics.DrawLine(&blackPen, Point(x1, y1), Point(x2, y2));
+//    graphics.DrawLine(&blackPen, Point(x1, y2), Point(x2, y1));
+
+//    // thin outer rect
+//    blackPen.SetWidth(DPIUP_F(1.0));
+//    graphics.DrawRectangle(&blackPen, Rect(DPIUP(3), DPIUP(3), DPIUP(width - 6), DPIUP(height - 6)));
+
 }
 
 void platformDrawFrameless(wl_PlatformContext *platformContext)

@@ -30,13 +30,27 @@ private:
     AppWindow *win;
     void *userData; // otherwise we'd need class information about AppWindow (vs. fwd decl), creating a circular dependency
                     // too lazy to deal with interfaces or something to solve it
+    int lastWidth = -1;
+    int lastHeight = -1;
 public:
     ContentView(AppWindow *win, void *userData):
-        BView("content-view", B_WILL_DRAW),
+        BView("content-view", B_WILL_DRAW | B_FRAME_EVENTS | B_FULL_UPDATE_ON_RESIZE), // B_FULL_UPDATE...: otherwise clipping areas will prevent from drawing the entire window
         win(win),
         userData(userData)
     {
         // derp
+    }
+    void FrameResized(float newWidth, float newHeight) override {
+        wl_Event event;
+        event.eventType = wl_kEventTypeWindowResized;
+        event.resizeEvent.newWidth = (int)newWidth;
+        event.resizeEvent.newHeight = (int)newHeight;
+        event.resizeEvent.oldWidth = lastWidth;
+        event.resizeEvent.oldHeight = lastHeight;
+        safeCallback(win, &event, userData);
+
+        lastWidth = (int)newWidth;
+        lastHeight = (int)newHeight;
     }
     void Draw(BRect updateRect) override {
         wl_Event event;
@@ -44,8 +58,8 @@ public:
         event.repaintEvent.platformContext.view = this;
         event.repaintEvent.x = updateRect.left;
         event.repaintEvent.y = updateRect.top;
-        event.repaintEvent.width = updateRect.Width();
-        event.repaintEvent.height = updateRect.Height();
+        event.repaintEvent.width = updateRect.Width() + 1;    // +1: see https://www.haiku-os.org/legacy-docs/bebook/BRect_Overview.html
+        event.repaintEvent.height = updateRect.Height() + 1;
         safeCallback(win, &event, userData);
     }
 };
@@ -56,7 +70,7 @@ protected:
     ContentView *content = nullptr;
 public:
     AppWindow(const char *title, void *userData, int width, int height, wl_WindowProperties *props) :
-        BWindow(BRect(0, 0, width, height), title, B_TITLED_WINDOW, 0 /*B_QUIT_ON_WINDOW_CLOSE*/),
+        BWindow(BRect(0, 0, width-1, height-1), title, B_TITLED_WINDOW, 0 /*B_QUIT_ON_WINDOW_CLOSE*/),
         userData(userData)
     {
         CenterOnScreen();
@@ -65,7 +79,7 @@ public:
             int maxWidth = (props->usedFields & wl_kWindowPropMaxWidth) != 0 ? props->maxWidth : 65535.0f;
             int minHeight = (props->usedFields & wl_kWindowPropMinHeight) != 0 ? props->minHeight : 0.0f;
             int maxHeight = (props->usedFields & wl_kWindowPropMaxHeight) != 0 ? props->maxHeight : 65535.0f;
-            SetSizeLimits(minWidth, maxWidth, minHeight, maxHeight);
+            SetSizeLimits(minWidth-1, maxWidth-1, minHeight-1, maxHeight-1);
         }
 
         content = new ContentView(this, userData);
@@ -92,6 +106,14 @@ public:
         event.closeRequestEvent.cancelClose = false;
         safeCallback(this, &event, userData);
         return !event.closeRequestEvent.cancelClose;
+    }
+
+    void Invalidate(BRect *rect) {
+        if (rect) {
+            content->Invalidate(*rect);
+        } else {
+            content->Invalidate();
+        }
     }
 };
 
@@ -159,7 +181,12 @@ OPENWL_API void CDECL wl_WindowHide(wl_WindowRef window)
 
 OPENWL_API void CDECL wl_WindowInvalidate(wl_WindowRef window, int x, int y, int width, int height)
 {
-    return;
+    if (width > 0 && height > 0) {
+        BRect rect(x, y, width - 1, height - 1);
+        ((AppWindow *)window)->Invalidate(&rect);
+    } else {
+        ((AppWindow *)window)->Invalidate(nullptr);
+    }
 }
 
 OPENWL_API size_t CDECL wl_WindowGetOSHandle(wl_WindowRef window)
