@@ -454,14 +454,6 @@ void wl_Window::onGetMinMaxInfo(MINMAXINFO* mmi)
 {
 	DECLSF(dpi);
 
-	// set some sensible defaults in case we don't have a particular thing set
-	POINT minSize = { DPIUP(100) + extraWidth, DPIUP(100) + extraHeight };
-	POINT maxSize = { INT32_MAX, INT32_MAX };
-	//mmi->ptMaxSize = maxSize;
-	//mmi->ptMaxPosition = { 300, 300 };
-	mmi->ptMinTrackSize = minSize;
-	mmi->ptMaxTrackSize = maxSize;
-
 	// min
 	if (props.usedFields & wl_kWindowPropMinWidth) {
 		mmi->ptMinTrackSize.x = DPIUP(props.minWidth) + extraWidth;
