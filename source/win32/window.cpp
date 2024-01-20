@@ -802,6 +802,7 @@ unsigned int getMouseModifiers(WPARAM wParam) {
 	auto fwKeys = GET_KEYSTATE_WPARAM(wParam);
 	modifiers |= (fwKeys & MK_CONTROL) ? wl_kModifierControl : 0;
 	modifiers |= (fwKeys & MK_SHIFT) ? wl_kModifierShift : 0;
-	modifiers |= (fwKeys & MK_ALT) ? wl_kModifierAlt : 0;
+	// alt doesn't get sent in WPARAM for some reason, have to get it directly
+	modifiers |= (GetKeyState(VK_MENU) & 0x8000) ? wl_kModifierAlt : 0;
 	return modifiers;
 }
