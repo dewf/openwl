@@ -52,6 +52,7 @@ public:
 
     void hide();
     void invalidate(int x, int y, int width, int height);
+    void setTitle(const char* title);
 
     void setMenuBar(wl_MenuBarRef menuBar);
 

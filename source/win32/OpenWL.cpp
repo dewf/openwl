@@ -151,6 +151,11 @@ OPENWL_API void CDECL wl_WindowInvalidate(wl_WindowRef window, int x, int y, int
 	window->invalidate(x, y, width, height);
 }
 
+OPENWL_API void __cdecl wl_WindowSetTitle(wl_WindowRef window, const char* title)
+{
+	window->setTitle(title);
+}
+
 OPENWL_API size_t CDECL wl_WindowGetOSHandle(wl_WindowRef window)
 {
 	return (size_t) window->getHWND();

@@ -57,7 +57,7 @@ wl_Window::~wl_Window()
 
 wl_WindowRef wl_Window::create(int dipWidth, int dipHeight, const char* title, void* userData, wl_WindowProperties* props)
 {
-	auto wideTitle = title ? utf8_to_wstring(title) : L"(UNTITLED)";
+	auto wideTitle = title ? utf8_to_wstring(title) : L"";
 
 	int extraWidth = 0;
 	int extraHeight = 0;
@@ -309,6 +309,12 @@ void wl_Window::invalidate(int x, int y, int width, int height)
 	else {
 		InvalidateRect(hWnd, nullptr, FALSE); // entire window
 	}
+}
+
+void wl_Window::setTitle(const char* title)
+{
+	auto wideTitle = title ? utf8_to_wstring(title) : L"";
+	SetWindowText(hWnd, wideTitle.c_str());
 }
 
 void wl_Window::grab()

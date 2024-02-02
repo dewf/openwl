@@ -518,6 +518,7 @@ extern "C" {
 	OPENWL_API void CDECL wl_WindowEndModal(wl_WindowRef window); // call from 'within' the modal runloop to end it
 	OPENWL_API void CDECL wl_WindowHide(wl_WindowRef window);
 	OPENWL_API void CDECL wl_WindowInvalidate(wl_WindowRef window, int x, int y, int width, int height);
+	OPENWL_API void CDECL wl_WindowSetTitle(wl_WindowRef window, const char* title);
 	OPENWL_API size_t CDECL wl_WindowGetOSHandle(wl_WindowRef window);
 
 	OPENWL_API void CDECL wl_WindowSetFocus(wl_WindowRef window);
