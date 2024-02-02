@@ -639,7 +639,7 @@ int main(int argc, const char * argv[]) {
 	width = 800;
 	height = 600;
 
-	mainWindow = wl_WindowCreate(width, height, u8"hello there, cross-platform friend āǢʥϢ۩ใ ♥☺☼", nullptr, &props);
+	mainWindow = wl_WindowCreate(width, height, "hello there, cross-platform friend āǢʥϢ۩ใ ♥☺☼", nullptr, &props);
 
 	props = { 0 };
 	props.usedFields = wl_kWindowPropStyle;
