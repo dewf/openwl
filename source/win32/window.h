@@ -33,6 +33,8 @@ private:
     // filter spurious post-grab-release move event :(
     bool ignorePostGrabMove = false;
 
+    bool dropsEnabled = false;
+
     // private methods ============================
 	wl_Window();
     void unregisterDropWindow();

@@ -384,12 +384,16 @@ void wl_Window::setMenuBar(wl_MenuBarRef menuBar)
 
 void wl_Window::enableDrops(bool enabled)
 {
-	if (enabled) {
-		RegisterDropWindow(this, &dropTarget);
-	}
-	else {
-		UnregisterDropWindow(this, dropTarget);
-		dropTarget = nullptr;
+	if (dropsEnabled != enabled) {
+		if (enabled) {
+			RegisterDropWindow(this, &dropTarget);
+			dropsEnabled = true;
+		}
+		else {
+			UnregisterDropWindow(this, dropTarget);
+			dropTarget = nullptr;
+			dropsEnabled = false;
+		}
 	}
 }
 
