@@ -21,8 +21,8 @@ wl_DropData::~wl_DropData()
 	printf("wl_DropDataRef dtor\n");
 
 	if (recvObject) recvObject->Release();
-	if (data) {
-		free(const_cast<void*>(data)); // we created it, so OK to free
+	if (tempData) {
+		free(tempData);
 	}
 	if (files) {
 		delete files;
@@ -61,8 +61,13 @@ bool wl_DropData::getFormat(const char* dropFormatMIME, const void** outData, si
 	if (recvObject->GetData(&fmtetc, &stgmed) == S_OK) {
 		auto ptr = GlobalLock(stgmed.hGlobal);
 
-		void* tempData;
-		size_t tempSize;
+		// free anything from prior call ...
+		if (tempData != nullptr) {
+			free(tempData);
+			tempData = nullptr;
+			tempSize = 0;
+		}
+
 		if (!strcmp(dropFormatMIME, wl_kDragFormatUTF8)) {
 			// special handling for strings
 			auto utf8 = wstring_to_utf8((wchar_t*)ptr);

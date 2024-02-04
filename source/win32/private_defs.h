@@ -80,8 +80,9 @@ struct wl_FilesInternal : public wl_Files
 struct wl_DropData {
     IDataObject* recvObject = 0;
 
-    const void* data = nullptr;
-    size_t dataSize = 0;
+    void* tempData = nullptr;
+    size_t tempSize = 0;
+
     wl_FilesInternal* files = nullptr;
 
     // public methods =====================

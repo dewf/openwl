@@ -410,7 +410,7 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 			//
 			wl_DragRenderFiles(event->dragRenderEvent.payload, &files);
 			// safe to delete
-			delete files.filenames;
+			delete[] files.filenames;
 		}
 		else {
 			printf("#### drag source render - unhandled mime type");
