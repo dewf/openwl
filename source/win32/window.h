@@ -76,6 +76,7 @@ public:
     // wndproc handlers
     void onClose(wl_Event& event);
     void onDestroy(wl_Event& event);
+    void onMove(wl_Event& event, LPARAM lParam);
 	void onSize(wl_Event& event);
     void onGetMinMaxInfo(MINMAXINFO* mmi);
     void onPaint(wl_Event& event);

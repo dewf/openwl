@@ -187,6 +187,7 @@ extern "C" {
 		wl_kEventTypeAction,
 		wl_kEventTypeWindowCloseRequest,
 		wl_kEventTypeWindowDestroyed,
+		wl_kEventTypeWindowMoved,
 		wl_kEventTypeWindowResized,
 		wl_kEventTypeWindowRepaint,
 		wl_kEventTypeTimer,
@@ -301,6 +302,9 @@ extern "C" {
 	struct wl_DestroyEvent {
 		int reserved;
 	};
+	struct wl_MoveEvent {
+		int x, y;
+	};
 	struct wl_ResizeEvent {
 		int oldWidth, oldHeight;
 		int newWidth, newHeight;
@@ -363,6 +367,7 @@ extern "C" {
 			struct wl_ActionEvent actionEvent;
 			struct wl_CloseRequestEvent closeRequestEvent;
 			struct wl_DestroyEvent destroyEvent;
+			struct wl_MoveEvent moveEvent;
 			struct wl_ResizeEvent resizeEvent;
 			struct wl_RepaintEvent repaintEvent;
 			struct wl_TimerEvent timerEvent;

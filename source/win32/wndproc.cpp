@@ -69,6 +69,17 @@ LRESULT CALLBACK topLevelWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
         return 1; // nonzero = we're handling background erasure -- keeps windows from doing it
         //break;
 
+    case WM_MOVING:
+    {
+        if (wlw) {
+            wlw->onMove(event, lParam);
+        }
+        if (!event.handled) {
+            return DefWindowProc(hWnd, message, wParam, lParam);
+        }
+        return TRUE; // according to the docs ...
+    }
+
     case WM_SIZE:
     {
         if (wlw) {

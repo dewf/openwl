@@ -206,6 +206,13 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 		}
 		break;
 
+	case wl_kEventTypeWindowMoved:
+		if (window == mainWindow) {
+			printf("new window position: %d, %d\n", event->moveEvent.x, event->moveEvent.y);
+			// normally we might want to move/hide any dependent windows (eg self-drawn frameless menu windows)
+		}
+		break;
+
 	case wl_kEventTypeWindowResized:
 		if (window == mainWindow) {
 			width = event->resizeEvent.newWidth;

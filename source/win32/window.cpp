@@ -434,6 +434,15 @@ void wl_Window::onDestroy(wl_Event& event)
 	delete this;
 }
 
+void wl_Window::onMove(wl_Event& event, LPARAM lParam)
+{
+	auto rectPtr = (RECT*)lParam;
+	event.eventType = wl_kEventTypeWindowMoved;
+	event.moveEvent.x = (int)rectPtr->left;
+	event.moveEvent.y = (int)rectPtr->top;
+	eventCallback(this, &event, userData);
+}
+
 void wl_Window::onSize(wl_Event& event) {
 	RECT clientRect;
 	GetClientRect(hWnd, &clientRect);
@@ -775,7 +784,7 @@ long getWindowStyle(wl_WindowProperties* props, bool isPluginWindow) {
 			dwStyle = WS_OVERLAPPEDWINDOW;
 			break;
 		case wl_kWindowStyleFrameless:
-			dwStyle = WS_POPUP | WS_BORDER;
+			dwStyle = WS_POPUP; // | WS_BORDER;
 			break;
 		default:
 			printf("wl_WindowCreate: unknown window style\n");
