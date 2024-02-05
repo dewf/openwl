@@ -96,4 +96,6 @@ public:
         // currently this is just for the messagebox code, quick and dirty HWND access
         return hWnd;
     }
+
+    static bool translateAcceleratorForWindow(MSG msg);
 };

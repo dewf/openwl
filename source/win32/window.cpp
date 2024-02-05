@@ -7,7 +7,7 @@
 #include "cursor.h"
 #include "private_defs.h"
 #include "keystuff.h"
-#include "action.h"
+#include "menustuff.h"
 
 #include "win32util.h"
 
@@ -36,8 +36,9 @@ unsigned int getMouseModifiers(WPARAM wParam);
 // static variables
 wl_WindowRef wl_Window::lastGrabWindow = nullptr;
 static std::set<unsigned char> suppressedScanCodes;
-static std::set<wl_WindowRef> allWindows; // need to know for modal windows (enable/disable all other windows)
+static std::set<wl_WindowRef> allWindows;            // need to know for modal windows (enable/disable all other windows)
 static wl_WindowRef lastFocusedWindow = nullptr;
+static std::map<HWND, HACCEL> acceleratorTableMap;   // created/set on the attachment of a menubar to a window
 
 // methods ============================================================
 
@@ -380,6 +381,18 @@ void wl_Window::setMenuBar(wl_MenuBarRef menuBar)
 
 	// don't set the menu until the very end, otherwise it sends a WM_SIZE message that fucks our calculations up
 	SetMenu(hWnd, menuBar->hmenu);
+
+	// create accelerator table for this menu
+	auto table = menuBar->generateAcceleratorTable();
+	// associate with this HWND for the runloop
+	auto found = acceleratorTableMap.find(hWnd);
+	if (found != acceleratorTableMap.end()) {
+		// already has one, destroy first
+		auto old = found->second;
+		DestroyAcceleratorTable(old);
+	}
+	// insert for later lookup
+	acceleratorTableMap[hWnd] = table;
 }
 
 void wl_Window::enableDrops(bool enabled)
@@ -769,6 +782,18 @@ void wl_Window::onDPIChanged(UINT newDPI, RECT *suggestedRect)
 	if (useDirect2D) {
 		direct2DCreateTarget();
 	}
+}
+
+bool wl_Window::translateAcceleratorForWindow(MSG msg)
+{
+	if (msg.hwnd != nullptr) {
+		auto found = acceleratorTableMap.find(msg.hwnd);
+		if (found != acceleratorTableMap.end()) {
+			auto table = found->second;
+			return TranslateAccelerator(msg.hwnd, table, &msg);
+		}
+	}
+	return false;
 }
 
 // misc util funcs =================================================================

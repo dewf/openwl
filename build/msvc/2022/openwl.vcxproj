@@ -163,7 +163,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\source\openwl.h" />
-    <ClInclude Include="..\..\..\source\win32\action.h" />
+    <ClInclude Include="..\..\..\source\win32\menustuff.h" />
     <ClInclude Include="..\..\..\source\win32\comstuff.h" />
     <ClInclude Include="..\..\..\source\win32\cursor.h" />
     <ClInclude Include="..\..\..\source\win32\dragdrop\dataobject.h" />
@@ -185,7 +185,7 @@
     <ClInclude Include="..\..\..\source\win32\wndproc.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\source\win32\action.cpp" />
+    <ClCompile Include="..\..\..\source\win32\menustuff.cpp" />
     <ClCompile Include="..\..\..\source\win32\cursor.cpp" />
     <ClCompile Include="..\..\..\source\win32\dllmain.cpp" />
     <ClCompile Include="..\..\..\source\win32\dragdrop\dataobject.cpp" />

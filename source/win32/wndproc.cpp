@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include "globals.h"
 
-#include "action.h"
+//#include "menustuff.h"
 #include "timer.h"
 
 // app-global window proc stuff ==================================================

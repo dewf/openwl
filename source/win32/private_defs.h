@@ -14,26 +14,6 @@ struct wl_EventPrivate {
     }
 };
 
-struct wl_Icon {
-    HBITMAP hbitmap;
-};
-
-struct wl_Accelerator {
-    wl_KeyEnum key;
-    unsigned int modifiers;
-};
-
-struct wl_MenuBar {
-    HMENU hmenu;
-};
-struct wl_Menu {
-    HMENU hmenu;
-};
-struct wl_MenuItem {
-    wl_ActionRef action;
-    wl_MenuRef subMenu;
-};
-
 struct wl_RenderPayload {
     //char *text_utf8;
     void* data = nullptr;

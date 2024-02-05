@@ -548,7 +548,7 @@ extern "C" {
 	OPENWL_API wl_MenuItemRef CDECL wl_MenuAddAction(wl_MenuRef menu, wl_ActionRef action);
 	OPENWL_API wl_MenuItemRef CDECL wl_MenuAddSubmenu(wl_MenuRef menu, const char *label, wl_MenuRef sub);
 	OPENWL_API void CDECL wl_MenuAddSeparator(wl_MenuRef menu);
-	OPENWL_API wl_MenuItemRef CDECL wl_MenuBarAddMenu(wl_MenuBarRef menuBar, const char *label, wl_MenuRef menu);
+	OPENWL_API void CDECL wl_MenuBarAddMenu(wl_MenuBarRef menuBar, const char *label, wl_MenuRef menu);
 	OPENWL_API void CDECL wl_WindowShowContextMenu(wl_WindowRef window, int x, int y, wl_MenuRef menu, struct wl_Event *fromEvent);
 #ifdef WL_PLATFORM_MACOS
 	// Mac-specific menu stuff (sigh)

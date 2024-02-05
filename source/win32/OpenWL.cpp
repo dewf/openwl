@@ -14,7 +14,7 @@
 #include "window.h"
 #include "timer.h"
 #include "cursor.h"
-#include "action.h"
+#include "menustuff.h"
 #include "keystuff.h"
 #include "win32util.h"
 #include "dialogs.h"
@@ -76,10 +76,6 @@ OPENWL_API void CDECL wl_Shutdown()
 
 OPENWL_API int CDECL wl_Runloop()
 {
-	// hmm, doesn't this mean that any actions/accelerators created after the runloop start, won't work?
-	// will we ever need that?
-	HACCEL hAccelTable = wl_Action::createAccelTable();
-
 	// Main message loop:
 	MSG msg;
 	BOOL bRet;
@@ -96,7 +92,7 @@ OPENWL_API int CDECL wl_Runloop()
 			// note that thread-only (windowless) messages such as WM_WLTimerMessage / WM_WLMainThreadExecMsg
 			//   are now being processed by an invisible / message-only window
 			//   (because otherwise they won't be processed during modal events, like dragging the window, or DnD)
-			if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+			if (!wl_Window::translateAcceleratorForWindow(msg))
 			{
 				TranslateMessage(&msg);
 				DispatchMessage(&msg);
@@ -210,20 +206,12 @@ OPENWL_API wl_MenuRef CDECL wl_MenuCreate()
 
 OPENWL_API wl_MenuItemRef CDECL wl_MenuAddAction(wl_MenuRef menu, wl_ActionRef action)
 {
-	// wl_ActionRef is currently more complicated, with private data, so we let it add itself
-	// (whereas wl_MenuRefs are still dumb structs)
-	return action->addToMenu(menu);
+	return menu->addAction(action);
 }
 
 OPENWL_API wl_MenuItemRef CDECL wl_MenuAddSubmenu(wl_MenuRef menu, const char* label, wl_MenuRef sub)
 {
-	auto wideLabel = utf8_to_wstring(label);
-
-	wl_MenuItemRef retItem = new wl_MenuItem;
-	memset(retItem, 0, sizeof(wl_MenuItem));
-	AppendMenu(menu->hmenu, MF_STRING | MF_POPUP, (UINT_PTR)sub->hmenu, wideLabel.c_str());
-	retItem->subMenu = sub;
-	return retItem;
+	return menu->addSubMenu(label, sub);
 }
 
 OPENWL_API void CDECL wl_MenuAddSeparator(wl_MenuRef menu)
@@ -231,15 +219,9 @@ OPENWL_API void CDECL wl_MenuAddSeparator(wl_MenuRef menu)
 	AppendMenu(menu->hmenu, MF_SEPARATOR, 0, NULL);
 }
 
-OPENWL_API wl_MenuItemRef CDECL wl_MenuBarAddMenu(wl_MenuBarRef menuBar, const char* label, wl_MenuRef menu)
+OPENWL_API void CDECL wl_MenuBarAddMenu(wl_MenuBarRef menuBar, const char* label, wl_MenuRef menu)
 {
-	auto wideLabel = utf8_to_wstring(label);
-
-	AppendMenu(menuBar->hmenu, MF_STRING | MF_POPUP, (UINT_PTR)menu->hmenu, wideLabel.c_str());
-	auto retMenuItem = new wl_MenuItem;
-	retMenuItem->action = nullptr;
-	retMenuItem->subMenu = menu;
-	return retMenuItem;
+	menuBar->addMenu(label, menu);
 }
 
 OPENWL_API void CDECL wl_WindowShowContextMenu(wl_WindowRef window, int x, int y, wl_MenuRef menu, struct wl_Event* fromEvent)
@@ -249,9 +231,7 @@ OPENWL_API void CDECL wl_WindowShowContextMenu(wl_WindowRef window, int x, int y
 
 OPENWL_API wl_MenuBarRef CDECL wl_MenuBarCreate()
 {
-	wl_MenuBarRef retMenuBar = new wl_MenuBar;
-	retMenuBar->hmenu = CreateMenu();
-	return retMenuBar;
+	return wl_MenuBar::create();
 }
 
 OPENWL_API void CDECL wl_WindowSetMenuBar(wl_WindowRef window, wl_MenuBarRef menuBar)

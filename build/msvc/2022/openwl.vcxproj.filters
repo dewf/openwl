@@ -24,7 +24,7 @@
     <ClInclude Include="..\..\..\source\openwl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\source\win32\action.h">
+    <ClInclude Include="..\..\..\source\win32\menustuff.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\source\win32\comstuff.h">
@@ -86,7 +86,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\source\win32\action.cpp">
+    <ClCompile Include="..\..\..\source\win32\menustuff.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\source\win32\cursor.cpp">
