@@ -367,7 +367,7 @@ void wl_Window::showContextMenu(int x, int y, wl_MenuRef menu, wl_Event* fromEve
 
 void wl_Window::setMenuBar(wl_MenuBarRef menuBar)
 {
-	hasMenu = TRUE; // use win32 bool constant ... but shouldn't be different from C++ true/false
+	hasMenu = (menuBar != nullptr); // use win32 bool constant ... but shouldn't be different from C++ true/false
 
 	// recalc the "extra" (window chrome extents) so that we're dealing with inner client area
 	// this is needed for enforcement of min/max sizes as well as just fixing up the client size below
@@ -379,20 +379,28 @@ void wl_Window::setMenuBar(wl_MenuBarRef menuBar)
 		clientHeight + extraHeight,
 		SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOZORDER);
 
-	// don't set the menu until the very end, otherwise it sends a WM_SIZE message that fucks our calculations up
-	SetMenu(hWnd, menuBar->hmenu);
-
-	// create accelerator table for this menu
-	auto table = menuBar->generateAcceleratorTable();
-	// associate with this HWND for the runloop
+	// whether setting or clearing menubar, remove existing accel table for this HWND
 	auto found = acceleratorTableMap.find(hWnd);
 	if (found != acceleratorTableMap.end()) {
 		// already has one, destroy first
 		auto old = found->second;
 		DestroyAcceleratorTable(old);
+		// erase entry in case we don't re-add below
+		acceleratorTableMap.erase(hWnd);
 	}
-	// insert for later lookup
-	acceleratorTableMap[hWnd] = table;
+
+	if (menuBar != nullptr) {
+		// don't set the menu until the very end, otherwise it sends a WM_SIZE message that fucks up the above window size calculations
+		SetMenu(hWnd, menuBar->hmenu);
+
+		// create accelerator table for this menu
+		auto table = menuBar->generateAcceleratorTable();
+		acceleratorTableMap[hWnd] = table;
+	}
+	else {
+		// hopefully this clears the menu if removed?
+		SetMenu(hWnd, NULL);
+	}
 }
 
 void wl_Window::enableDrops(bool enabled)
