@@ -30,33 +30,24 @@ bool MyDataObject::renderFormat(FORMATETC *pFormatEtc, STGMEDIUM *pMedium) {
         auto fmtetc = kv.second;
         if (fmtMatch(pFormatEtc, &fmtetc)) {
             auto dragFormat = kv.first;
-            //
 
-			wl_RenderPayload payload; // used as render target
+            wl_RenderPayload payload; // used as render target
+            if (mRenderDelegate.renderFunc(dragFormat.c_str(), &payload, mRenderDelegate.data)) {
+                // did render OK
+                pMedium->tymed = fmtetc.tymed;
+                pMedium->pUnkForRelease = 0;
+                if (pMedium->tymed == TYMED_HGLOBAL) {
+                    // pMedium->hGlobal = ...
+                    pMedium->hGlobal = GlobalAlloc(GHND, payload.size);
+                    auto ptr = GlobalLock(pMedium->hGlobal);
+                    memcpy(ptr, payload.data, payload.size);
+                    GlobalUnlock(pMedium->hGlobal);
 
-            wl_Event event;
-            event._private = nullptr;
-            event.eventType = wl_kEventTypeDragRender;
-            event.dragRenderEvent.dragFormat = dragFormat.c_str();
-            event.dragRenderEvent.payload = &payload;
-            //eventCallback(mWindow, &event, mWindow->userData);
-            mWindow->sendEvent(event);
-            //
-			if (event.handled) {
-				pMedium->tymed = fmtetc.tymed;
-				pMedium->pUnkForRelease = 0;
-				if (pMedium->tymed == TYMED_HGLOBAL) {
-					// pMedium->hGlobal = ...
-					pMedium->hGlobal = GlobalAlloc(GHND, payload.size);
-					auto ptr = GlobalLock(pMedium->hGlobal);
-					memcpy(ptr, payload.data, payload.size);
-					GlobalUnlock(pMedium->hGlobal);
-
-					return true;
-				}
-				// else not supported yet
-				// TODO: free dragRenderEvent.data ... do create a wlGlobalAlloc/Lock/Unlock() for clipboard data
-			}
+                    return true;
+                }
+                // else not supported yet
+                // TODO: free dragRenderEvent.data ... do create a wlGlobalAlloc/Lock/Unlock() for clipboard data
+            }
             break;
         }
     }
@@ -73,14 +64,16 @@ void MyDataObject::enumFormats(FORMATETC **formats, LONG *numFormats) {
     }
 }
 
-MyDataObject::MyDataObject(wl_WindowRef window)
-    : CDataObject()
+MyDataObject::MyDataObject(wl_DragRenderDelegate renderDelegate)
+    : CDataObject(), 
+      mRenderDelegate(renderDelegate)
 {
-    mWindow = window;
 }
 
 MyDataObject::~MyDataObject() {
     printf("MyDataObject destructor called\n");
+    mRenderDelegate.release(mRenderDelegate.data);
+    printf(" ... renderDelegate released\n");
 }
 
 void MyDataObject::addDragFormat(const char *dragFormat) {

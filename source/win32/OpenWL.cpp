@@ -245,15 +245,14 @@ OPENWL_API const char* wl_kDragFormatUTF8 = "application/vnd.openwl-utf8"; // do
 OPENWL_API const char* wl_kDragFormatFiles = "application/vnd.openwl-files";
 
 // drag source methods
-OPENWL_API wl_DragDataRef CDECL wl_DragDataCreate(wl_WindowRef forWindow)
+OPENWL_API wl_DragDataRef __cdecl wl_DragDataCreate(wl_DragRenderDelegate renderDelegate)
 {
-	return new wl_DragData(forWindow);
+	return new wl_DragData(renderDelegate);
 }
 
-OPENWL_API void CDECL wl_DragDataRelease(wl_DragDataRef* dragData)
+OPENWL_API void CDECL wl_DragDataRelease(wl_DragDataRef dragData)
 {
-	delete* dragData;
-	*dragData = nullptr;
+	delete dragData;
 }
 
 OPENWL_API void CDECL wl_DragAddFormat(wl_DragDataRef dragData, const char* dragFormatMIME)
@@ -263,7 +262,7 @@ OPENWL_API void CDECL wl_DragAddFormat(wl_DragDataRef dragData, const char* drag
 	dragData->sendObject->addDragFormat(dragFormatMIME);
 }
 
-OPENWL_API enum wl_DropEffect CDECL wl_DragExec(wl_DragDataRef dragData, unsigned int dropActionsMask, struct wl_Event* fromEvent)
+OPENWL_API enum wl_DropEffect CDECL wl_DragExec(wl_DragDataRef dragData, unsigned int dropActionsMask, wl_Event* fromEvent)
 {
 	auto dataObject = dragData->sendObject;
 	//auto dataObject = mimeToDataObject(dragData);
@@ -281,7 +280,7 @@ OPENWL_API enum wl_DropEffect CDECL wl_DragExec(wl_DragDataRef dragData, unsigne
 		result =
 			(actualEffect == DROPEFFECT_COPY) ? wl_kDropEffectCopy :
 			((actualEffect == DROPEFFECT_MOVE) ? wl_kDropEffectMove :
-			((actualEffect == DROPEFFECT_LINK) ? wl_kDropEffectLink : wl_kDropEffectNone));
+				((actualEffect == DROPEFFECT_LINK) ? wl_kDropEffectLink : wl_kDropEffectNone));
 	}
 	else {
 		result = wl_kDropEffectNone;

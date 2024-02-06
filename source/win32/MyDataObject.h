@@ -10,14 +10,14 @@
 class MyDataObject : public CDataObject {
 private:
     std::map<std::string, FORMATETC> mFormats;
-    wl_WindowRef mWindow = 0;
+    wl_DragRenderDelegate mRenderDelegate; // needs to be released on dtor
 protected:
     bool fmtMatch(FORMATETC *fmt1, FORMATETC *fmt2);
     bool canRenderData(FORMATETC *pFormatEtc) override;
     bool renderFormat(FORMATETC *pFormatEtc, STGMEDIUM *pMedium) override;
     void enumFormats(FORMATETC **formats, LONG *numFormats) override;
 public:
-    MyDataObject(wl_WindowRef window);
+    MyDataObject(wl_DragRenderDelegate renderDelegate);
     ~MyDataObject();
     // outgoing formats
     void addDragFormat(const char *dragFormat);

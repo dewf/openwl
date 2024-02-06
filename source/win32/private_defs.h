@@ -28,14 +28,16 @@ struct wl_RenderPayload {
 struct wl_DragData {
     //std::set<std::string> formats; // key is mime type
     MyDataObject* sendObject = 0;
-    wl_DragData(wl_WindowRef window) {
-        sendObject = new MyDataObject(window);
+
+    wl_DragData(wl_DragRenderDelegate renderDelegate) {
+        sendObject = new MyDataObject(renderDelegate); // render delegate will be owned (and thus released) by the data object, because we don't know how long it will live (refcounted COM object)
         sendObject->AddRef();
     }
+
     ~wl_DragData() {
-        printf("releasing sendobject ...\n");
-        if (sendObject) sendObject->Release();
         printf("== wl_DragDataRef destructor ==\n");
+        printf(" - releasing sendobject ...\n");
+        if (sendObject) sendObject->Release();
     }
 };
 
