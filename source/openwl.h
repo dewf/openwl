@@ -263,10 +263,23 @@ extern "C" {
 	};
 
 	enum wl_CursorStyle {
-		wl_kCursorStyleDefault,
-		wl_kCursorStyleResizeLeftRight,
-		wl_kCursorStyleResizeUpDown,
-		wl_kCursorStyleIBeam,
+		wl_kCursorStyleDefault,                  // IDC_ARROW, normal select
+		wl_kCursorStyleTextSelect,               // IDC_IBEAM, text select
+		wl_kCursorStyleBusyWait,                 // IDC_WAIT, busy
+		wl_kCursorStyleCross,                    // IDC_CROSS, precision select
+		wl_kCursorStyleUpArrow,                  // IDC_UPARROW, alternate select
+		wl_kCursorStyleResizeTopLeftBottomRight, // IDC_SIZENWSE, diagonal resize 1
+		wl_kCursorStyleResizeTopRightBottomLeft, // IDC_SIZENESW, diagonal resize 2
+		wl_kCursorStyleResizeLeftRight,          // IDC_SIZEWE, horizontal resize
+		wl_kCursorStyleResizeUpDown,             // IDC_SIZENS, vertical resize
+		wl_kCursorStyleMove,                     // IDC_SIZEALL, move
+		wl_kCursorStyleUnavailable,              // IDC_NO, unavailable
+		wl_kCursorStyleHandSelect,               // IDC_HAND, link select
+		wl_kCursorStylePointerWorking,           // IDC_APPSTARTING, working in background
+		wl_kCursorStyleHelpSelect,               // IDC_HELP, help select
+		wl_kCursorStyleLocationSelect,           // IDC_PIN, location select
+		wl_kCursorStylePersonSelect,             // IDC_PERSON, person select
+		wl_kCursorStyleHandwriting               // MAKEINTRESOURCE(32631), pencil cursor
 	};
     
     // used in the repaint event - placed here to declutter the wl_RepaintEvent struct a bit
