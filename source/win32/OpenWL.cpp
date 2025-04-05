@@ -23,9 +23,11 @@
 #include <Ole2.h>
 #include "dragdrop/dropsource.h"
 #include "MyDropTarget.h"
+#include <shlobj_core.h>
 
 #include <stdio.h>
 #include <assert.h>
+#include <vector>
 
 OPENWL_API int CDECL wl_Init(wl_EventCallback callback, struct wl_PlatformOptions* options)
 {
@@ -321,8 +323,41 @@ OPENWL_API void CDECL wl_DragRenderUTF8(wl_RenderPayloadRef payload, const char*
 
 OPENWL_API void CDECL wl_DragRenderFiles(wl_RenderPayloadRef payload, const struct wl_Files* files)
 {
-	// how ?
-	printf("!!! win32 wl_DragRenderFiles not yet implemented !!!\n");
+	std::vector<std::wstring> wideFiles;
+
+	size_t totalSize = sizeof(DROPFILES);
+	for (int i = 0; i < files->numFiles; i++) {
+		const auto wide = utf8_to_wstring(files->filenames[i]);
+		totalSize += (wide.length() + 1) * sizeof(wchar_t);
+		wideFiles.push_back(wide);
+	}
+	totalSize += sizeof(wchar_t); // extra/final terminator
+
+	// allocate as a byte* so sizeof()-based offsets work properly (eg when assigning wchar_t 'target' below)
+	BYTE* bytePtr = (BYTE*)malloc(totalSize);
+
+	const auto pDropFiles = (DROPFILES*)bytePtr;
+	if (pDropFiles != nullptr) {
+		pDropFiles->pFiles = (DWORD)sizeof(DROPFILES);
+		pDropFiles->pt.x = 0;
+		pDropFiles->pt.y = 0;
+		pDropFiles->fNC = FALSE;
+		pDropFiles->fWide = TRUE;
+
+		wchar_t* target = (wchar_t*)(bytePtr + sizeof(DROPFILES));
+		for (const auto& file : wideFiles) {
+			memcpy(target, file.c_str(), (file.length() + 1) * sizeof(wchar_t));
+			target += file.length() + 1;
+		}
+		*target = L'\0'; // final null
+
+		payload->data = pDropFiles;
+		payload->size = totalSize;
+	}
+	else {
+		// out of memory
+		printf("wl_DragRenderFiles: malloc failed\n");
+	}
 }
 
 OPENWL_API void CDECL wl_DragRenderFormat(wl_RenderPayloadRef payload, const char* formatMIME, const void* data, size_t dataSize)

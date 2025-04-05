@@ -189,6 +189,7 @@ bool platformProvidesDragFormat(const char *formatMIME)
 {
 	return false;
 }
+
 void platformRenderDragFormat(wl_RenderPayloadRef payload, const char *formatMIME)
 {
 	// nothing yet

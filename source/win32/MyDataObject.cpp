@@ -80,7 +80,10 @@ void MyDataObject::addDragFormat(const char *dragFormat) {
     FORMATETC fmtetc;
 	if (!strcmp(dragFormat, wl_kDragFormatUTF8)) {
 		fmtetc = { CF_UNICODETEXT, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
-	}
+    }
+    else if (!strcmp(dragFormat, wl_kDragFormatFiles)) {
+        fmtetc = { CF_HDROP, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
+    }
 	else {
 		printf("unknown format for MyDataObject::addDragFormat\n");
 		return;

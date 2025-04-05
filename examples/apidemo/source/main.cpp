@@ -8,7 +8,8 @@
 #define NUM_THREADS 6
 
 #include <map>
-
+#include <string>
+#include <vector>
 
 #include "main.h"
 
@@ -93,6 +94,71 @@ wl_FileDialogOpts::FilterSpec specs[] = {
 	// {"All Files", "*.*"} // added via opts->allowAll flag (to match Mac behavior)
 };
 
+// =========================================================
+// a contrived little DU (discriminated union) for DnD use,
+// to show how the drag render func / release func work
+
+class DragInfoBase {
+public:
+	virtual bool render(const char* requestedFormat, wl_RenderPayloadRef payload) {
+		return false;
+	}
+};
+
+class DragInfoText : public DragInfoBase {
+	std::string text;
+public:
+	DragInfoText(const std::string& value) : text(value) {}
+	bool render(const char* requestedFormat, wl_RenderPayloadRef payload) override {
+		if (strEqual(requestedFormat, wl_kDragFormatUTF8)) {
+			wl_DragRenderUTF8(payload, text.c_str());
+			return true;
+		}
+		return false;
+	}
+};
+
+class DragInfoFiles : public DragInfoBase {
+	std::vector<std::string> files;
+public:
+	DragInfoFiles(const std::vector<std::string>& files) : files(files) {}
+	bool render(const char* requestedFormat, wl_RenderPayloadRef payload) override {
+		if (strEqual(requestedFormat, wl_kDragFormatFiles)) {
+			const char* filenames[512];
+			for (int i = 0; i < (int)files.size(); i++) {
+				filenames[i] = files[i].c_str();
+			}
+			wl_Files wlFiles{};
+			wlFiles.numFiles = files.size();
+			wlFiles.filenames = filenames;
+			wl_DragRenderFiles(payload, &wlFiles);
+			return true;
+		}
+		return false;
+	}
+};
+// ===== end DragInfo DU ===================================
+
+
+bool CDECL dragRenderFunc(const char* requestedFormat, wl_RenderPayloadRef payload, void* data) {
+	auto dragInfo = (DragInfoBase*)data;
+	if (platformProvidesDragFormat(requestedFormat)) {
+		platformRenderDragFormat(payload, requestedFormat);
+	}
+	else if (dragInfo->render(requestedFormat, payload)) {
+		// see DragInfo* classes above to see how this actually gets rendered
+	}
+	else {
+		printf("#### dragRenderFunc - unhandled mime type");
+		return false;
+	}
+	return true;
+}
+
+void CDECL dragRenderRelease(void* data) {
+	delete (DragInfoBase*)data;
+}
+
 int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 	event->handled = true;
 	switch (event->eventType) {
@@ -160,11 +226,12 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 			wl_WindowDestroy(window); // app will close when destroy message received (see above)
 		}
 		else if (event->actionEvent.action == copyAction) {
-			auto clipData = wl_DragDataCreate(window);
+			auto data = new DragInfoText("$COPIED TEXT$");
+			auto clipData = wl_DragDataCreate({ &dragRenderFunc, data, &dragRenderRelease }); // these two functions know how to render and release the DragInfoText
 			wl_DragAddFormat(clipData, wl_kDragFormatUTF8);
 			wl_ClipboardSet(clipData);
 			printf("clipboard copy done\n");
-			wl_DragDataRelease(&clipData);
+			wl_DragDataRelease(clipData);
 		}
 		else if (event->actionEvent.action == pasteAction) {
 			auto clipData = wl_ClipboardGet();
@@ -293,16 +360,21 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 			// if dragging ...
 			if (dragging) {
 				if (pointDist(dragStartX, dragStartY, event->mouseEvent.x, event->mouseEvent.y) > 4.0) {
-					auto dragData = wl_DragDataCreate(window);
-
+					// uncomment to test text drag
+					auto data = new DragInfoText("$MOUSE DRAGGED TEXT$");
+					auto dragData = wl_DragDataCreate({ &dragRenderFunc, data, &dragRenderRelease }); // these two functions know how to render + release the DragInfo
 					wl_DragAddFormat(dragData, wl_kDragFormatUTF8);
-					//                    wl_DragAddFormat(dragData, wlDragFormatFiles);
+
+					//// uncomment to test file drag
+					//auto data = new DragInfoFiles({ "/home/person/whatever.txt", "/var/info/fake.dat", "/OK.cfg"});
+					//auto dragData = wl_DragDataCreate({ &dragRenderFunc, data, &dragRenderRelease }); // these two functions know how to render + release the DragInfo
+					//wl_DragAddFormat(dragData, wl_kDragFormatFiles);
 
 					printf("starting drag ...\n");
 					auto whichAction = wl_DragExec(dragData, wl_kDropEffectCopy | wl_kDropEffectMove | wl_kDropEffectLink, event);
 					printf("selected dragexec action: %d\n", whichAction);
                     dragging = false;
-					wl_DragDataRelease(&dragData);
+					wl_DragDataRelease(dragData);
 					printf("drag complete\n");
 				}
 			} else if (grabbed) {
@@ -391,31 +463,6 @@ int CDECL eventCallback(wl_WindowRef window, wl_Event *event, void *userData) {
 
 	case wl_kEventTypeFocusChange:
 		printf("window %p focus changed: focus %s\n", window, event->focusChangeEvent.state ? "gained" : "lost");
-		break;
-
-	case wl_kEventTypeDragRender:
-		if (platformProvidesDragFormat(event->dragRenderEvent.dragFormat)) {
-			platformRenderDragFormat(event->dragRenderEvent.payload, event->dragRenderEvent.dragFormat);
-		}
-		else if (strEqual(event->dragRenderEvent.dragFormat, wl_kDragFormatUTF8)) {
-			wl_DragRenderUTF8(event->dragRenderEvent.payload, u8"<<Here's your ad-hoc generated text, woooot!!>>");
-		}
-		else if (strEqual(event->dragRenderEvent.dragFormat, wl_kDragFormatFiles)) {
-			wl_Files files;
-			files.numFiles = 3;
-			files.filenames = new const char*[3];
-			files.filenames[0] = "/boot/home/Desktop/cool_bitmap";
-			files.filenames[1] = "/boot/home/Desktop/text_file";
-			files.filenames[2] = "/boot/home/Desktop/dragme";
-			//
-			wl_DragRenderFiles(event->dragRenderEvent.payload, &files);
-			// safe to delete
-			delete[] files.filenames;
-		}
-		else {
-			printf("#### drag source render - unhandled mime type");
-			event->handled = false;
-		}
 		break;
 
 	case wl_kEventTypeDrop:
