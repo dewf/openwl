@@ -195,6 +195,7 @@ extern "C" {
 		wl_kEventTypeKey,
 		wl_kEventTypeFocusChange,
 		wl_kEventTypeDrop,
+		wl_kEventTypeDragRender, // generate drag/clip data right when it's needed
 		wl_kEventTypeClipboardClear, // let the app know it's safe to clear whatever it had copied
 		//
 		wl_kEventTypePlatformSpecific = 4999,
@@ -357,6 +358,10 @@ extern "C" {
 		enum wl_DropEffect defaultModifierAction; // platform-specific suggestion based on modifier combination
 		unsigned int allowedEffectMask; // from wl_DropEffect enum
 	};
+	struct wl_DragRenderEvent {
+		const char *dragFormat; // requested format
+		wl_RenderPayloadRef payload; // target for rendering methods
+	};
 	struct wl_ClipboardClearEvent {
 		int reserved;
 	};
@@ -383,6 +388,7 @@ extern "C" {
 			struct wl_KeyEvent keyEvent;
 			struct wl_FocusChangeEvent focusChangeEvent;
 			struct wl_DropEvent dropEvent;
+			struct wl_DragRenderEvent dragRenderEvent;
 			struct wl_ClipboardClearEvent clipboardClearEvent;
 #ifdef WL_PLATFORM_WINDOWS
 			struct wl_D2DTargetRecreatedEvent d2dTargetRecreatedEvent;
@@ -572,18 +578,10 @@ extern "C" {
 	// user can provide anything else with a custom mime type
 
 	// drag source methods
-	// deferred rendering was probably a mistake, but whatever
-	typedef bool (CDECL* wl_DragRenderFunc)(const char* requestedFormat, wl_RenderPayloadRef payload, void* data);
-	typedef void (CDECL* wl_DragRenderDelegateRelease)(void* data);
-	struct wl_DragRenderDelegate {
-		wl_DragRenderFunc renderFunc;
-		void* data;
-		wl_DragRenderDelegateRelease release; // to release the data ptr when complete
-	};
-	OPENWL_API wl_DragDataRef CDECL wl_DragDataCreate(wl_DragRenderDelegate renderDelegate);
-	OPENWL_API void CDECL wl_DragDataRelease(wl_DragDataRef dragData);
+	OPENWL_API wl_DragDataRef CDECL wl_DragDataCreate(wl_WindowRef forWindow);
+	OPENWL_API void CDECL wl_DragDataRelease(wl_DragDataRef *dragData);
 	OPENWL_API void CDECL wl_DragAddFormat(wl_DragDataRef dragData, const char *dragFormatMIME); // drag source: we're capable of generating this format
-	OPENWL_API enum wl_DropEffect CDECL wl_DragExec(wl_DragDataRef dragData, unsigned int dropActionsMask, struct wl_Event* fromEvent); // modal / blocking
+	OPENWL_API enum wl_DropEffect CDECL wl_DragExec(wl_DragDataRef dragData, unsigned int dropActionsMask, struct wl_Event *fromEvent); // modal / blocking
 
 	// drop target methods
 	OPENWL_API bool CDECL wl_DropHasFormat(wl_DropDataRef dropData, const char *dropFormatMIME); // drag target: testing for availability of this format
@@ -597,7 +595,6 @@ extern "C" {
 	OPENWL_API void CDECL wl_DragRenderFiles(wl_RenderPayloadRef payload, const struct wl_Files *files);
 	OPENWL_API void CDECL wl_DragRenderFormat(wl_RenderPayloadRef payload, const char *formatMIME, const void *data, size_t dataSize);
 
-	// extra window methods for DnD
 	OPENWL_API void wl_WindowEnableDrops(wl_WindowRef window, bool enabled); // start/stop receiving drop events
 
 	/* CLIPBOARD API */

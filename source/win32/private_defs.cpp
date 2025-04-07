@@ -113,7 +113,7 @@ bool wl_DropData::getFiles(const wl_Files** outFiles)
 			//files->filenames[i] = new char[utf8_len + 1]; // size indicates number of chars without null
 			//strcpy_s(files->filenames[i], utf8_len + 1, fname_utf8.c_str()); // c_str() includes null
 
-			delete[] buffer;
+			delete buffer;
 		}
 		GlobalUnlock(stgmed.hGlobal);
 		ReleaseStgMedium(&stgmed);

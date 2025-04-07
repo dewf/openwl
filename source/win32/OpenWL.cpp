@@ -23,11 +23,9 @@
 #include <Ole2.h>
 #include "dragdrop/dropsource.h"
 #include "MyDropTarget.h"
-#include <shlobj_core.h>
 
 #include <stdio.h>
 #include <assert.h>
-#include <vector>
 
 OPENWL_API int CDECL wl_Init(wl_EventCallback callback, struct wl_PlatformOptions* options)
 {
@@ -247,14 +245,15 @@ OPENWL_API const char* wl_kDragFormatUTF8 = "application/vnd.openwl-utf8"; // do
 OPENWL_API const char* wl_kDragFormatFiles = "application/vnd.openwl-files";
 
 // drag source methods
-OPENWL_API wl_DragDataRef __cdecl wl_DragDataCreate(wl_DragRenderDelegate renderDelegate)
+OPENWL_API wl_DragDataRef CDECL wl_DragDataCreate(wl_WindowRef forWindow)
 {
-	return new wl_DragData(renderDelegate);
+	return new wl_DragData(forWindow);
 }
 
-OPENWL_API void CDECL wl_DragDataRelease(wl_DragDataRef dragData)
+OPENWL_API void CDECL wl_DragDataRelease(wl_DragDataRef* dragData)
 {
-	delete dragData;
+	delete* dragData;
+	*dragData = nullptr;
 }
 
 OPENWL_API void CDECL wl_DragAddFormat(wl_DragDataRef dragData, const char* dragFormatMIME)
@@ -264,7 +263,7 @@ OPENWL_API void CDECL wl_DragAddFormat(wl_DragDataRef dragData, const char* drag
 	dragData->sendObject->addDragFormat(dragFormatMIME);
 }
 
-OPENWL_API enum wl_DropEffect CDECL wl_DragExec(wl_DragDataRef dragData, unsigned int dropActionsMask, wl_Event* fromEvent)
+OPENWL_API enum wl_DropEffect CDECL wl_DragExec(wl_DragDataRef dragData, unsigned int dropActionsMask, struct wl_Event* fromEvent)
 {
 	auto dataObject = dragData->sendObject;
 	//auto dataObject = mimeToDataObject(dragData);
@@ -282,7 +281,7 @@ OPENWL_API enum wl_DropEffect CDECL wl_DragExec(wl_DragDataRef dragData, unsigne
 		result =
 			(actualEffect == DROPEFFECT_COPY) ? wl_kDropEffectCopy :
 			((actualEffect == DROPEFFECT_MOVE) ? wl_kDropEffectMove :
-				((actualEffect == DROPEFFECT_LINK) ? wl_kDropEffectLink : wl_kDropEffectNone));
+			((actualEffect == DROPEFFECT_LINK) ? wl_kDropEffectLink : wl_kDropEffectNone));
 	}
 	else {
 		result = wl_kDropEffectNone;
@@ -323,41 +322,8 @@ OPENWL_API void CDECL wl_DragRenderUTF8(wl_RenderPayloadRef payload, const char*
 
 OPENWL_API void CDECL wl_DragRenderFiles(wl_RenderPayloadRef payload, const struct wl_Files* files)
 {
-	std::vector<std::wstring> wideFiles;
-
-	size_t totalSize = sizeof(DROPFILES);
-	for (int i = 0; i < files->numFiles; i++) {
-		const auto wide = utf8_to_wstring(files->filenames[i]);
-		totalSize += (wide.length() + 1) * sizeof(wchar_t);
-		wideFiles.push_back(wide);
-	}
-	totalSize += sizeof(wchar_t); // extra/final terminator
-
-	// allocate as a byte* so sizeof()-based offsets work properly (eg when assigning wchar_t 'target' below)
-	BYTE* bytePtr = (BYTE*)malloc(totalSize);
-
-	const auto pDropFiles = (DROPFILES*)bytePtr;
-	if (pDropFiles != nullptr) {
-		pDropFiles->pFiles = (DWORD)sizeof(DROPFILES);
-		pDropFiles->pt.x = 0;
-		pDropFiles->pt.y = 0;
-		pDropFiles->fNC = FALSE;
-		pDropFiles->fWide = TRUE;
-
-		wchar_t* target = (wchar_t*)(bytePtr + sizeof(DROPFILES));
-		for (const auto& file : wideFiles) {
-			memcpy(target, file.c_str(), (file.length() + 1) * sizeof(wchar_t));
-			target += file.length() + 1;
-		}
-		*target = L'\0'; // final null
-
-		payload->data = pDropFiles;
-		payload->size = totalSize;
-	}
-	else {
-		// out of memory
-		printf("wl_DragRenderFiles: malloc failed\n");
-	}
+	// how ?
+	printf("!!! win32 wl_DragRenderFiles not yet implemented !!!\n");
 }
 
 OPENWL_API void CDECL wl_DragRenderFormat(wl_RenderPayloadRef payload, const char* formatMIME, const void* data, size_t dataSize)
