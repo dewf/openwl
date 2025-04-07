@@ -469,9 +469,11 @@ OPENWL_API void CDECL wl_MenuAddSeparator(wl_MenuRef menu)
     [menu->menu addItem:[NSMenuItem separatorItem]];
 }
 
-OPENWL_API wl_MenuItemRef CDECL wl_MenuBarAddMenu(wl_MenuBarRef menuBar, const char *label, wl_MenuRef menu)
+OPENWL_API void CDECL wl_MenuBarAddMenu(wl_MenuBarRef menuBar, const char *label, wl_MenuRef menu)
 {
-    return addSubMenuCommon(menuBar->menuBar, label, menu->menu);
+    // we changed this API months ago when binding to C# in win32, to no longer return anything
+    // doesn't really make sense now, but as an expedient we'll just leak the item and return nothing
+    auto leaked = addSubMenuCommon(menuBar->menuBar, label, menu->menu);
 }
 
 OPENWL_API void CDECL wl_WindowShowContextMenu(wl_WindowRef window, int x, int y, wl_MenuRef menu, struct wl_Event *fromEvent)
