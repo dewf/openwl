@@ -356,9 +356,12 @@ OPENWL_API wl_MenuBarRef CDECL wl_MenuBarCreate()
     return ret;
 }
 
-OPENWL_API wl_MenuItemRef CDECL wl_MenuBarAddMenu(wl_MenuBarRef menuBar, const char *label, wl_MenuRef menu)
+OPENWL_API void CDECL wl_MenuBarAddMenu(wl_MenuBarRef menuBar, const char *label, wl_MenuRef menu)
 {
-    return addSubmenuCommon(menuBar, label, menu);
+    // for some reason we changed the win32 API to remove the return parameter, so now we are leaking this wl_MenuItem that used to be returned
+    // however we can't just delete it, because on linux menuitems are linked/traversed to locate the owning window
+    // and I don't have time to look into it further at the moment
+    auto leaked = addSubmenuCommon(menuBar, label, menu);
 }
 
 OPENWL_API void CDECL wl_WindowSetMenuBar(wl_WindowRef window, wl_MenuBarRef menuBar)
