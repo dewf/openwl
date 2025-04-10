@@ -22,10 +22,13 @@ else()
     message(FATAL_ERROR "Unsupported platform")
 endif()
 
-# Add your icons folder copy step after the build
-add_custom_command(TARGET example POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${CMAKE_SOURCE_DIR}/_icons"
-        "$<TARGET_FILE_DIR:example>/_icons"
-        COMMENT "Copying _icons folder to output directory"
-)
+if(APPLE)
+    # no icons, included in bundle ... supposedly
+else()
+    # Add your icons folder copy step after the build
+    add_custom_command(TARGET example POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_SOURCE_DIR}/_icons"
+            "$<TARGET_FILE_DIR:example>/_icons"
+            COMMENT "Copying _icons folder to output directory")
+endif()
