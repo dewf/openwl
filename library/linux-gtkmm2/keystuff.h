@@ -5,7 +5,7 @@
 #ifndef C_CLIENT_KEYSTUFF_H
 #define C_CLIENT_KEYSTUFF_H
 
-#include <openwl.h>
+#include "../openwl.h"
 #include <map>
 #include <glib.h>
 

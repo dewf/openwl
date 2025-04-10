@@ -8,7 +8,7 @@
 #include <gtkmm/window.h>
 #include <gtkmm/box.h>
 #include <gtkmm/drawingarea.h>
-#include <openwl.h>
+#include "../openwl.h"
 #include <set>
 #include "globals.h"
 

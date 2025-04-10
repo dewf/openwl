@@ -1,10 +1,10 @@
-#include <stdio.h>
+#include <cstdio>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
 
-#include <time.h>
-#include <assert.h>
+#include <ctime>
+#include <cassert>
 #define NUM_THREADS 6
 
 #include <map>

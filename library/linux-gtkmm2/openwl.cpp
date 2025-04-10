@@ -4,7 +4,6 @@
 #include <vector>
 #include <cassert>
 #include <set>
-#include <openwl.h>
 #include "unicodestuff.h"
 #include "boost_stuff.h"
 

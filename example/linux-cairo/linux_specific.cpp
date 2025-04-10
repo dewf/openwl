@@ -1,4 +1,4 @@
-#include "../../../../source/openwl.h"
+#include "../../library/openwl.h"
 
 #include "../main.h"
 
